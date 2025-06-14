@@ -6,7 +6,7 @@ A comprehensive breakdown of the full-stack architecture for **Spudin's Game Lis
 
 ## 🏗 Tech Stack Overview
 
-* **Frontend:** Next.js 14+ (App Router)
+* **Frontend:** Next.js 15+ (App Router)
 * **Backend:** Supabase (PostgreSQL, Auth)
 * **Game Data API:** RAWG Video Games Database API
 * **Styling:** Tailwind CSS
