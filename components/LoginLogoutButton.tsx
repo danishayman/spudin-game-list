@@ -20,14 +20,25 @@ const LoginButton = () => {
   }, []);
   if (user) {
     return (
-      <Button
-        onClick={() => {
-          signout();
-          setUser(null);
-        }}
-      >
-        Log out
-      </Button>
+      <div className="flex gap-2">
+        <Button
+          variant="default"
+          onClick={() => {
+            router.push("/dashboard");
+          }}
+        >
+          Dashboard
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => {
+            signout();
+            setUser(null);
+          }}
+        >
+          Log out
+        </Button>
+      </div>
     );
   }
   return (
