@@ -18,7 +18,8 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword(data);
 
   if (error) {
-    redirect("/error");
+    console.log("Login error:", error);
+    redirect(`/error?error=${encodeURIComponent(error.message)}&message=${encodeURIComponent("Failed to sign in. Please check your credentials.")}`);
   }
 
   revalidatePath("/", "layout");
@@ -46,7 +47,8 @@ export async function signup(formData: FormData) {
   const { error } = await supabase.auth.signUp(data);
 
   if (error) {
-    redirect("/error");
+    console.log("Signup error:", error);
+    redirect(`/error?error=${encodeURIComponent(error.message)}&message=${encodeURIComponent("Failed to create account. Please check your information and try again.")}`);
   }
 
   revalidatePath("/", "layout");
@@ -57,8 +59,8 @@ export async function signout() {
   const supabase = await createClient();
   const { error } = await supabase.auth.signOut();
   if (error) {
-    console.log(error);
-    redirect("/error");
+    console.log("Signout error:", error);
+    redirect(`/error?error=${encodeURIComponent(error.message)}&message=${encodeURIComponent("Failed to sign out. Please try again.")}`);
   }
 
   redirect("/logout");
@@ -77,8 +79,8 @@ export async function signInWithGoogle() {
   });
 
   if (error) {
-    console.log(error);
-    redirect("/error");
+    console.log("Google sign-in error:", error);
+    redirect(`/error?error=${encodeURIComponent(error.message)}&message=${encodeURIComponent("Failed to sign in with Google. Please try again.")}`);
   }
 
   redirect(data.url);
