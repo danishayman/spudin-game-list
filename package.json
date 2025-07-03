@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "setup-cache": "node scripts/setup-cache.js"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.11",
@@ -41,6 +42,7 @@
     "@supabase/supabase-js": "^2.50.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^16.6.1",
     "next": "^15.3.4",
     "patch-package": "^8.0.0",
     "postinstall-postinstall": "^2.1.0",

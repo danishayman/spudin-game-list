@@ -26,4 +26,18 @@ export async function getGameByIdClient(id: number): Promise<RawgGame> {
   }
   
   return response.json();
+}
+
+/**
+ * Get trending games through the API route
+ */
+export async function getTrendingGamesClient(): Promise<RawgSearchResponse> {
+  const response = await fetch('/api/games/trending');
+  
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(error.error || `Error fetching trending games: ${response.status}`);
+  }
+  
+  return response.json();
 } 

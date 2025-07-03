@@ -28,10 +28,18 @@ Create a `.env.local` file in the root directory with the following variables:
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 
 # RAWG API (server-side only)
 RAWG_API_KEY=your-rawg-api-key
 ```
+
+### Supabase Keys
+1. Go to your Supabase project dashboard
+2. Navigate to Project Settings > API
+3. Copy the URL as `NEXT_PUBLIC_SUPABASE_URL`
+4. Copy the `anon` public key as `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+5. Copy the `service_role` key as `SUPABASE_SERVICE_ROLE_KEY` (required for caching)
 
 ### RAWG API Key
 1. Sign up for a free account at [RAWG](https://rawg.io/apidocs)
@@ -82,3 +90,33 @@ ALTER TABLE public.profiles ALTER COLUMN username SET NOT NULL;
 ```
 
 You can run this in the Supabase SQL Editor or through the Supabase CLI.
+
+## Caching Layer
+
+This project implements a caching layer for RAWG API responses to improve performance and reduce API calls:
+
+- Stores search results, game details, and trending games in Supabase
+- Automatically expires cached data after 7 days
+- Checks the cache before making API calls
+
+### Setting Up the Cache
+
+To set up the caching layer, you need to run the game cache migration:
+
+1. Make sure you have the `SUPABASE_SERVICE_ROLE_KEY` set in your `.env.local` file
+2. Run the setup script:
+
+```bash
+npm run setup-cache
+```
+
+Alternatively, you can run the SQL directly in the Supabase SQL Editor. The SQL file is located at `sql/game_cache.sql`.
+
+### Troubleshooting
+
+If your cache isn't being populated:
+
+1. Check that you have the `SUPABASE_SERVICE_ROLE_KEY` correctly set in your `.env.local` file
+2. Look at your server logs for any [CACHE] error messages
+3. Verify that your Supabase RLS policies are set up correctly
+4. Try running the SQL migration manually in the Supabase SQL Editor
