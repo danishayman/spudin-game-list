@@ -14,6 +14,11 @@ const nextConfig: NextConfig = {
         hostname: 'media.rawg.io',
         pathname: '**',
       },
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+        pathname: '**',
+      },
     ],
   },
 };
