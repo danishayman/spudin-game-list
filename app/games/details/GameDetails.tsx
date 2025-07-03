@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { getGameById, type RawgGame } from '@/lib/rawg';
+import { type RawgGame } from '@/lib/rawg';
+import { getGameByIdClient } from '@/lib/games-client';
 
 interface GameDetailsProps {
   gameId: number;
@@ -16,7 +17,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
   useEffect(() => {
     async function fetchGame() {
       try {
-        const gameData = await getGameById(gameId);
+        const gameData = await getGameByIdClient(gameId);
         setGame(gameData);
         
         // Dynamically update the document title

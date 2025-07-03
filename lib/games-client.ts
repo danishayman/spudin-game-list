@@ -1,0 +1,29 @@
+import { RawgGame, RawgSearchResponse } from './rawg';
+
+/**
+ * Search games through the API route
+ */
+export async function searchGamesClient(query: string): Promise<RawgSearchResponse> {
+  const response = await fetch(`/api/games/search?q=${encodeURIComponent(query)}`);
+  
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(error.error || `Error searching games: ${response.status}`);
+  }
+  
+  return response.json();
+}
+
+/**
+ * Get detailed game information by ID through the API route
+ */
+export async function getGameByIdClient(id: number): Promise<RawgGame> {
+  const response = await fetch(`/api/games/${id}`);
+  
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(error.error || `Error fetching game details: ${response.status}`);
+  }
+  
+  return response.json();
+} 

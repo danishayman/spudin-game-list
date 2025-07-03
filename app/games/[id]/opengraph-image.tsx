@@ -1,5 +1,4 @@
 import { ImageResponse } from 'next/og';
-import { use } from 'react';
 import { getGameById } from '@/lib/rawg';
 
 export const alt = 'Game Details';
@@ -12,8 +11,9 @@ export const contentType = 'image/png';
 
 export default async function Image({ params }: { params: { id: string } }) {
   try {
-    // Use await directly since this is a Server Component
-    const id = parseInt(await params.id, 10);
+    // First await the params object itself
+    const resolvedParams = await params;
+    const id = parseInt(resolvedParams.id);
     const game = await getGameById(id);
     
     return new ImageResponse(

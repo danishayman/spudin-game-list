@@ -1,7 +1,7 @@
 // RAWG API wrapper
 // Documentation: https://rawg.io/apidocs
 
-const RAWG_API_KEY = process.env.NEXT_PUBLIC_RAWG_API_KEY;
+const RAWG_API_KEY = process.env.RAWG_API_KEY;
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
 
 export type RawgGame = {
@@ -24,6 +24,7 @@ export type RawgSearchResponse = {
 
 /**
  * Search games from RAWG API
+ * This function should only be called from server components or API routes
  */
 export async function searchGames(query: string): Promise<RawgSearchResponse> {
   if (!RAWG_API_KEY) {
@@ -48,6 +49,7 @@ export async function searchGames(query: string): Promise<RawgSearchResponse> {
 
 /**
  * Get detailed game information by ID
+ * This function should only be called from server components or API routes
  */
 export async function getGameById(id: number): Promise<RawgGame> {
   if (!RAWG_API_KEY) {

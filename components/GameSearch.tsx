@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { GameCard } from './GameCard';
-import { searchGames, type RawgGame } from '@/lib/rawg';
+import { type RawgGame } from '@/lib/rawg';
+import { searchGamesClient } from '@/lib/games-client';
 
 export function GameSearch() {
   const router = useRouter();
@@ -23,7 +24,7 @@ export function GameSearch() {
     setError(null);
     
     try {
-      const data = await searchGames(query);
+      const data = await searchGamesClient(query);
       setResults(data.results);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to search games');

@@ -5,9 +5,10 @@ import Image from "next/image";
 export default async function ProfilePage({
   params,
 }: {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }) {
-  const { username } = params;
+  // Properly await the params object before using it
+  const { username } = await params;
   const supabase = await createClient();
   
   // Decode the username parameter
