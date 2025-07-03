@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
@@ -14,25 +14,43 @@ export function GameSearch() {
   const [results, setResults] = useState<RawgGame[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!query.trim()) return;
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const data = await searchGamesClient(query);
-      setResults(data.results);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to search games');
+  // Debounced search function
+  useEffect(() => {
+    if (!query.trim()) {
       setResults([]);
-    } finally {
-      setIsLoading(false);
+      return;
     }
-  };
+
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Set new timeout for debounced search
+    searchTimeoutRef.current = setTimeout(async () => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const data = await searchGamesClient(query);
+        setResults(data.results);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to search games');
+        setResults([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }, 500);
+
+    // Cleanup function
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [query]);
 
   const handleGameClick = (gameId: number) => {
     router.push(`/games/details?id=${gameId}`);
@@ -40,7 +58,7 @@ export function GameSearch() {
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSearch} className="flex gap-2">
+      <div className="flex gap-2">
         <Input
           type="text"
           placeholder="Search for games..."
@@ -48,10 +66,13 @@ export function GameSearch() {
           onChange={(e) => setQuery(e.target.value)}
           className="flex-1"
         />
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? 'Searching...' : 'Search'}
-        </Button>
-      </form>
+      </div>
+
+      {isLoading && (
+        <div className="p-4 text-center text-gray-500">
+          Searching...
+        </div>
+      )}
 
       {error && (
         <div className="p-4 bg-red-50 text-red-500 rounded-md">
