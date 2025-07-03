@@ -33,6 +33,7 @@ export async function signup(formData: FormData) {
   // in practice, you should validate your inputs
   const firstName = formData.get("first-name") as string;
   const lastName = formData.get("last-name") as string;
+  const username = formData.get("username") as string;
   const data = {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
@@ -40,6 +41,7 @@ export async function signup(formData: FormData) {
       data: {
         full_name: `${firstName + " " + lastName}`,
         email: formData.get("email") as string,
+        username: username,
       },
     },
   };

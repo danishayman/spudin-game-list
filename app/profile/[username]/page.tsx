@@ -10,14 +10,14 @@ export default async function ProfilePage({
   const { username } = params;
   const supabase = await createClient();
   
-  // Decode the username parameter which is actually the email
-  const decodedEmail = decodeURIComponent(username);
+  // Decode the username parameter
+  const decodedUsername = decodeURIComponent(username);
   
-  // Fetch the profile by email
+  // Fetch the profile by username
   const { data: profile, error } = await supabase
     .from("profiles")
     .select("*")
-    .eq("email", decodedEmail)
+    .eq("username", decodedUsername)
     .single();
   
   if (error || !profile) {
@@ -50,7 +50,7 @@ export default async function ProfilePage({
             
             <div>
               <h1 className="text-2xl font-bold">{profile.full_name || "User"}</h1>
-              <p className="text-gray-600">{profile.email}</p>
+              <p className="text-gray-600">@{profile.username}</p>
             </div>
           </div>
         </div>

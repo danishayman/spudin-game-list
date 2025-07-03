@@ -34,3 +34,33 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Database Migration
+
+When updating to the latest version, you need to run the following migration script in your Supabase project:
+
+```sql
+-- Add username column if it doesn't exist
+DO $$ 
+BEGIN 
+  IF NOT EXISTS (
+    SELECT FROM information_schema.columns 
+    WHERE table_schema = 'public' 
+    AND table_name = 'profiles' 
+    AND column_name = 'username'
+  ) THEN
+    ALTER TABLE public.profiles ADD COLUMN username text;
+    ALTER TABLE public.profiles ADD CONSTRAINT profiles_username_key UNIQUE (username);
+  END IF;
+END $$;
+
+-- Update existing profiles with a username derived from their email
+UPDATE public.profiles
+SET username = replace(split_part(email, '@', 1), '.', '_')
+WHERE username IS NULL;
+
+-- Make username NOT NULL after all existing rows have been updated
+ALTER TABLE public.profiles ALTER COLUMN username SET NOT NULL;
+```
+
+You can run this in the Supabase SQL Editor or through the Supabase CLI.

@@ -24,7 +24,7 @@ export default async function Dashboard() {
     console.error("Error fetching profile:", error);
   }
 
-  const userEmail = profile?.email || user.email;
+  const username = profile?.username;
 
   return (
     <div className="min-h-screen bg-slate-100 p-8">
@@ -37,7 +37,7 @@ export default async function Dashboard() {
             This is your personal dashboard where you can manage your game collection.
           </p>
           <Link 
-            href={`/profile/${encodeURIComponent(userEmail)}`}
+            href={`/profile/${encodeURIComponent(username)}`}
             className="text-indigo-600 hover:text-indigo-800 font-medium"
           >
             View your public profile →

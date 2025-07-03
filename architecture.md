@@ -95,15 +95,15 @@ export const supabase = createClient(
 
 ## 🧾 Database Schema (PostgreSQL)
 
-### Users
+### Profiles
 
 ```sql
-CREATE TABLE users (
+CREATE TABLE profiles (
   id UUID PRIMARY KEY,
+  full_name TEXT,
   username TEXT UNIQUE,
-  email TEXT,
-  avatar_url TEXT,
-  joined_at TIMESTAMP DEFAULT now()
+  email TEXT UNIQUE,
+  avatar_url TEXT
 );
 ```
 

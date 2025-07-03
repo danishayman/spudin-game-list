@@ -45,6 +45,15 @@ export function SignUpForm() {
               </div>
             </div>
             <div className="grid gap-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                name="username"
+                id="username"
+                placeholder="maxrobinson"
+                required
+              />
+            </div>
+            <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 name="email"
@@ -58,15 +67,15 @@ export function SignUpForm() {
               <Label htmlFor="password">Password</Label>
               <Input name="password" id="password" type="password" />
             </div>
-            <Button formAction={signup} type="submit" className="w-full">
-              Create an account
+            <Button type="submit" formAction={signup} className="w-full">
+              Sign Up
             </Button>
           </div>
         </form>
         <div className="mt-4 text-center text-sm">
           Already have an account?{" "}
           <Link href="/login" className="underline">
-            Sign in
+            Login
           </Link>
         </div>
       </CardContent>
