@@ -10,25 +10,69 @@ interface Game {
   background_image: string;
   released: string;
   genres: { name: string }[];
+  rating: number;
+  metacritic: number | null;
 }
 
-// Add this async function to fetch trending games
-async function getTrendingGames(): Promise<Game[]> {
+// Function to fetch new releases with decent ratings
+async function getNewReleases(): Promise<Game[]> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/games/trending`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/games/new-releases`, {
       cache: 'no-store'
     });
-    if (!response.ok) return [];
+    if (!response.ok) {
+      console.error('Failed to fetch new releases: Response not OK');
+      return [];
+    }
     const data = await response.json();
+    console.log('New releases data:', JSON.stringify(data).substring(0, 200) + '...');
+    console.log('Number of results:', data.results?.length || 0);
     return data.results?.slice(0, 10) || [];
   } catch (error) {
-    console.error('Failed to fetch trending games:', error);
+    console.error('Failed to fetch new releases:', error);
     return [];
   }
 }
 
+// Fallback games in case API fails
+const fallbackGames: Game[] = [
+  {
+    id: 1,
+    name: "The Last Journey",
+    background_image: "/landing/banner.jpg",
+    released: "2023-05-01",
+    genres: [{ name: "Action" }, { name: "Adventure" }],
+    rating: 4.5,
+    metacritic: 85
+  },
+  {
+    id: 2,
+    name: "Mystic Chronicles",
+    background_image: "/landing/discover.png",
+    released: "2023-04-15",
+    genres: [{ name: "RPG" }, { name: "Strategy" }],
+    rating: 4.2,
+    metacritic: 80
+  },
+  {
+    id: 3,
+    name: "Battle Legends",
+    background_image: "/landing/track.png",
+    released: "2023-03-22",
+    genres: [{ name: "Shooter" }, { name: "Action" }],
+    rating: 4.0,
+    metacritic: 75
+  }
+];
+
 export default async function Home() {
-  const trendingGames = await getTrendingGames();
+  let newReleases = await getNewReleases();
+  
+  // Use fallback games if no results from API
+  if (!newReleases || newReleases.length === 0) {
+    console.log('Using fallback games');
+    newReleases = fallbackGames;
+  }
 
   return (
     <main className="flex min-h-screen flex-col bg-slate-900 text-white">
@@ -75,7 +119,7 @@ export default async function Home() {
           
           <div className="relative">
             <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
-              {trendingGames.map((game: Game) => (
+              {newReleases.map((game: Game) => (
                 <Link
                   key={game.id}
                   href={`/games/${game.id}`}
@@ -105,9 +149,14 @@ export default async function Home() {
                         <span className="text-xs text-slate-500">
                           {game.released ? new Date(game.released).getFullYear() : 'TBA'}
                         </span>
-                        <button className="text-xs bg-slate-600 hover:bg-slate-500 px-2 py-1 rounded transition-colors">
-                          +
-                        </button>
+                        {game.metacritic && (
+                          <span className={`text-xs px-1.5 py-0.5 rounded font-bold ${
+                            game.metacritic >= 75 ? 'bg-green-700' : 
+                            game.metacritic >= 60 ? 'bg-yellow-600' : 'bg-red-700'
+                          }`}>
+                            {game.metacritic}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>

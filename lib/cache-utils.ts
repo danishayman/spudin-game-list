@@ -7,6 +7,7 @@ export const CACHE_TYPE = {
   SEARCH: 'search',
   GAME_DETAILS: 'game_details',
   TRENDING: 'trending',
+  NEW_RELEASES: 'new_releases',
 };
 
 // Cache expiration in milliseconds (7 days)
@@ -223,5 +224,73 @@ export async function cacheTrendingGames(results: RawgSearchResponse): Promise<v
     }
   } catch (error) {
     console.error('[CACHE] Exception while caching trending games:', error);
+  }
+}
+
+/**
+ * Get cached new releases
+ */
+export async function getCachedNewReleases(): Promise<RawgSearchResponse | null> {
+  const supabase = await createClient();
+  const cacheKey = 'new_releases';
+  
+  console.log(`[CACHE] Checking cache for: ${cacheKey}`);
+  
+  const { data, error } = await supabase
+    .from('game_cache')
+    .select('data, last_updated')
+    .eq('cache_key', cacheKey)
+    .eq('cache_type', CACHE_TYPE.NEW_RELEASES)
+    .single();
+  
+  if (error) {
+    console.log(`[CACHE] Error fetching from cache: ${error.message}`);
+    return null;
+  }
+  
+  if (!data) {
+    console.log(`[CACHE] No cached data found for: ${cacheKey}`);
+    return null;
+  }
+  
+  // Check if cache is expired
+  if (isCacheExpired(data.last_updated)) {
+    console.log(`[CACHE] Expired cache for: ${cacheKey}, last updated: ${data.last_updated}`);
+    return null;
+  }
+  
+  console.log(`[CACHE] Cache hit for: ${cacheKey}`);
+  return data.data as RawgSearchResponse;
+}
+
+/**
+ * Cache new releases
+ */
+export async function cacheNewReleases(results: RawgSearchResponse): Promise<void> {
+  try {
+    // Use admin client to bypass RLS policies
+    const supabase = createAdminClient();
+    const cacheKey = 'new_releases';
+    
+    console.log(`[CACHE] Storing in cache: ${cacheKey}`);
+    
+    const { error } = await supabase
+      .from('game_cache')
+      .upsert({
+        cache_key: cacheKey,
+        data: results,
+        cache_type: CACHE_TYPE.NEW_RELEASES,
+        last_updated: new Date().toISOString(),
+      }, {
+        onConflict: 'cache_key',
+      });
+      
+    if (error) {
+      console.error(`[CACHE] Error storing in cache: ${error.message}`, error);
+    } else {
+      console.log(`[CACHE] Successfully stored in cache: ${cacheKey}`);
+    }
+  } catch (error) {
+    console.error('[CACHE] Exception while caching new releases:', error);
   }
 } 
