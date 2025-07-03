@@ -10,16 +10,23 @@ export const CACHE_TYPE = {
   NEW_RELEASES: 'new_releases',
 };
 
-// Cache expiration in milliseconds (7 days)
-const CACHE_EXPIRATION = 7 * 24 * 60 * 60 * 1000;
+// Cache expiration in milliseconds
+const DEFAULT_CACHE_EXPIRATION = 7 * 24 * 60 * 60 * 1000; // 7 days
+const CACHE_EXPIRATION = {
+  [CACHE_TYPE.SEARCH]: 7 * 24 * 60 * 60 * 1000,       // 7 days
+  [CACHE_TYPE.GAME_DETAILS]: 14 * 24 * 60 * 60 * 1000, // 14 days
+  [CACHE_TYPE.TRENDING]: 3 * 24 * 60 * 60 * 1000,     // 3 days
+  [CACHE_TYPE.NEW_RELEASES]: 24 * 60 * 60 * 1000,     // 1 day
+};
 
 /**
  * Check if a cache entry is expired
  */
-export function isCacheExpired(lastUpdated: string): boolean {
+export function isCacheExpired(lastUpdated: string, cacheType: string): boolean {
   const lastUpdatedDate = new Date(lastUpdated);
   const now = new Date();
-  return now.getTime() - lastUpdatedDate.getTime() > CACHE_EXPIRATION;
+  const expirationTime = CACHE_EXPIRATION[cacheType as keyof typeof CACHE_EXPIRATION] || DEFAULT_CACHE_EXPIRATION;
+  return now.getTime() - lastUpdatedDate.getTime() > expirationTime;
 }
 
 /**
@@ -49,7 +56,7 @@ export async function getCachedSearchResults(query: string): Promise<RawgSearchR
   }
   
   // Check if cache is expired
-  if (isCacheExpired(data.last_updated)) {
+  if (isCacheExpired(data.last_updated, CACHE_TYPE.SEARCH)) {
     console.log(`[CACHE] Expired cache for: ${cacheKey}, last updated: ${data.last_updated}`);
     return null;
   }
@@ -118,7 +125,7 @@ export async function getCachedGameDetails(gameId: number): Promise<RawgGame | n
   }
   
   // Check if cache is expired
-  if (isCacheExpired(data.last_updated)) {
+  if (isCacheExpired(data.last_updated, CACHE_TYPE.GAME_DETAILS)) {
     console.log(`[CACHE] Expired cache for: ${cacheKey}, last updated: ${data.last_updated}`);
     return null;
   }
@@ -186,7 +193,7 @@ export async function getCachedTrendingGames(): Promise<RawgSearchResponse | nul
   }
   
   // Check if cache is expired
-  if (isCacheExpired(data.last_updated)) {
+  if (isCacheExpired(data.last_updated, CACHE_TYPE.TRENDING)) {
     console.log(`[CACHE] Expired cache for: ${cacheKey}, last updated: ${data.last_updated}`);
     return null;
   }
@@ -254,7 +261,7 @@ export async function getCachedNewReleases(): Promise<RawgSearchResponse | null>
   }
   
   // Check if cache is expired
-  if (isCacheExpired(data.last_updated)) {
+  if (isCacheExpired(data.last_updated, CACHE_TYPE.NEW_RELEASES)) {
     console.log(`[CACHE] Expired cache for: ${cacheKey}, last updated: ${data.last_updated}`);
     return null;
   }
