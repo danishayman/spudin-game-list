@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 export default async function Dashboard() {
   const supabase = await createClient();
@@ -23,6 +24,8 @@ export default async function Dashboard() {
     console.error("Error fetching profile:", error);
   }
 
+  const userEmail = profile?.email || user.email;
+
   return (
     <div className="min-h-screen bg-slate-100 p-8">
       <div className="max-w-4xl mx-auto">
@@ -30,9 +33,15 @@ export default async function Dashboard() {
           <h1 className="text-2xl font-bold mb-4">
             Welcome to your Dashboard, {profile?.full_name || user.user_metadata.full_name || "User"}!
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 mb-4">
             This is your personal dashboard where you can manage your game collection.
           </p>
+          <Link 
+            href={`/profile/${encodeURIComponent(userEmail)}`}
+            className="text-indigo-600 hover:text-indigo-800 font-medium"
+          >
+            View your public profile →
+          </Link>
         </div>
         
         {/* Placeholder for future dashboard content */}
