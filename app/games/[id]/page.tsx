@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation';
 import GameDetails from './GameDetails';
 
 export default async function GamePage({ params }: { params: { id: string } }) {
-  // In server components, we can await params
-  const id = await params.id;
+  // Get the ID from params
+  const id = params.id;
   const gameId = parseInt(id, 10);
   
   if (isNaN(gameId)) {
