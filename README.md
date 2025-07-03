@@ -20,6 +20,24 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Environment Setup
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+
+# RAWG API
+NEXT_PUBLIC_RAWG_API_KEY=your-rawg-api-key
+```
+
+### RAWG API Key
+1. Sign up for a free account at [RAWG](https://rawg.io/apidocs)
+2. Navigate to your dashboard and get your API key
+3. Add it to your `.env.local` file as `NEXT_PUBLIC_RAWG_API_KEY`
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
