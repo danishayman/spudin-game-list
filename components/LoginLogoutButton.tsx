@@ -44,6 +44,7 @@ const LoginButton = () => {
   return (
     <Button
       variant="outline"
+      className="text-black"
       onClick={() => {
         router.push("/login");
       }}
