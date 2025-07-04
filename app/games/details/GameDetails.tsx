@@ -41,7 +41,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
   if (error) {
     return (
       <div className="container mx-auto py-8">
-        <div className="p-4 bg-red-50 text-red-500 rounded-md">
+        <div className="p-4 bg-red-900/30 border border-red-800 text-red-300 rounded-md">
           {error}
         </div>
       </div>
@@ -51,15 +51,22 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
   if (!game) {
     return (
       <div className="container mx-auto py-8">
-        <div className="p-4 bg-amber-50 text-amber-500 rounded-md">
+        <div className="p-4 bg-amber-900/30 border border-amber-800 text-amber-300 rounded-md">
           Game not found
         </div>
       </div>
     );
   }
 
+  // Function to determine metacritic color
+  const getMetacriticColorClass = (score: number) => {
+    if (score >= 75) return 'bg-green-700 text-green-100';
+    if (score >= 50) return 'bg-yellow-600 text-yellow-100';
+    return 'bg-red-700 text-red-100';
+  };
+
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 text-white">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Game Image */}
         <div className="md:col-span-1">
@@ -74,8 +81,8 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
                 priority
               />
             ) : (
-              <div className="h-full w-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-400">No image available</span>
+              <div className="h-full w-full bg-slate-700 flex items-center justify-center">
+                <span className="text-slate-400">No image available</span>
               </div>
             )}
           </div>
@@ -83,12 +90,12 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
           {/* Add to Collection Button Placeholder */}
           <div className="mt-4">
             <button 
-              className="w-full py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+              className="w-full py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
               disabled
             >
               Add to Collection
             </button>
-            <p className="text-xs text-center mt-2 text-gray-500">
+            <p className="text-xs text-center mt-2 text-slate-400">
               (Coming soon in the next step)
             </p>
           </div>
@@ -96,34 +103,34 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
         
         {/* Game Details */}
         <div className="md:col-span-2">
-          <h1 className="text-3xl font-bold mb-4">{game.name}</h1>
+          <h1 className="text-3xl font-bold mb-4 text-white">{game.name}</h1>
           
           <div className="flex items-center gap-4 mb-6">
             <div className="flex items-center">
-              <span className="text-yellow-500 mr-1">⭐</span>
+              <span className="text-yellow-400 mr-1">⭐</span>
               <span className="font-semibold">{game.rating.toFixed(1)}</span>
             </div>
             
             {game.metacritic && (
-              <div className="px-2 py-1 bg-green-100 text-green-800 rounded-md text-sm font-medium">
+              <div className={`px-2 py-1 rounded-md text-sm font-medium ${getMetacriticColorClass(game.metacritic)}`}>
                 Metacritic: {game.metacritic}
               </div>
             )}
             
             {game.released && (
-              <div className="text-gray-500">
+              <div className="text-slate-300">
                 Released: {new Date(game.released).toLocaleDateString()}
               </div>
             )}
           </div>
           
           <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-2">Genres</h2>
+            <h2 className="text-xl font-semibold mb-2 text-white">Genres</h2>
             <div className="flex flex-wrap gap-2">
               {game.genres?.map((genre) => (
                 <span 
                   key={genre.id}
-                  className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm"
+                  className="px-3 py-1 bg-slate-700 text-slate-200 rounded-full text-sm"
                 >
                   {genre.name}
                 </span>
@@ -132,12 +139,12 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
           </div>
           
           <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-2">Platforms</h2>
+            <h2 className="text-xl font-semibold mb-2 text-white">Platforms</h2>
             <div className="flex flex-wrap gap-2">
               {game.platforms?.map((platform) => (
                 <span 
                   key={platform.platform.id}
-                  className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm"
+                  className="px-3 py-1 bg-slate-700 text-slate-200 rounded-full text-sm"
                 >
                   {platform.platform.name}
                 </span>

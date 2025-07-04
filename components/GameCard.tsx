@@ -9,36 +9,21 @@ type GameCardProps = {
 
 export function GameCard({ game, onClick }: GameCardProps) {
   // Get platform icons
-  const getPlatformIcon = (slug: string) => {
-    switch (slug) {
-      case 'pc':
-        return '🖥️';
-      case 'playstation5':
-      case 'playstation4':
-      case 'playstation3':
-      case 'playstation2':
-      case 'playstation1':
-        return '🎮';
-      case 'xbox-series-x':
-      case 'xbox-one':
-      case 'xbox360':
-      case 'xbox-old':
-        return '🎮';
-      case 'nintendo-switch':
-        return '🎮';
-      case 'ios':
-      case 'android':
-        return '📱';
-      default:
-        return '🎮';
-    }
+  const getPlatformIcon = (platformName: string) => {
+    const name = platformName.toLowerCase();
+    if (name.includes('pc')) return '🖥️';
+    if (name.includes('playstation')) return '🎮';
+    if (name.includes('xbox')) return '🎮';
+    if (name.includes('nintendo') || name.includes('switch')) return '🎮';
+    if (name.includes('ios') || name.includes('android')) return '📱';
+    return '🎮';
   };
 
   // Get rating color class
   const getRatingColorClass = (rating: number) => {
-    if (rating >= 4) return 'text-green-500';
-    if (rating >= 3) return 'text-yellow-500';
-    return 'text-gray-500';
+    if (rating >= 4) return 'text-green-400';
+    if (rating >= 3) return 'text-yellow-400';
+    return 'text-slate-400';
   };
 
   // Format release date
@@ -53,13 +38,13 @@ export function GameCard({ game, onClick }: GameCardProps) {
 
   // Get unique platforms (to avoid duplicates)
   const uniquePlatforms = game.platforms 
-    ? [...new Set(game.platforms.map(p => p.platform.slug))]
+    ? [...new Set(game.platforms.map(p => p.platform.name))]
       .slice(0, 3) // Limit to 3 platforms
     : [];
 
   return (
     <Card 
-      className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 h-full flex flex-col"
+      className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 h-full flex flex-col bg-slate-800 border-slate-700"
       onClick={onClick}
     >
       <div className="relative h-48 w-full">
@@ -72,8 +57,8 @@ export function GameCard({ game, onClick }: GameCardProps) {
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
-          <div className="h-full w-full bg-gray-200 flex items-center justify-center">
-            <span className="text-gray-400">No image</span>
+          <div className="h-full w-full bg-slate-700 flex items-center justify-center">
+            <span className="text-slate-400">No image</span>
           </div>
         )}
         {game.metacritic && (
@@ -82,28 +67,28 @@ export function GameCard({ game, onClick }: GameCardProps) {
           </div>
         )}
       </div>
-      <CardContent className="p-4 flex flex-col flex-grow">
+      <CardContent className="p-4 flex flex-col flex-grow text-white">
         <h3 className="font-semibold text-lg line-clamp-1">{game.name}</h3>
         
         <div className="flex items-center gap-1 mt-2 mb-3">
           {uniquePlatforms.map((platform) => (
             <span 
               key={platform} 
-              className="text-xs bg-gray-100 px-2 py-1 rounded-full"
+              className="text-xs bg-slate-700 px-2 py-1 rounded-full"
               title={platform}
             >
               {getPlatformIcon(platform)}
             </span>
           ))}
           {game.platforms && game.platforms.length > 3 && (
-            <span className="text-xs bg-gray-100 px-2 py-1 rounded-full">
+            <span className="text-xs bg-slate-700 px-2 py-1 rounded-full">
               +{game.platforms.length - 3}
             </span>
           )}
         </div>
         
         <div className="mt-auto pt-2 flex items-center justify-between text-sm">
-          <div className="text-gray-600">
+          <div className="text-slate-300">
             {formatReleaseDate(game.released)}
           </div>
           <div className={`flex items-center font-medium ${getRatingColorClass(game.rating)}`}>
