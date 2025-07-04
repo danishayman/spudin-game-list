@@ -108,7 +108,7 @@ export function GameListHeader({ game }: GameListHeaderProps) {
             
             {/* Rating */}
             <div className="text-5xl font-bold text-cyan-400">
-              {game.rating > 0 ? game.rating.toFixed(1) : '-'}
+              {game.rating && game.rating > 0 ? game.rating.toFixed(1) : '-'}
             </div>
           </div>
           
