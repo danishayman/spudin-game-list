@@ -15,9 +15,16 @@ interface Game {
 // Function to fetch new releases with decent ratings
 async function getNewReleases(): Promise<Game[]> {
   try {
-    const response = await fetch(`/api/games/new-releases`, {
-      next: { revalidate: 3600 }
+    // For server components, we need to use an absolute URL
+    // This handles both local development and production
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+      
+    const response = await fetch(`${baseUrl}/api/games/new-releases`, {
+      next: { revalidate: 3600 } // Revalidate every hour
     });
+    
     if (!response.ok) {
       console.error('Failed to fetch new releases: Response not OK');
       return [];
