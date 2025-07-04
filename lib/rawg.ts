@@ -205,21 +205,23 @@ export async function getNewReleases(): Promise<RawgSearchResponse> {
     throw new Error('RAWG API key is not defined');
   }
 
-  // Get current date and date from 6 months ago (increased from 3 months)
+  // Get current date and date from 3 months ago
   const now = new Date();
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(now.getMonth() - 6);
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(now.getMonth() - 3);
   
   // Format dates as YYYY-MM-DD
   const toDate = now.toISOString().split('T')[0];
-  const fromDate = sixMonthsAgo.toISOString().split('T')[0];
+  const fromDate = threeMonthsAgo.toISOString().split('T')[0];
 
   const url = new URL(`${RAWG_BASE_URL}/games`);
   url.searchParams.append('key', RAWG_API_KEY);
   url.searchParams.append('dates', `${fromDate},${toDate}`);
   url.searchParams.append('ordering', '-released');  // Sort by release date, newest first
-  url.searchParams.append('page_size', '10');
-  // Removed metacritic filter to get more results
+  url.searchParams.append('page_size', '20');  // Increased page size to get more results to filter from
+  
+  // Filter for decent ratings (minimum 70/100 on Metacritic or 3.5/5 on RAWG rating)
+  url.searchParams.append('metacritic', '60,100');  // Games with Metacritic score between 70 and 100
   
   const response = await fetch(url.toString(), { 
     cache: 'no-store' 
@@ -230,6 +232,46 @@ export async function getNewReleases(): Promise<RawgSearchResponse> {
   }
   
   const results = await response.json();
+  
+  // If no results with Metacritic filter, try with minimum rating instead
+  if (!results.results || results.results.length < 5) {
+    console.log('[API] Not enough results with Metacritic filter, trying with rating filter');
+    
+    const ratingUrl = new URL(`${RAWG_BASE_URL}/games`);
+    ratingUrl.searchParams.append('key', RAWG_API_KEY);
+    ratingUrl.searchParams.append('dates', `${fromDate},${toDate}`);
+    ratingUrl.searchParams.append('ordering', '-released');
+    ratingUrl.searchParams.append('page_size', '20');
+    ratingUrl.searchParams.append('ratings_count', '5');  // At least 5 ratings
+    
+    const ratingResponse = await fetch(ratingUrl.toString(), { 
+      cache: 'no-store' 
+    });
+    
+    if (!ratingResponse.ok) {
+      throw new Error(`RAWG API error: ${ratingResponse.status}`);
+    }
+    
+    const ratingResults = await ratingResponse.json();
+    
+    // Filter locally for games with at least 3.5 rating
+    if (ratingResults.results && ratingResults.results.length > 0) {
+      ratingResults.results = ratingResults.results.filter((game: RawgGame) => game.rating >= 3.5);
+      
+      // Limit to 10 results after filtering
+      ratingResults.results = ratingResults.results.slice(0, 10);
+      
+      // Cache these results
+      await cacheNewReleases(ratingResults);
+      
+      return ratingResults;
+    }
+  }
+  
+  // Limit to 10 results
+  if (results.results && results.results.length > 10) {
+    results.results = results.results.slice(0, 10);
+  }
   
   // Cache the results
   await cacheNewReleases(results);

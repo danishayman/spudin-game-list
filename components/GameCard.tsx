@@ -1,6 +1,8 @@
 import Image from 'next/image';
 import { Card, CardContent } from './ui/card';
+import { Button } from './ui/button';
 import type { RawgGame } from '@/lib/rawg';
+import { GameRatingDialog } from './GameRatingDialog';
 
 type GameCardProps = {
   game: RawgGame;
@@ -42,10 +44,30 @@ export function GameCard({ game, onClick }: GameCardProps) {
       .slice(0, 3) // Limit to 3 platforms
     : [];
 
+  // Handle card click but prevent propagation when clicking on the dialog trigger
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Only call the onClick handler if it exists and the click wasn't on the add list button
+    if (onClick && !(e.target as HTMLElement).closest('[data-dialog-trigger="true"]')) {
+      onClick();
+    }
+  };
+
+  // Add to list button (used in dialog trigger)
+  const addToListButton = (
+    <Button
+      variant="ghost"
+      className="absolute bottom-3 right-3 bg-black/70 hover:bg-black/90 text-white text-xs py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity"
+      data-dialog-trigger="true"
+      onClick={(e) => e.stopPropagation()}
+    >
+      + Add to List
+    </Button>
+  );
+
   return (
     <Card 
-      className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 h-full flex flex-col bg-slate-800 border-slate-700"
-      onClick={onClick}
+      className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 h-full flex flex-col bg-slate-800 border-slate-700 group relative"
+      onClick={handleCardClick}
     >
       <div className="relative h-48 w-full">
         {game.background_image ? (
@@ -66,6 +88,14 @@ export function GameCard({ game, onClick }: GameCardProps) {
             {game.metacritic}
           </div>
         )}
+        <div data-dialog-trigger="true" onClick={(e) => e.stopPropagation()}>
+          <GameRatingDialog
+            gameId={game.id}
+            gameName={game.name}
+            gameImage={game.background_image || undefined}
+            triggerComponent={addToListButton}
+          />
+        </div>
       </div>
       <CardContent className="p-4 flex flex-col flex-grow text-white">
         <h3 className="font-semibold text-lg line-clamp-1">{game.name}</h3>

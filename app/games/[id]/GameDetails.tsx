@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { type RawgGame } from '@/lib/rawg';
 import { getGameByIdClient } from '@/lib/games-client';
-import { GameListManager } from '@/components/GameListManager';
+import { GameRatingDialog } from '@/components/GameRatingDialog';
 
 interface GameDetailsProps {
   gameId: number;
@@ -137,12 +137,14 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
             </div>
           )}
           
-          {/* Game List Manager */}
-          <GameListManager 
-            gameId={game.id} 
-            gameName={game.name} 
-            gameImage={game.background_image} 
-          />
+          {/* Game Rating Dialog */}
+          <div className="mb-6">
+            <GameRatingDialog 
+              gameId={game.id} 
+              gameName={game.name} 
+              gameImage={game.background_image || undefined}
+            />
+          </div>
 
           {/* Where to Buy */}
           {game.stores && game.stores.length > 0 && (
