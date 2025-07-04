@@ -218,7 +218,7 @@ export default async function Home() {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-6">
             <a 
-              href="https://discord.gg/spudin-game-list" 
+              href="https://discord.gg/bexed" 
               target="_blank" 
               rel="noopener noreferrer"
               className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-lg transition-colors flex items-center justify-center gap-3 text-lg font-semibold"
@@ -229,7 +229,7 @@ export default async function Home() {
               Join Discord
             </a>
             <a 
-              href="https://twitch.tv/spudin" 
+              href="https://twitch.tv/bexed" 
               target="_blank" 
               rel="noopener noreferrer"
               className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-lg transition-colors flex items-center justify-center gap-3 text-lg font-semibold"
