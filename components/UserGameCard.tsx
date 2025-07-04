@@ -112,7 +112,7 @@ export function UserGameCard({ game }: UserGameCardProps) {
         </div>
         
         {/* Rating Badge */}
-        {game.rating > 0 && (
+        {game.rating && game.rating > 0 && (
           <div className="absolute top-2 right-2 bg-black/70 px-2 py-1 rounded text-xs font-bold">
             <span className={`${getRatingColor(game.rating)}`}>★ {game.rating.toFixed(1)}</span>
           </div>
