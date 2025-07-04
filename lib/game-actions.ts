@@ -42,8 +42,8 @@ export async function getUserGames(): Promise<GamesByStatus> {
   const supabase = await createClient();
   
   // Check if user is authenticated
-  const { data } = await supabase.auth.getSession();
-  if (!data.session?.user) {
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (!user) {
     redirect('/login');
   }
   
@@ -63,7 +63,7 @@ export async function getUserGames(): Promise<GamesByStatus> {
         rating
       )
     `)
-    .eq('user_id', data.session.user.id)
+    .eq('user_id', user.id)
     .order('updated_at', { ascending: false });
     
   if (error) {
@@ -104,8 +104,8 @@ export async function getUserGameCounts() {
   const supabase = await createClient();
   
   // Check if user is authenticated
-  const { data } = await supabase.auth.getSession();
-  if (!data.session?.user) {
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (!user) {
     return null;
   }
   
@@ -113,7 +113,7 @@ export async function getUserGameCounts() {
   const { data: gamesData, error } = await supabase
     .from('game_lists')
     .select('status')
-    .eq('user_id', data.session.user.id);
+    .eq('user_id', user.id);
     
   if (error) {
     console.error('Error fetching user game counts:', error);

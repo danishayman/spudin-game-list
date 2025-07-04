@@ -17,14 +17,14 @@ export function useUser() {
       try {
         setIsLoading(true);
         
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
         
-        if (sessionError) {
-          throw sessionError;
+        if (userError) {
+          throw userError;
         }
         
-        if (session) {
-          setUser(session.user);
+        if (user) {
+          setUser(user);
         } else {
           setUser(null);
         }
