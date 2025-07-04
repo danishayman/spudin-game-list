@@ -75,7 +75,7 @@ export async function searchGames(query: string): Promise<RawgSearchResponse> {
   url.searchParams.append('page_size', '10');
 
   const response = await fetch(url.toString(), { 
-    cache: 'no-store' 
+    next: { revalidate: 3600 } // Revalidate every hour
   });
   
   if (!response.ok) {
@@ -113,7 +113,7 @@ export async function getGameById(id: number): Promise<RawgGame> {
 
   // Request game details
   const response = await fetch(url.toString(), { 
-    cache: 'no-store' 
+    next: { revalidate: 3600 } // Revalidate every hour
   });
   
   if (!response.ok) {
@@ -128,7 +128,7 @@ export async function getGameById(id: number): Promise<RawgGame> {
   
   try {
     const screenshotsResponse = await fetch(screenshotsUrl.toString(), {
-      cache: 'no-store'
+      next: { revalidate: 3600 } // Revalidate every hour
     });
     
     if (screenshotsResponse.ok) {
@@ -172,7 +172,7 @@ export async function getTrendingGames(): Promise<RawgSearchResponse> {
   url.searchParams.append('page_size', '10');
 
   const response = await fetch(url.toString(), { 
-    cache: 'no-store' 
+    next: { revalidate: 3600 } // Revalidate every hour
   });
   
   if (!response.ok) {
@@ -224,7 +224,7 @@ export async function getNewReleases(): Promise<RawgSearchResponse> {
   url.searchParams.append('metacritic', '60,100');  // Games with Metacritic score between 70 and 100
   
   const response = await fetch(url.toString(), { 
-    cache: 'no-store' 
+    next: { revalidate: 3600 } // Revalidate every hour
   });
   
   if (!response.ok) {
@@ -245,7 +245,7 @@ export async function getNewReleases(): Promise<RawgSearchResponse> {
     ratingUrl.searchParams.append('ratings_count', '5');  // At least 5 ratings
     
     const ratingResponse = await fetch(ratingUrl.toString(), { 
-      cache: 'no-store' 
+      next: { revalidate: 3600 } // Revalidate every hour
     });
     
     if (!ratingResponse.ok) {

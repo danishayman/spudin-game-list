@@ -36,7 +36,7 @@ export async function GET() {
       console.log('Fetching from URL:', url.toString().replace(RAWG_API_KEY, '[API_KEY]'));
       
       const response = await fetch(url.toString(), { 
-        cache: 'no-store' 
+        next: { revalidate: 3600 } // Revalidate every hour instead of no-store
       });
       
       if (!response.ok) {
@@ -56,7 +56,7 @@ export async function GET() {
         ratingUrl.searchParams.append('ratings_count', '5');  // At least 5 ratings
         
         const ratingResponse = await fetch(ratingUrl.toString(), { 
-          cache: 'no-store' 
+          next: { revalidate: 3600 } // Revalidate every hour instead of no-store
         });
         
         if (!ratingResponse.ok) {

@@ -16,7 +16,7 @@ interface Game {
 async function getNewReleases(): Promise<Game[]> {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/games/new-releases`, {
-      cache: 'no-store'
+      next: { revalidate: 3600 }
     });
     if (!response.ok) {
       console.error('Failed to fetch new releases: Response not OK');
