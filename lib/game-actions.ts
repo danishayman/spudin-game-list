@@ -3,10 +3,24 @@
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 
+type SupabaseUserGameEntry = {
+  game_id: number;
+  status: string | null;
+  rating: number | null;
+  updated_at: string;
+  games: {
+    id: number;
+    name: string;
+    background_image: string | null;
+    released: string | null;
+    rating: number | null;
+  }[];
+};
+
 export type UserGameEntry = {
   game_id: number;
   status: string | null;
-  rating: number;
+  rating: number | null;
   updated_at: string;
   games: {
     id: number;
@@ -34,7 +48,7 @@ export async function getUserGames(): Promise<GamesByStatus> {
   }
   
   // Fetch all games in the user's list with game details
-  const { data: gamesData, error } = await supabase
+  const { data: rawGamesData, error } = await supabase
     .from('game_lists')
     .select(`
       game_id,
@@ -56,6 +70,12 @@ export async function getUserGames(): Promise<GamesByStatus> {
     console.error('Error fetching user games:', error);
     throw new Error('Failed to fetch your games');
   }
+  
+  // Transform the data to match expected format (games array -> single game object)
+  const gamesData: UserGameEntry[] = (rawGamesData as SupabaseUserGameEntry[])?.map(item => ({
+    ...item,
+    games: item.games[0] // Take the first (and should be only) game from the array
+  })) || [];
   
   // Group games by status
   const gamesByStatus: GamesByStatus = {
