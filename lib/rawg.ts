@@ -23,6 +23,25 @@ export type RawgGame = {
   metacritic: number | null;
   genres: { id: number; name: string }[];
   platforms: { platform: { id: number; name: string } }[];
+  // Additional fields for detailed view
+  description?: string;
+  description_raw?: string;
+  background_image_additional?: string | null;
+  website?: string | null;
+  developers?: { id: number; name: string; image_background?: string }[];
+  publishers?: { id: number; name: string; image_background?: string }[];
+  esrb_rating?: { id: number; name: string; slug: string } | null;
+  screenshots?: { id: number; image: string; width: number; height: number }[];
+  stores?: { id: number; store: { id: number; name: string; domain?: string; slug: string } }[];
+  tags?: { id: number; name: string; slug: string }[];
+  playtime?: number;
+  updated?: string;
+  ratings?: { id: number; title: string; count: number; percent: number }[];
+  reddit_url?: string | null;
+  reddit_name?: string | null;
+  reddit_description?: string | null;
+  reddit_logo?: string | null;
+  metacritic_url?: string | null;
 };
 
 export type RawgSearchResponse = {
@@ -92,6 +111,7 @@ export async function getGameById(id: number): Promise<RawgGame> {
   const url = new URL(`${RAWG_BASE_URL}/games/${id}`);
   url.searchParams.append('key', RAWG_API_KEY);
 
+  // Request game details
   const response = await fetch(url.toString(), { 
     cache: 'no-store' 
   });
@@ -101,6 +121,26 @@ export async function getGameById(id: number): Promise<RawgGame> {
   }
   
   const gameData = await response.json();
+  
+  // Get screenshots
+  const screenshotsUrl = new URL(`${RAWG_BASE_URL}/games/${id}/screenshots`);
+  screenshotsUrl.searchParams.append('key', RAWG_API_KEY);
+  
+  try {
+    const screenshotsResponse = await fetch(screenshotsUrl.toString(), {
+      cache: 'no-store'
+    });
+    
+    if (screenshotsResponse.ok) {
+      const screenshotsData = await screenshotsResponse.json();
+      if (screenshotsData.results && Array.isArray(screenshotsData.results)) {
+        gameData.screenshots = screenshotsData.results;
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching screenshots:", error);
+    // Continue without screenshots if there's an error
+  }
   
   // Cache the game data
   await cacheGameDetails(id, gameData);

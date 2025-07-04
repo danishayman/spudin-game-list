@@ -22,6 +22,7 @@ export function GameListManager({ gameId, gameName, gameImage }: GameListManager
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
   const [gameListEntry, setGameListEntry] = useState<GameListEntry>({
     status: null,
     rating: 0,
@@ -73,6 +74,8 @@ export function GameListManager({ gameId, gameName, gameImage }: GameListManager
             status: data.status as GameStatus,
             rating: data.rating || 0,
           });
+          // If the game is already in the user's list, show the form by default
+          setShowForm(true);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load your game data');
@@ -124,6 +127,7 @@ export function GameListManager({ gameId, gameName, gameImage }: GameListManager
           
         if (error) throw error;
         setSuccess('Game removed from your list');
+        setShowForm(false); // Hide form after removing
       } else {
         // Otherwise upsert the entry
         const { error } = await supabase
@@ -160,6 +164,19 @@ export function GameListManager({ gameId, gameName, gameImage }: GameListManager
     return (
       <div className="mt-4 p-4 bg-slate-800/50 rounded-md border border-slate-700">
         <p className="text-slate-300 mb-2">Sign in to add this game to your list</p>
+      </div>
+    );
+  }
+
+  if (!showForm) {
+    return (
+      <div className="mt-4">
+        <Button 
+          onClick={() => setShowForm(true)}
+          className="w-full bg-purple-600 hover:bg-purple-700 py-6 text-lg"
+        >
+          Add to Your List
+        </Button>
       </div>
     );
   }
@@ -202,13 +219,23 @@ export function GameListManager({ gameId, gameName, gameImage }: GameListManager
         </div>
       )}
       
-      <Button 
-        onClick={handleSave} 
-        disabled={isSaving}
-        className="w-full bg-purple-600 hover:bg-purple-700"
-      >
-        {isSaving ? 'Saving...' : 'Save to Your List'}
-      </Button>
+      <div className="flex gap-2">
+        <Button 
+          onClick={() => setShowForm(false)}
+          variant="outline"
+          className="flex-1"
+          disabled={isSaving}
+        >
+          Cancel
+        </Button>
+        <Button 
+          onClick={handleSave} 
+          disabled={isSaving}
+          className="flex-1 bg-purple-600 hover:bg-purple-700"
+        >
+          {isSaving ? 'Saving...' : 'Save to Your List'}
+        </Button>
+      </div>
     </div>
   );
 } 

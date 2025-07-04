@@ -15,7 +15,9 @@ export async function GET(
             return NextResponse.json({ error: "Invalid game ID" }, { status: 400 });
         }
 
+        // Get game details with screenshots
         const game = await getGameById(gameId);
+        
         return NextResponse.json(game);
     } catch (error) {
         console.error("Error fetching game details:", error);
