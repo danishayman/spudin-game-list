@@ -28,7 +28,7 @@ export type UserGameEntry = {
     background_image: string | null;
     released: string | null;
     rating: number | null;
-  };
+  } | null;
 };
 
 export type GamesByStatus = {
@@ -74,7 +74,7 @@ export async function getUserGames(): Promise<GamesByStatus> {
   // Transform the data to match expected format (games array -> single game object)
   const gamesData: UserGameEntry[] = (rawGamesData as SupabaseUserGameEntry[])?.map(item => ({
     ...item,
-    games: item.games[0] // Take the first (and should be only) game from the array
+    games: item.games && item.games.length > 0 ? item.games[0] : null // Take the first game from the array, or null if empty
   })) || [];
   
   // Group games by status

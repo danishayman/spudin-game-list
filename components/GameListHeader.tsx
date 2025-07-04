@@ -69,6 +69,9 @@ export function GameListHeader({ game }: GameListHeaderProps) {
   };
 
   const statusInfo = getStatusInfo(game.status);
+  const gameName = game.games?.name || 'Unknown Game';
+  const gameImage = game.games?.background_image || null;
+  const gameReleased = game.games?.released || null;
   
   return (
     <div className="bg-slate-800/80 backdrop-blur-sm border border-slate-700 rounded-lg p-4 mb-6 w-full hover:bg-slate-800 transition-colors group relative">
@@ -76,10 +79,10 @@ export function GameListHeader({ game }: GameListHeaderProps) {
         {/* Game Image */}
         <div className="hidden sm:block h-24 w-24 relative rounded overflow-hidden flex-shrink-0">
           <Link href={`/games/${game.game_id}`}>
-            {game.games.background_image ? (
+            {gameImage ? (
               <Image
-                src={game.games.background_image}
-                alt={game.games.name}
+                src={gameImage}
+                alt={gameName}
                 fill
                 className="object-cover"
               />
@@ -102,7 +105,7 @@ export function GameListHeader({ game }: GameListHeaderProps) {
               
               {/* Game Title */}
               <Link href={`/games/${game.game_id}`} className="hover:underline">
-                <h2 className="text-2xl font-bold text-white">{game.games.name}</h2>
+                <h2 className="text-2xl font-bold text-white">{gameName}</h2>
               </Link>
             </div>
             
@@ -117,7 +120,7 @@ export function GameListHeader({ game }: GameListHeaderProps) {
             {/* This would come from game.games.genres if available */}
             <span>Role-playing (RPG), Hack and slash/Beat &apos;em up, Adventure, Indie</span>
             <span className="mx-2">•</span>
-            <span>{game.games.released ? new Date(game.games.released).getFullYear() : 'TBA'}</span>
+            <span>{gameReleased ? new Date(gameReleased).getFullYear() : 'TBA'}</span>
             <span className="mx-2">•</span>
             <span>Main Game</span>
           </div>
@@ -140,8 +143,8 @@ export function GameListHeader({ game }: GameListHeaderProps) {
             {/* Edit Button */}
             <GameRatingDialog
               gameId={game.game_id}
-              gameName={game.games.name}
-              gameImage={game.games.background_image || undefined}
+              gameName={gameName}
+              gameImage={gameImage || undefined}
               triggerComponent={
                 <Button 
                   variant="outline" 
@@ -163,8 +166,8 @@ export function GameListHeader({ game }: GameListHeaderProps) {
       <div className="absolute top-2 right-2 sm:hidden opacity-0 group-hover:opacity-100 transition-opacity">
         <GameRatingDialog
           gameId={game.game_id}
-          gameName={game.games.name}
-          gameImage={game.games.background_image || undefined}
+          gameName={gameName}
+          gameImage={gameImage || undefined}
           triggerComponent={
             <Button 
               variant="outline" 

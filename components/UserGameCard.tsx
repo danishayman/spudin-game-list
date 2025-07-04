@@ -83,6 +83,9 @@ export function UserGameCard({ game }: UserGameCardProps) {
   };
 
   const statusInfo = getStatusInfo(game.status);
+  const gameName = game.games?.name || 'Unknown Game';
+  const gameImage = game.games?.background_image || null;
+  const gameReleased = game.games?.released || null;
   
   return (
     <Card 
@@ -91,10 +94,10 @@ export function UserGameCard({ game }: UserGameCardProps) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative h-40 w-full">
-        {game.games.background_image ? (
+        {gameImage ? (
           <Image
-            src={game.games.background_image}
-            alt={`${game.games.name} cover`}
+            src={gameImage}
+            alt={`${gameName} cover`}
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
@@ -132,8 +135,8 @@ export function UserGameCard({ game }: UserGameCardProps) {
           <div onClick={(e) => e.stopPropagation()} data-dialog-trigger="true">
             <GameRatingDialog
               gameId={game.game_id}
-              gameName={game.games.name}
-              gameImage={game.games.background_image || undefined}
+              gameName={gameName}
+              gameImage={gameImage || undefined}
               triggerComponent={
                 <Button variant="outline" size="sm" className="bg-purple-600/90 text-white border-purple-500 hover:bg-purple-700">
                   Edit
@@ -145,11 +148,11 @@ export function UserGameCard({ game }: UserGameCardProps) {
       </div>
       
       <CardContent className="p-3 flex flex-col flex-grow text-white">
-        <h3 className="font-semibold text-base line-clamp-1">{game.games.name}</h3>
+        <h3 className="font-semibold text-base line-clamp-1">{gameName}</h3>
         
         <div className="mt-auto pt-2 flex items-center justify-between text-xs text-slate-400">
           <div>
-            {game.games.released ? formatReleaseDate(game.games.released) : 'TBA'}
+            {gameReleased ? formatReleaseDate(gameReleased) : 'TBA'}
           </div>
           <div>
             Updated: {new Date(game.updated_at).toLocaleDateString()}
