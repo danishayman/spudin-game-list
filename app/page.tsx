@@ -75,9 +75,9 @@ export default async function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col bg-slate-900 text-white">
+    <main className="flex min-h-screen flex-col bg-slate-900 text-white pt-0">
       {/* Hero Section with Banner */}
-      <div className="relative h-[70vh] w-full">
+      <div className="relative h-[65vh] w-full">
         <Image
           src="/landing/banner.jpg"
           alt="Spudin's Game List Banner"
@@ -88,7 +88,7 @@ export default async function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-900" />
         
         {/* Hero Content */}
-        <div className="absolute inset-0 flex flex-col items-center justify-end px-4 text-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-4 drop-shadow-lg">
             Spudin's Game List
           </h1>
@@ -96,13 +96,13 @@ export default async function Home() {
             Track, discover, and share your favorite games with the gaming community
           </p>
           <div className="flex gap-4">
-            <Link href="/dashboard">
+            <Link href="/home">
               <Button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 text-lg">
                 Get Started
               </Button>
             </Link>
             <Link href="/games">
-              <Button variant="outline" className="border-black text-black px-8 py-6 text-lg">
+              <Button variant="outline" className="bg-white/10 backdrop-blur-sm border-white/30 text-white px-8 py-6 text-lg hover:bg-white/20">
                 Browse Games
               </Button>
             </Link>
@@ -199,35 +199,37 @@ export default async function Home() {
           <div className="relative h-48 mb-6 rounded-lg overflow-hidden">
             <Image
               src="/landing/review.png"
-              alt="Share Your Thoughts"
+              alt="Share Your Reviews"
               fill
               className="object-cover"
             />
           </div>
-          <h2 className="text-xl font-bold mb-2">Share Your Thoughts</h2>
-          <p className="text-slate-300">Rate games and share your reviews with the community.</p>
+          <h2 className="text-xl font-bold mb-2">Share Your Reviews</h2>
+          <p className="text-slate-300">Write reviews and share your gaming experiences with the community.</p>
         </div>
       </div>
 
       {/* Community Section */}
-      <div className="py-16 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4">Join Our Gaming Community</h2>
-          <p className="text-xl text-slate-300 mb-8">
-            Connect with fellow gamers, watch live streams, and stay up to date with the latest gaming discussions
+      <div className="bg-slate-800 py-16 px-4">
+        <div className="max-w-7xl mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-8">Join Our Gaming Community</h2>
+          <p className="text-xl text-slate-300 mb-12 max-w-3xl mx-auto">
+            Connect with fellow gamers, share your gaming experiences, and discover new titles to play.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-6">
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
             <a 
-              href="https://discord.gg/bexed" 
+              href="https://discord.gg/gaming" 
               target="_blank" 
               rel="noopener noreferrer"
               className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-lg transition-colors flex items-center justify-center gap-3 text-lg font-semibold"
             >
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419-.0002 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9460 2.4189-2.1568 2.4189Z"/>
+                <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.995a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418Z"/>
               </svg>
               Join Discord
             </a>
+            
             <a 
               href="https://twitch.tv/bexed" 
               target="_blank" 
