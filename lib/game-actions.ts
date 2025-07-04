@@ -41,60 +41,102 @@ export type GamesByStatus = {
 export async function getUserGames(): Promise<GamesByStatus> {
   const supabase = await createClient();
   
-  // Check if user is authenticated
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (!user) {
-    redirect('/login');
-  }
-  
-  // Fetch all games in the user's list with game details
-  const { data: rawGamesData, error } = await supabase
-    .from('game_lists')
-    .select(`
-      game_id,
-      status,
-      rating,
-      updated_at,
-      games (
-        id,
-        name,
-        background_image,
-        released,
-        rating
-      )
-    `)
-    .eq('user_id', user.id)
-    .order('updated_at', { ascending: false });
-    
-  if (error) {
-    console.error('Error fetching user games:', error);
-    throw new Error('Failed to fetch your games');
-  }
-  
-  // Transform the data to match expected format (games array -> single game object)
-  const gamesData: UserGameEntry[] = (rawGamesData as SupabaseUserGameEntry[])?.map(item => ({
-    ...item,
-    games: item.games && item.games.length > 0 ? item.games[0] : null // Take the first game from the array, or null if empty
-  })) || [];
-  
-  // Group games by status
-  const gamesByStatus: GamesByStatus = {
-    'Playing': [],
-    'Finished': [],
-    'Want': [],
-    'On-hold': [],
-    'Dropped': [],
-    'All': gamesData || []
-  };
-  
-  // Populate the groups
-  gamesData?.forEach((game) => {
-    if (game.status) {
-      gamesByStatus[game.status].push(game);
+  try {
+    // Check if user is authenticated
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (!user) {
+      redirect('/login');
     }
-  });
-  
-  return gamesByStatus;
+    
+    if (userError) {
+      console.error('Error getting user:', userError);
+      throw new Error('Authentication error');
+    }
+    
+    // First check if the games exist in the games table
+    const { data: gameListEntries, error: gameListError } = await supabase
+      .from('game_lists')
+      .select('game_id')
+      .eq('user_id', user.id);
+      
+    if (gameListError) {
+      console.error('Error fetching game list entries:', gameListError);
+      throw new Error('Failed to fetch your game list');
+    }
+    
+    console.log('Game list entries:', gameListEntries);
+    
+    // Fetch all games in the user's list with game details
+    const { data: rawGamesData, error } = await supabase
+      .from('game_lists')
+      .select(`
+        game_id,
+        status,
+        rating,
+        updated_at,
+        games (
+          id,
+          name,
+          background_image,
+          released,
+          rating
+        )
+      `)
+      .eq('user_id', user.id)
+      .order('updated_at', { ascending: false });
+      
+    if (error) {
+      console.error('Error fetching user games:', error);
+      throw new Error('Failed to fetch your games');
+    }
+    
+    console.log('Raw games data from join:', rawGamesData);
+    
+    // Check if we have any games with missing game details
+    const missingGameDetails = (rawGamesData as SupabaseUserGameEntry[])?.filter(
+      item => !item.games || item.games.length === 0
+    );
+    
+    if (missingGameDetails && missingGameDetails.length > 0) {
+      console.error('Games with missing details:', missingGameDetails);
+    }
+    
+    // Transform the data to match expected format (games array -> single game object)
+    const gamesData: UserGameEntry[] = (rawGamesData as SupabaseUserGameEntry[])?.map(item => ({
+      ...item,
+      games: item.games && item.games.length > 0 ? item.games[0] : null // Take the first game from the array, or null if empty
+    })) || [];
+    
+    // Group games by status
+    const gamesByStatus: GamesByStatus = {
+      'Playing': [],
+      'Finished': [],
+      'Want': [],
+      'On-hold': [],
+      'Dropped': [],
+      'All': gamesData || []
+    };
+    
+    // Populate the groups
+    gamesData?.forEach((game) => {
+      if (game.status) {
+        gamesByStatus[game.status].push(game);
+      }
+    });
+    
+    return gamesByStatus;
+  } catch (error) {
+    console.error('Error in getUserGames:', error);
+    // Return empty data structure instead of throwing to prevent page crash
+    return {
+      'Playing': [],
+      'Finished': [],
+      'Want': [],
+      'On-hold': [],
+      'Dropped': [],
+      'All': []
+    };
+  }
 }
 
 /**

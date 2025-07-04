@@ -22,6 +22,8 @@ interface GameRatingDialogProps {
   gameName: string;
   gameImage?: string;
   triggerComponent?: React.ReactNode;
+  gameReleased?: string;
+  gameRating?: number;
 }
 
 interface GameListEntry {
@@ -33,7 +35,9 @@ interface GameListEntry {
 export function GameRatingDialog({ 
   gameId, 
   gameName, 
-  gameImage, 
+  gameImage,
+  gameReleased,
+  gameRating,
   triggerComponent 
 }: GameRatingDialogProps) {
   const { user, isLoading: userLoading } = useUser();
@@ -168,19 +172,36 @@ export function GameRatingDialog({
       const supabase = createClient();
       
       // Check if game exists in the games table
-      const { data: gameExists } = await supabase
+      const { data: gameExists, error: gameExistsError } = await supabase
         .from('games')
-        .select('id')
+        .select('id, name, background_image, released, rating')
         .eq('id', gameId)
         .single();
+      
+      if (gameExistsError && gameExistsError.code !== 'PGRST116') {
+        console.error('Error checking if game exists:', gameExistsError);
+      }
         
-      // If game doesn't exist, add it first
+      // If game doesn't exist, add it first with all required fields
       if (!gameExists) {
-        await supabase.from('games').insert({
+        console.log('Game does not exist in database, adding it now:', gameId, gameName);
+        
+        const { data: insertData, error: insertError } = await supabase.from('games').insert({
           id: gameId,
           name: gameName,
-          background_image: gameImage,
-        });
+          background_image: gameImage || null,
+          released: gameReleased || null,
+          rating: gameRating || null
+        }).select();
+        
+        if (insertError) {
+          console.error('Error inserting game into games table:', insertError);
+          throw new Error(`Failed to add game to database: ${insertError.message}`);
+        } else {
+          console.log('Successfully added game to database:', insertData);
+        }
+      } else {
+        console.log('Game already exists in database:', gameExists);
       }
       
       if (gameListEntry.status === null && gameListEntry.rating === 0) {

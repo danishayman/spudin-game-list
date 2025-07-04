@@ -72,6 +72,7 @@ export function GameListHeader({ game }: GameListHeaderProps) {
   const gameName = game.games?.name || 'Unknown Game';
   const gameImage = game.games?.background_image || null;
   const gameReleased = game.games?.released || null;
+  const gameRating = game.games?.rating || null;
   
   return (
     <div className="bg-slate-800/80 backdrop-blur-sm border border-slate-700 rounded-lg p-4 mb-6 w-full hover:bg-slate-800 transition-colors group relative">
@@ -145,6 +146,8 @@ export function GameListHeader({ game }: GameListHeaderProps) {
               gameId={game.game_id}
               gameName={gameName}
               gameImage={gameImage || undefined}
+              gameReleased={gameReleased || undefined}
+              gameRating={gameRating || undefined}
               triggerComponent={
                 <Button 
                   variant="outline" 
@@ -168,6 +171,8 @@ export function GameListHeader({ game }: GameListHeaderProps) {
           gameId={game.game_id}
           gameName={gameName}
           gameImage={gameImage || undefined}
+          gameReleased={gameReleased || undefined}
+          gameRating={gameRating || undefined}
           triggerComponent={
             <Button 
               variant="outline" 

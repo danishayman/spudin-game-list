@@ -86,6 +86,7 @@ export function UserGameCard({ game }: UserGameCardProps) {
   const gameName = game.games?.name || 'Unknown Game';
   const gameImage = game.games?.background_image || null;
   const gameReleased = game.games?.released || null;
+  const gameRating = game.games?.rating || null;
   
   return (
     <Card 
@@ -137,6 +138,8 @@ export function UserGameCard({ game }: UserGameCardProps) {
               gameId={game.game_id}
               gameName={gameName}
               gameImage={gameImage || undefined}
+              gameReleased={gameReleased || undefined}
+              gameRating={gameRating || undefined}
               triggerComponent={
                 <Button variant="outline" size="sm" className="bg-purple-600/90 text-white border-purple-500 hover:bg-purple-700">
                   Edit

@@ -93,6 +93,8 @@ export function GameCard({ game, onClick }: GameCardProps) {
             gameId={game.id}
             gameName={game.name}
             gameImage={game.background_image || undefined}
+            gameReleased={game.released || undefined}
+            gameRating={game.rating || undefined}
             triggerComponent={addToListButton}
           />
         </div>

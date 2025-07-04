@@ -142,6 +142,8 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
               gameId={game.id} 
               gameName={game.name} 
               gameImage={game.background_image || undefined}
+              gameReleased={game.released || undefined}
+              gameRating={game.rating || undefined}
             />
           </div>
 
