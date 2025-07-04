@@ -40,7 +40,6 @@ export function GameRatingDialog({
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [_success, setSuccess] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [gameListEntry, setGameListEntry] = useState<GameListEntry>({
     status: null,
@@ -105,8 +104,7 @@ export function GameRatingDialog({
   // Handle status change
   const handleStatusChange = (status: GameStatus) => {
     setGameListEntry(prev => ({ ...prev, status }));
-    // Clear any previous success/error messages
-    setSuccess(null);
+    // Clear any previous error messages
     setError(null);
   };
 
@@ -114,8 +112,7 @@ export function GameRatingDialog({
   const handleRatingChange = (values: number[]) => {
     if (values.length > 0) {
       setGameListEntry(prev => ({ ...prev, rating: values[0] }));
-      // Clear any previous success/error messages
-      setSuccess(null);
+      // Clear any previous error messages
       setError(null);
     }
   };
@@ -168,7 +165,6 @@ export function GameRatingDialog({
     try {
       setIsSaving(true);
       setError(null);
-      setSuccess(null);
       const supabase = createClient();
       
       // Check if game exists in the games table
@@ -196,7 +192,6 @@ export function GameRatingDialog({
           .eq('game_id', gameId);
           
         if (error) throw error;
-        setSuccess('Game removed from your list');
         setGameListEntry(prev => ({ ...prev, isInList: false }));
         setOpen(false); // Close dialog after removing
       } else {
@@ -212,7 +207,6 @@ export function GameRatingDialog({
           });
           
         if (error) throw error;
-        setSuccess('Game saved to your list');
         setGameListEntry(prev => ({ ...prev, isInList: true }));
         setOpen(false); // Close dialog after saving
       }

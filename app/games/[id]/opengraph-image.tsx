@@ -66,7 +66,7 @@ export default async function Image({ params }: { params: { id: string } }) {
         ...size,
       }
     );
-  } catch (_error) {
+  } catch {
     // Fallback image
     return new ImageResponse(
       (
