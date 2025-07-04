@@ -29,7 +29,7 @@ const LogoutPage = () => {
             See You Soon!
           </h1>
           <p className="text-lg md:text-xl max-w-2xl mb-8 drop-shadow-md text-slate-200">
-            You've been logged out successfully
+            You&apos;ve been logged out successfully
           </p>
         </div>
       </div>
@@ -48,7 +48,7 @@ const LogoutPage = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
             </div>
             <p className="text-slate-400 text-sm">
-              Thank you for using Spudin's Game List!
+              Thank you for using Spudin&apos;s Game List!
             </p>
           </CardContent>
         </Card>

@@ -1,9 +1,8 @@
 import React from "react";
 import { LoginForm } from "./components/LoginForm";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 
 const LoginPage = () => {
   return (
@@ -22,7 +21,7 @@ const LoginPage = () => {
         {/* Hero Content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
           <h1 className="text-3xl md:text-5xl font-bold mb-2 drop-shadow-lg">
-            Welcome to Spudin's Game List
+            Welcome to Spudin&apos;s Game List
           </h1>
           <p className="text-lg md:text-xl max-w-2xl mb-8 drop-shadow-md text-slate-200">
             Sign in with Google to start your gaming journey

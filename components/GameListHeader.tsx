@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { GameRatingDialog } from './GameRatingDialog';
@@ -69,15 +68,6 @@ export function GameListHeader({ game }: GameListHeaderProps) {
     }
   };
 
-  // Get rating color
-  const getRatingColor = (rating: number) => {
-    if (rating >= 8) return 'text-green-400';
-    if (rating >= 6) return 'text-lime-400';
-    if (rating >= 4) return 'text-yellow-400';
-    if (rating >= 2) return 'text-orange-400';
-    return 'text-red-400';
-  };
-
   const statusInfo = getStatusInfo(game.status);
   
   return (
@@ -125,7 +115,7 @@ export function GameListHeader({ game }: GameListHeaderProps) {
           {/* Game Metadata */}
           <div className="mt-2 text-slate-400 text-sm">
             {/* This would come from game.games.genres if available */}
-            <span>Role-playing (RPG), Hack and slash/Beat 'em up, Adventure, Indie</span>
+            <span>Role-playing (RPG), Hack and slash/Beat &apos;em up, Adventure, Indie</span>
             <span className="mx-2">•</span>
             <span>{game.games.released ? new Date(game.games.released).getFullYear() : 'TBA'}</span>
             <span className="mx-2">•</span>

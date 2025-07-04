@@ -40,7 +40,7 @@ export function GameRatingDialog({
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [_success, setSuccess] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [gameListEntry, setGameListEntry] = useState<GameListEntry>({
     status: null,

@@ -1,7 +1,6 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { getUserGames, getUserGameCounts, type UserGameEntry } from '@/lib/game-actions';
+import { getUserGames, getUserGameCounts } from '@/lib/game-actions';
 import { ViewModeClientWrapper } from '@/components/ViewModeClientWrapper';
 import ClientTabsWrapper from '@/components/ClientTabsWrapper';
 

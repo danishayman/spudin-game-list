@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from './ui/input';
-import { Button } from './ui/button';
 import { GameCard } from './GameCard';
 import { type RawgGame } from '@/lib/rawg';
 import { searchGamesClient } from '@/lib/games-client';
@@ -172,7 +171,7 @@ export function GameSearch() {
           </svg>
           <h3 className="text-lg font-medium text-white mb-1">No games found</h3>
           <p className="text-slate-300 text-center">
-            We couldn't find any games matching "{query}"
+            We couldn&apos;t find any games matching &quot;{query}&quot;
           </p>
         </div>
       )}

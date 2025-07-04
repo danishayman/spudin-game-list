@@ -6,7 +6,7 @@ export default function ProfileNotFound() {
       <div className="bg-white rounded-lg shadow-md p-8 max-w-md w-full text-center">
         <h1 className="text-2xl font-bold mb-4">Profile Not Found</h1>
         <p className="text-gray-600 mb-6">
-          The profile you're looking for doesn't exist or may have been removed.
+          The profile you&apos;re looking for doesn&apos;t exist or may have been removed.
         </p>
         <div className="flex justify-center gap-4">
           <Link

@@ -2,9 +2,10 @@
 "use client";
 import { createClient } from "@/utils/supabase/client";
 import React, { useEffect, useState } from "react";
+import type { User } from "@supabase/supabase-js";
 
 const UserGreetText = () => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const supabase = createClient();
   useEffect(() => {
     const fetchUser = async () => {
@@ -14,7 +15,7 @@ const UserGreetText = () => {
       setUser(user);
     };
     fetchUser();
-  }, []);
+  }, [supabase.auth]);
   if (user !== null) {
     console.log(user);
     return (

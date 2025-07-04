@@ -6,10 +6,20 @@ import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
+import type { User } from "@supabase/supabase-js";
+
+interface Profile {
+  id: string;
+  username: string | null;
+  full_name: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
 export default function ModernNavBar() {
-  const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -59,7 +69,7 @@ export default function ModernNavBar() {
       document.removeEventListener("mousedown", handleClickOutside);
       subscription?.unsubscribe();
     };
-  }, []);
+  }, [supabase]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

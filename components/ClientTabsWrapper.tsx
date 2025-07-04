@@ -1,11 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
 import { GameCollection } from './GameCollection';
 import { ViewToggle } from './ViewToggle';
-import { useViewModeContext } from '@/lib/view-mode-context';
-import type { UserGameEntry, GamesByStatus } from '@/lib/game-actions';
+import type { GamesByStatus } from '@/lib/game-actions';
 
 interface ClientTabsWrapperProps {
   gamesByStatus: GamesByStatus;

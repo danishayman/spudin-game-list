@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AboutPage() {
@@ -19,7 +18,7 @@ export default function AboutPage() {
                 {/* Hero Content */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
                     <h1 className="text-4xl md:text-6xl font-bold mb-4 drop-shadow-lg">
-                        About Spudin's Game List
+                        About Spudin&apos;s Game List
                     </h1>
                     <p className="text-xl md:text-2xl max-w-2xl mb-8 drop-shadow-md">
                         Our mission, team, and the technology behind the platform
@@ -34,10 +33,10 @@ export default function AboutPage() {
                     <h2 className="text-3xl font-bold mb-6 text-purple-400">Our Mission</h2>
                     <div className="bg-slate-800 p-8 rounded-lg">
                         <p className="text-lg text-slate-200 mb-4">
-                            Spudin's Game List was created with a simple goal: to help gamers track, discover, and share their gaming experiences in one centralized platform.
+                            Spudin&apos;s Game List was created with a simple goal: to help gamers track, discover, and share their gaming experiences in one centralized platform.
                         </p>
                         <p className="text-lg text-slate-200">
-                            We believe that gaming is more than just a hobby—it's a passion that brings people together. Our platform aims to foster a community where gamers can connect, discover new titles, and share their thoughts on the games they love.
+                            We believe that gaming is more than just a hobby—it&apos;s a passion that brings people together. Our platform aims to foster a community where gamers can connect, discover new titles, and share their thoughts on the games they love.
                         </p>
                     </div>
                 </section>
@@ -55,7 +54,7 @@ export default function AboutPage() {
                             </CardHeader>
                             <CardContent>
                                 <p className="text-slate-300">
-                                    Keep a personal collection of games you've played, are currently playing, or want to play in the future.
+                                    Keep a personal collection of games you&apos;ve played, are currently playing, or want to play in the future.
                                 </p>
                             </CardContent>
                         </Card>
@@ -147,7 +146,7 @@ export default function AboutPage() {
                     <h2 className="text-3xl font-bold mb-6 text-purple-400">Get In Touch</h2>
                     <div className="bg-slate-800 p-8 rounded-lg">
                         <p className="text-lg text-slate-200 mb-6">
-                            Have questions, suggestions, or feedback? We'd love to hear from you!
+                            Have questions, suggestions, or feedback? We&apos;d love to hear from you!
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="bg-slate-700 p-6 rounded-lg">

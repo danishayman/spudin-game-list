@@ -1,4 +1,3 @@
-import LoginButton from "@/components/LoginLogoutButton";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -89,7 +88,7 @@ export default async function Home() {
         {/* Hero Content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-4 drop-shadow-lg">
-            Spudin's Game List
+            Spudin&apos;s Game List
           </h1>
           <p className="text-xl md:text-2xl max-w-2xl mb-8 drop-shadow-md">
             Track, discover, and share your favorite games with the gaming community
@@ -178,7 +177,7 @@ export default async function Home() {
             />
           </div>
           <h2 className="text-xl font-bold mb-2">Track Your Games</h2>
-          <p className="text-slate-300">Keep a personal collection of games you've played, are playing, or want to play.</p>
+          <p className="text-slate-300">Keep a personal collection of games you&apos;ve played, are playing, or want to play.</p>
         </div>
         
         <div className="bg-slate-800 p-6 rounded-lg overflow-hidden">
@@ -259,7 +258,7 @@ export default async function Home() {
       <footer className="bg-slate-950 py-8 px-4">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
-            <p className="text-slate-400">© {new Date().getFullYear()} Spudin's Game List</p>
+            <p className="text-slate-400">© {new Date().getFullYear()} Spudin&apos;s Game List</p>
           </div>
           <div className="flex gap-4">
           </div>

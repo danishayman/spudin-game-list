@@ -2,8 +2,8 @@
 
 import { ReactNode } from 'react';
 import { ViewModeProvider } from '@/lib/view-mode-context';
-import { ViewToggle } from './ViewToggle';
 import { GameCollection } from './GameCollection';
+import type { UserGameEntry } from '@/lib/game-actions';
 
 export function ViewModeClientWrapper({ children }: { children: ReactNode }) {
   return (
@@ -13,6 +13,6 @@ export function ViewModeClientWrapper({ children }: { children: ReactNode }) {
   );
 }
 
-export function GameCollectionClient({ games }: { games: any[] }) {
+export function GameCollectionClient({ games }: { games: UserGameEntry[] }) {
   return <GameCollection games={games} />;
 } 

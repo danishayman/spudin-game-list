@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { UserGameCard } from './UserGameCard';
 import { GameListHeader } from './GameListHeader';
 import { useViewModeContext } from '@/lib/view-mode-context';

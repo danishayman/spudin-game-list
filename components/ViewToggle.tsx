@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useViewModeContext } from '@/lib/view-mode-context';
 
 export function ViewToggle() {
