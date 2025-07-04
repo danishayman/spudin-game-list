@@ -34,6 +34,19 @@ export default function ModernNavBar() {
     
     fetchUser();
 
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'SIGNED_OUT') {
+          setUser(null);
+          setProfile(null);
+        } else if (event === 'SIGNED_IN' && session?.user) {
+          setUser(session.user);
+          fetchUser();
+        }
+      }
+    );
+
     // Close dropdown when clicking outside
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -44,12 +57,16 @@ export default function ModernNavBar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      subscription?.unsubscribe();
     };
   }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push("/login");
+    setUser(null);
+    setProfile(null);
+    setIsDropdownOpen(false);
+    router.push("/");
   };
 
   return (
