@@ -27,7 +27,7 @@ interface GameRatingDialogProps {
 }
 
 interface GameListEntry {
-  status: GameStatus;
+  status: GameStatus | null;
   rating: number;
   isInList: boolean;
 }

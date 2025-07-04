@@ -9,14 +9,16 @@ interface GameListManagerProps {
   gameId: number;
   gameName: string;
   gameImage?: string;
+  gameReleased?: string;
+  gameRating?: number;
 }
 
-interface GameListEntry {
-  status: GameStatus;
+type GameListEntry = {
+  status: GameStatus | null;
   rating: number;
-}
+};
 
-export function GameListManager({ gameId, gameName, gameImage }: GameListManagerProps) {
+export function GameListManager({ gameId, gameName, gameImage, gameReleased, gameRating }: GameListManagerProps) {
   const { user, isLoading: userLoading } = useUser();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -48,12 +50,14 @@ export function GameListManager({ gameId, gameName, gameImage }: GameListManager
           .eq('id', gameId)
           .single();
           
-        // If game doesn't exist, add it first
+        // If game doesn't exist, add it first with all available data
         if (!gameExists) {
           await supabase.from('games').insert({
             id: gameId,
             name: gameName,
             background_image: gameImage,
+            released: gameReleased || null,
+            rating: gameRating || null
           });
         }
         
@@ -78,33 +82,24 @@ export function GameListManager({ gameId, gameName, gameImage }: GameListManager
           setShowForm(true);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load your game data');
         console.error('Error fetching game list entry:', err);
+        setError('Failed to load your game data');
       } finally {
         setIsLoading(false);
       }
     }
     
     fetchGameListEntry();
-  }, [gameId, gameName, gameImage, user]);
-
-  // Handle status change
-  const handleStatusChange = (status: GameStatus) => {
+  }, [user, gameId, gameName, gameImage, gameReleased, gameRating]);
+  
+  const handleStatusChange = (status: GameStatus | null) => {
     setGameListEntry(prev => ({ ...prev, status }));
-    // Clear any previous success/error messages
-    setSuccess(null);
-    setError(null);
   };
-
-  // Handle rating change
+  
   const handleRatingChange = (rating: number) => {
     setGameListEntry(prev => ({ ...prev, rating }));
-    // Clear any previous success/error messages
-    setSuccess(null);
-    setError(null);
   };
-
-  // Save changes to database
+  
   const handleSave = async () => {
     if (!user) {
       setError('You must be logged in to save games to your list');
@@ -168,74 +163,70 @@ export function GameListManager({ gameId, gameName, gameImage }: GameListManager
     );
   }
 
-  if (!showForm) {
-    return (
-      <div className="mt-4">
-        <Button 
-          onClick={() => setShowForm(true)}
-          className="w-full bg-purple-600 hover:bg-purple-700 py-6 text-lg"
-        >
-          Add to Your List
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="mt-4 p-4 bg-slate-800/50 rounded-md border border-slate-700">
-      <h3 className="text-lg font-semibold mb-4">Add to Your List</h3>
-      
-      <div className="mb-6">
-        <h4 className="text-sm font-medium text-white mb-3">Status</h4>
-        <div className="bg-slate-900/50 p-3 rounded-md border border-slate-700">
-          <GameStatusButtons 
-            initialStatus={gameListEntry.status} 
-            onChange={handleStatusChange}
-            disabled={isSaving}
-          />
-        </div>
-      </div>
-      
-      <div className="mb-6">
-        <h4 className="text-sm font-medium text-white mb-3">Rating</h4>
-        <div className="bg-slate-900/50 p-3 rounded-md border border-slate-700">
-          <RatingInput 
-            initialRating={gameListEntry.rating} 
-            onChange={handleRatingChange}
-            disabled={isSaving}
-          />
-        </div>
-      </div>
-      
-      {error && (
-        <div className="mb-4 p-2 bg-red-900/30 border border-red-800 text-red-300 rounded-md text-sm">
-          {error}
-        </div>
-      )}
-      
-      {success && (
-        <div className="mb-4 p-2 bg-green-900/30 border border-green-800 text-green-300 rounded-md text-sm">
-          {success}
-        </div>
-      )}
-      
-      <div className="flex gap-2">
+      {!showForm ? (
         <Button 
-          onClick={() => setShowForm(false)}
-          variant="outline"
-          className="flex-1"
-          disabled={isSaving}
+          onClick={() => setShowForm(true)}
+          className="w-full bg-purple-600 hover:bg-purple-700"
         >
-          Cancel
+          Add to My Games
         </Button>
-        <Button 
-          onClick={handleSave} 
-          disabled={isSaving}
-          className="flex-1 bg-purple-600 hover:bg-purple-700"
-        >
-          {isSaving ? 'Saving...' : 'Save to Your List'}
-        </Button>
-      </div>
+      ) : (
+        <>
+          <h3 className="text-lg font-semibold mb-4">Add to My Games</h3>
+          
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-slate-300 mb-1">Status</label>
+            <GameStatusButtons 
+              initialStatus={gameListEntry.status}
+              onChange={handleStatusChange}
+            />
+          </div>
+          
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-slate-300 mb-1">My Rating</label>
+            <RatingInput 
+              initialRating={gameListEntry.rating} 
+              onChange={handleRatingChange} 
+            />
+          </div>
+          
+          {error && (
+            <div className="mb-4 p-2 bg-red-900/50 border border-red-700 rounded text-red-200 text-sm">
+              {error}
+            </div>
+          )}
+          
+          {success && (
+            <div className="mb-4 p-2 bg-green-900/50 border border-green-700 rounded text-green-200 text-sm">
+              {success}
+            </div>
+          )}
+          
+          <div className="flex space-x-2">
+            <Button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="flex-1 bg-purple-600 hover:bg-purple-700"
+            >
+              {isSaving ? 'Saving...' : 'Save'}
+            </Button>
+            
+            <Button
+              onClick={() => {
+                setShowForm(false);
+                setError(null);
+                setSuccess(null);
+              }}
+              variant="outline"
+              className="border-slate-600"
+            >
+              Cancel
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 } 
