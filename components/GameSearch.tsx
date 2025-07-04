@@ -55,7 +55,7 @@ export function GameSearch() {
   }, [query]);
 
   const handleGameClick = (gameId: number) => {
-    router.push(`/games/details?id=${gameId}`);
+    router.push(`/games/${gameId}`);
   };
 
   // Filter results based on selected platform

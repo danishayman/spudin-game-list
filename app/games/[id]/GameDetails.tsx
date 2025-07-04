@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { type RawgGame } from '@/lib/rawg';
 import { getGameByIdClient } from '@/lib/games-client';
+import { GameListManager } from '@/components/GameListManager';
 
 interface GameDetailsProps {
   gameId: number;
@@ -87,18 +88,12 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
             )}
           </div>
           
-          {/* Add to Collection Button Placeholder */}
-          <div className="mt-4">
-            <button 
-              className="w-full py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
-              disabled
-            >
-              Add to Collection
-            </button>
-            <p className="text-xs text-center mt-2 text-slate-400">
-              (Coming soon in the next step)
-            </p>
-          </div>
+          {/* Game List Manager */}
+          <GameListManager 
+            gameId={game.id} 
+            gameName={game.name} 
+            gameImage={game.background_image} 
+          />
         </div>
         
         {/* Game Details */}

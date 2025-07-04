@@ -1,27 +1,29 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { notFound } from 'next/navigation';
-import GameDetails from './GameDetails';
 
 export default function GameDetailsPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const id = searchParams.get('id');
-  const gameId = id ? parseInt(id, 10) : NaN;
   
-  if (!id || isNaN(gameId)) {
-    notFound();
-  }
+  useEffect(() => {
+    if (id) {
+      const gameId = parseInt(id, 10);
+      if (!isNaN(gameId)) {
+        // Redirect to the dynamic route
+        router.replace(`/games/${gameId}`);
+      } else {
+        notFound();
+      }
+    } else {
+      notFound();
+    }
+  }, [id, router]);
   
-  return (
-    <Suspense fallback={<GameLoading />}>
-      <GameDetails gameId={gameId} />
-    </Suspense>
-  );
-}
-
-function GameLoading() {
+  // Show loading while redirecting
   return (
     <div className="container mx-auto py-8">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
