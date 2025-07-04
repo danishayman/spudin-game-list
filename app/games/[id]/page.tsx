@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import GameDetails from './GameDetails';
 
-export default async function GamePage({ params }: { params: { id: string } }) {
+export default async function GamePage({ params }: { params: Promise<{ id: string }> }) {
   // Get the ID from params - await the params object first
   const resolvedParams = await params;
   const id = resolvedParams.id;

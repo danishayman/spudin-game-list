@@ -4,7 +4,7 @@ import { getGameById } from "@/lib/rawg";
 // For dynamic route segments, we need to access the params directly
 export async function GET(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         // First await the params object itself
