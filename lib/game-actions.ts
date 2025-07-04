@@ -146,7 +146,7 @@ export async function getUserGameCounts() {
   const supabase = await createClient();
   
   // Check if user is authenticated
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return null;
   }
