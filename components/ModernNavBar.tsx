@@ -89,8 +89,21 @@ export default function ModernNavBar() {
           <div className="flex items-center space-x-4">
             {/* Game search button */}
             <Link href="/games" className="flex items-center">
-              <Button variant="outline" className="text-white border-gray-700 hover:bg-gray-800">
-                <span className="mr-2">🔍</span> Game
+              <Button variant="outline" className="text-black border-gray-700 hover:bg-gray-800">
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className="mr-2 h-4 w-4"
+              >
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+              Game
               </Button>
             </Link>
 

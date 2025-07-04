@@ -1,5 +1,4 @@
 import LoginButton from "@/components/LoginLogoutButton";
-import UserGreetText from "@/components/UserGreetText";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -246,7 +245,7 @@ export default async function Home() {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-gradient-to-r from-purple-700 to-indigo-800 py-16 px-4">
+      {/* <div className="bg-gradient-to-r from-purple-700 to-indigo-800 py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Start Your Gaming Journey?</h2>
           <p className="text-xl mb-8">Join thousands of gamers tracking and sharing their gaming experiences.</p>
@@ -254,7 +253,7 @@ export default async function Home() {
             <LoginButton />
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Footer */}
       <footer className="bg-slate-950 py-8 px-4">
@@ -263,7 +262,6 @@ export default async function Home() {
             <p className="text-slate-400">© {new Date().getFullYear()} Spudin's Game List</p>
           </div>
           <div className="flex gap-4">
-            <UserGreetText />
           </div>
         </div>
       </footer>

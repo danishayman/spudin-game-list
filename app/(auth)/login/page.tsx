@@ -9,7 +9,7 @@ const LoginPage = () => {
   return (
     <main className="flex min-h-screen flex-col bg-slate-900 text-white">
       {/* Hero Section with Banner */}
-      <div className="relative h-[60vh] w-full">
+      <div className="relative h-[60vh] w-full bg-slate-900">
         <Image
           src="/landing/banner.jpg"
           alt="Spudin's Game List Banner"
