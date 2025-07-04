@@ -17,16 +17,37 @@ async function getNewReleases(): Promise<Game[]> {
   try {
     // For server components, we need to use an absolute URL
     // This handles both local development and production
-    const baseUrl = process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
-      : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    let baseUrl;
+    
+    // Handle Vercel deployment
+    if (process.env.VERCEL_URL) {
+      baseUrl = `https://${process.env.VERCEL_URL}`;
+    } 
+    // Handle Vercel preview deployment
+    else if (process.env.VERCEL_ENV === 'preview') {
+      baseUrl = `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
+    }
+    // Use configured site URL
+    else if (process.env.NEXT_PUBLIC_SITE_URL) {
+      baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    }
+    // Fallback for local development
+    else {
+      baseUrl = 'http://localhost:3000';
+    }
+      
+    console.log('Fetching new releases from:', `${baseUrl}/api/games/new-releases`);
+    console.log('RAWG_API_KEY exists:', !!process.env.RAWG_API_KEY);
+    console.log('Environment:', process.env.VERCEL_ENV || 'local');
       
     const response = await fetch(`${baseUrl}/api/games/new-releases`, {
       next: { revalidate: 3600 } // Revalidate every hour
     });
     
     if (!response.ok) {
-      console.error('Failed to fetch new releases: Response not OK');
+      console.error('Failed to fetch new releases: Response not OK', response.status, response.statusText);
+      const errorText = await response.text();
+      console.error('Error response:', errorText);
       return [];
     }
     const data = await response.json();
