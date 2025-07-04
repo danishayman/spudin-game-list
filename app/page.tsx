@@ -15,7 +15,7 @@ interface Game {
 // Function to fetch new releases with decent ratings
 async function getNewReleases(): Promise<Game[]> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/games/new-releases`, {
+    const response = await fetch(`/api/games/new-releases`, {
       next: { revalidate: 3600 }
     });
     if (!response.ok) {
