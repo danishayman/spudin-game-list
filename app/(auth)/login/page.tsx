@@ -22,10 +22,10 @@ const LoginPage = () => {
         {/* Hero Content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
           <h1 className="text-3xl md:text-5xl font-bold mb-2 drop-shadow-lg">
-            Welcome Back
+            Welcome to Spudin's Game List
           </h1>
           <p className="text-lg md:text-xl max-w-2xl mb-8 drop-shadow-md text-slate-200">
-            Sign in to continue your gaming journey
+            Sign in with Google to start your gaming journey
           </p>
         </div>
       </div>
@@ -37,7 +37,7 @@ const LoginPage = () => {
             <CardHeader className="text-center pb-6">
               <CardTitle className="text-2xl font-bold text-white">Sign In</CardTitle>
               <CardDescription className="text-slate-300">
-                Enter your credentials to access your account
+                Use your Google account to access the app
               </CardDescription>
             </CardHeader>
             <CardContent>
