@@ -54,11 +54,11 @@ async function getNewReleases(): Promise<Game[]> {
         try {
           const errorJson = JSON.parse(errorText);
           console.error('Error details:', errorJson.details || 'No additional details');
-        } catch (_parseError) {
+        } catch {
           // If parsing fails, the response wasn't JSON
           console.error('Error response is not JSON');
         }
-      } catch (_textError) {
+      } catch {
         console.error('Could not read error response text');
       }
       return [];
