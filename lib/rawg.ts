@@ -197,7 +197,6 @@ export async function getNewReleases(): Promise<RawgSearchResponse> {
   // First, check the cache
   try {
     let cachedNewReleases = null;
-    let isStaleCache = false;
     
     try {
       // Try to get cached data, even if it might be expired
@@ -222,7 +221,6 @@ export async function getNewReleases(): Promise<RawgSearchResponse> {
       
       if (!error && data) {
         cachedNewReleases = data.data as RawgSearchResponse;
-        isStaleCache = true;
         console.log('[Cache] Found stale cache, will try API first');
       }
     } catch (cacheError) {
