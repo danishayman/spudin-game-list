@@ -46,13 +46,33 @@ async function getNewReleases(): Promise<Game[]> {
     
     if (!response.ok) {
       console.error('Failed to fetch new releases: Response not OK', response.status, response.statusText);
-      const errorText = await response.text();
-      console.error('Error response:', errorText);
+      try {
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        
+        // Try to parse the error response as JSON to get more details
+        try {
+          const errorJson = JSON.parse(errorText);
+          console.error('Error details:', errorJson.details || 'No additional details');
+        } catch (parseError) {
+          // If parsing fails, the response wasn't JSON
+          console.error('Error response is not JSON');
+        }
+      } catch (textError) {
+        console.error('Could not read error response text');
+      }
       return [];
     }
+    
     const data = await response.json();
     console.log('New releases data:', JSON.stringify(data).substring(0, 200) + '...');
     console.log('Number of results:', data.results?.length || 0);
+    
+    if (!data.results || data.results.length === 0) {
+      console.log('API returned empty results array');
+      return [];
+    }
+    
     return data.results?.slice(0, 10) || [];
   } catch (error) {
     console.error('Failed to fetch new releases:', error);

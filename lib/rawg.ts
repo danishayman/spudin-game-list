@@ -8,8 +8,10 @@ import {
   getCachedTrendingGames,
   cacheTrendingGames,
   getCachedNewReleases,
-  cacheNewReleases
+  cacheNewReleases,
+  CACHE_TYPE
 } from './cache-utils';
+import { createClient } from '@/utils/supabase/server';
 
 const RAWG_API_KEY = process.env.RAWG_API_KEY;
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
@@ -194,16 +196,48 @@ export async function getTrendingGames(): Promise<RawgSearchResponse> {
 export async function getNewReleases(): Promise<RawgSearchResponse> {
   // First, check the cache
   try {
-    const cachedNewReleases = await getCachedNewReleases();
-    if (cachedNewReleases) {
-      console.log('[Cache] Using cached new releases');
-      return cachedNewReleases;
+    let cachedNewReleases = null;
+    let isStaleCache = false;
+    
+    try {
+      // Try to get cached data, even if it might be expired
+      cachedNewReleases = await getCachedNewReleases();
+      if (cachedNewReleases) {
+        console.log('[Cache] Using fresh cached new releases');
+        return cachedNewReleases;
+      }
+      
+      // If no fresh cache, check for stale cache to use as fallback if needed
+      const supabase = await createClient();
+      const cacheKey = 'new_releases';
+      
+      console.log(`[CACHE] Checking for potentially stale cache: ${cacheKey}`);
+      
+      const { data, error } = await supabase
+        .from('game_cache')
+        .select('data, last_updated')
+        .eq('cache_key', cacheKey)
+        .eq('cache_type', CACHE_TYPE.NEW_RELEASES)
+        .single();
+      
+      if (!error && data) {
+        cachedNewReleases = data.data as RawgSearchResponse;
+        isStaleCache = true;
+        console.log('[Cache] Found stale cache, will try API first');
+      }
+    } catch (cacheError) {
+      console.error('[CACHE] Error checking cache:', cacheError);
     }
 
     console.log('[API] Fetching new releases');
     
     if (!RAWG_API_KEY) {
       console.error('[API] RAWG API key is not defined');
+      // If we have stale cache, use it rather than failing
+      if (cachedNewReleases) {
+        console.log('[Cache] Falling back to stale cache due to missing API key');
+        return cachedNewReleases;
+      }
       throw new Error('RAWG API key is not defined');
     }
 
@@ -227,74 +261,123 @@ export async function getNewReleases(): Promise<RawgSearchResponse> {
     
     console.log('[API] Fetching from URL:', url.toString().replace(RAWG_API_KEY, '[API_KEY]'));
     
-    const response = await fetch(url.toString(), { 
-      next: { revalidate: 3600 } // Revalidate every hour
-    });
-    
-    if (!response.ok) {
-      console.error(`[API] RAWG API error: ${response.status} - ${response.statusText}`);
-      const errorText = await response.text();
-      console.error(`[API] Error response body: ${errorText}`);
-      throw new Error(`RAWG API error: ${response.status}`);
-    }
-    
-    const results = await response.json();
-    console.log(`[API] Initial approach returned ${results.results?.length || 0} results`);
-    
-    // If no results with Metacritic filter, try with minimum rating instead
-    if (!results.results || results.results.length < 5) {
-      console.log('[API] Not enough results with Metacritic filter, trying with rating filter');
-      
-      const ratingUrl = new URL(`${RAWG_BASE_URL}/games`);
-      ratingUrl.searchParams.append('key', RAWG_API_KEY);
-      ratingUrl.searchParams.append('dates', `${fromDate},${toDate}`);
-      ratingUrl.searchParams.append('ordering', '-released');
-      ratingUrl.searchParams.append('page_size', '20');
-      ratingUrl.searchParams.append('ratings_count', '5');  // At least 5 ratings
-      
-      console.log('[API] Trying with rating filter:', ratingUrl.toString().replace(RAWG_API_KEY, '[API_KEY]'));
-      
-      const ratingResponse = await fetch(ratingUrl.toString(), { 
+    try {
+      const response = await fetch(url.toString(), { 
         next: { revalidate: 3600 } // Revalidate every hour
       });
       
-      if (!ratingResponse.ok) {
-        console.error(`[API] Rating API error: ${ratingResponse.status} - ${ratingResponse.statusText}`);
-        const errorText = await ratingResponse.text();
+      if (!response.ok) {
+        console.error(`[API] RAWG API error: ${response.status} - ${response.statusText}`);
+        const errorText = await response.text();
         console.error(`[API] Error response body: ${errorText}`);
-        throw new Error(`RAWG API error: ${ratingResponse.status}`);
+        
+        // If we have stale cache, use it rather than failing
+        if (cachedNewReleases) {
+          console.log('[Cache] Falling back to stale cache due to API error');
+          return cachedNewReleases;
+        }
+        
+        throw new Error(`RAWG API error: ${response.status}`);
       }
       
-      const ratingResults = await ratingResponse.json();
-      console.log(`[API] Rating approach returned ${ratingResults.results?.length || 0} results`);
+      const results = await response.json();
+      console.log(`[API] Initial approach returned ${results.results?.length || 0} results`);
       
-      // Filter locally for games with at least 3.5 rating
-      if (ratingResults.results && ratingResults.results.length > 0) {
-        ratingResults.results = ratingResults.results.filter((game: RawgGame) => game.rating >= 3.5);
-        console.log(`[API] After filtering, ${ratingResults.results.length} results remain`);
+      // If no results with Metacritic filter, try with minimum rating instead
+      if (!results.results || results.results.length < 5) {
+        console.log('[API] Not enough results with Metacritic filter, trying with rating filter');
         
-        // Limit to 10 results after filtering
-        ratingResults.results = ratingResults.results.slice(0, 10);
+        const ratingUrl = new URL(`${RAWG_BASE_URL}/games`);
+        ratingUrl.searchParams.append('key', RAWG_API_KEY);
+        ratingUrl.searchParams.append('dates', `${fromDate},${toDate}`);
+        ratingUrl.searchParams.append('ordering', '-released');
+        ratingUrl.searchParams.append('page_size', '20');
+        ratingUrl.searchParams.append('ratings_count', '5');  // At least 5 ratings
         
-        // Cache these results
-        await cacheNewReleases(ratingResults);
+        console.log('[API] Trying with rating filter:', ratingUrl.toString().replace(RAWG_API_KEY, '[API_KEY]'));
         
-        return ratingResults;
+        const ratingResponse = await fetch(ratingUrl.toString(), { 
+          next: { revalidate: 3600 } // Revalidate every hour
+        });
+        
+        if (!ratingResponse.ok) {
+          console.error(`[API] Rating API error: ${ratingResponse.status} - ${ratingResponse.statusText}`);
+          const errorText = await ratingResponse.text();
+          console.error(`[API] Error response body: ${errorText}`);
+          
+          // If we have stale cache, use it rather than failing
+          if (cachedNewReleases) {
+            console.log('[Cache] Falling back to stale cache due to rating API error');
+            return cachedNewReleases;
+          }
+          
+          throw new Error(`RAWG API error: ${ratingResponse.status}`);
+        }
+        
+        const ratingResults = await ratingResponse.json();
+        console.log(`[API] Rating approach returned ${ratingResults.results?.length || 0} results`);
+        
+        // Filter locally for games with at least 3.5 rating
+        if (ratingResults.results && ratingResults.results.length > 0) {
+          ratingResults.results = ratingResults.results.filter((game: RawgGame) => game.rating >= 3.5);
+          console.log(`[API] After filtering, ${ratingResults.results.length} results remain`);
+          
+          // Limit to 10 results after filtering
+          ratingResults.results = ratingResults.results.slice(0, 10);
+          
+          // Cache these results
+          await cacheNewReleases(ratingResults);
+          
+          return ratingResults;
+        }
       }
+      
+      // Limit to 10 results
+      if (results.results && results.results.length > 10) {
+        results.results = results.results.slice(0, 10);
+      }
+      
+      // Cache the results
+      await cacheNewReleases(results);
+      
+      return results;
+    } catch (fetchError) {
+      console.error('[API] Fetch error:', fetchError);
+      
+      // If we have stale cache, use it rather than failing
+      if (cachedNewReleases) {
+        console.log('[Cache] Falling back to stale cache due to fetch error');
+        return cachedNewReleases;
+      }
+      
+      throw fetchError;
     }
-    
-    // Limit to 10 results
-    if (results.results && results.results.length > 10) {
-      results.results = results.results.slice(0, 10);
-    }
-    
-    // Cache the results
-    await cacheNewReleases(results);
-    
-    return results;
   } catch (error) {
     console.error('[API] Error in getNewReleases:', error);
-    // Return an empty result set instead of throwing
+    
+    // Try to get stale cache as last resort
+    try {
+      const supabase = await createClient();
+      const cacheKey = 'new_releases';
+      
+      console.log(`[CACHE] Checking for any cache as final fallback`);
+      
+      const { data, error: cacheError } = await supabase
+        .from('game_cache')
+        .select('data')
+        .eq('cache_key', cacheKey)
+        .eq('cache_type', CACHE_TYPE.NEW_RELEASES)
+        .single();
+      
+      if (!cacheError && data) {
+        console.log('[Cache] Using cache as final fallback after all API failures');
+        return data.data as RawgSearchResponse;
+      }
+    } catch (fallbackError) {
+      console.error('[CACHE] Error getting fallback cache:', fallbackError);
+    }
+    
+    // Return an empty result set if everything fails
     return { count: 0, next: null, previous: null, results: [] };
   }
 } 
