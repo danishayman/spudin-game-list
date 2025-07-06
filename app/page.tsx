@@ -41,10 +41,8 @@ async function getNewReleases(): Promise<Game[]> {
     console.log('RAWG_API_KEY exists:', !!process.env.RAWG_API_KEY);
     console.log('Environment:', process.env.VERCEL_ENV || 'local');
     
-    // Use relative URL for API requests in production to avoid CORS issues
-    const apiUrl = process.env.NODE_ENV === 'production' 
-      ? '/api/games/new-releases' 
-      : `${baseUrl}/api/games/new-releases`;
+    // Server components always need absolute URLs
+    const apiUrl = `${baseUrl}/api/games/new-releases`;
       
     const response = await fetch(apiUrl, {
       next: { revalidate: 3600 } // Revalidate every hour
