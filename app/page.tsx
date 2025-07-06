@@ -21,6 +21,7 @@ async function getNewReleases(): Promise<Game[]> {
     
     // Handle Vercel deployment
     if (process.env.VERCEL_URL) {
+      // Always use HTTPS for Vercel deployments
       baseUrl = `https://${process.env.VERCEL_URL}`;
     } 
     // Handle Vercel preview deployment
@@ -39,8 +40,13 @@ async function getNewReleases(): Promise<Game[]> {
     console.log('Fetching new releases from:', `${baseUrl}/api/games/new-releases`);
     console.log('RAWG_API_KEY exists:', !!process.env.RAWG_API_KEY);
     console.log('Environment:', process.env.VERCEL_ENV || 'local');
+    
+    // Use relative URL for API requests in production to avoid CORS issues
+    const apiUrl = process.env.NODE_ENV === 'production' 
+      ? '/api/games/new-releases' 
+      : `${baseUrl}/api/games/new-releases`;
       
-    const response = await fetch(`${baseUrl}/api/games/new-releases`, {
+    const response = await fetch(apiUrl, {
       next: { revalidate: 3600 } // Revalidate every hour
     });
     

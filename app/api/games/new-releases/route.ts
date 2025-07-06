@@ -8,6 +8,16 @@ export async function GET() {
   try {
     console.log('[API] /api/games/new-releases called');
     console.log('[API] RAWG_API_KEY exists:', !!RAWG_API_KEY);
+    console.log('[API] Environment:', process.env.NODE_ENV);
+    
+    // Check for required API key
+    if (!RAWG_API_KEY) {
+      console.error('[API] RAWG API key is missing');
+      return NextResponse.json(
+        { error: 'Failed to fetch new releases', details: 'API key is missing' },
+        { status: 500 }
+      );
+    }
     
     // Try the original method first - now with improved fallback to stale cache
     const results = await getNewReleases();
@@ -20,14 +30,6 @@ export async function GET() {
     // If we still have no results, try a direct approach as last resort
     console.log('[API] No results from getNewReleases, trying direct approach');
     
-    if (!RAWG_API_KEY) {
-      console.error('[API] RAWG API key is not defined, cannot make direct API call');
-      return NextResponse.json(
-        { error: 'Failed to fetch new releases', details: 'API key is missing' },
-        { status: 500 }
-      );
-    }
-
     // Get current date and date from 3 months ago
     const now = new Date();
     const threeMonthsAgo = new Date();
