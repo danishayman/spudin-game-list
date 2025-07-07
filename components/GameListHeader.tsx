@@ -69,6 +69,7 @@ export function GameListHeader({ game }: GameListHeaderProps) {
   };
 
   const statusInfo = getStatusInfo(game.status);
+  // Handle the case when games is null
   const gameName = game.games?.name || 'Unknown Game';
   const gameImage = game.games?.background_image || null;
   const gameReleased = game.games?.released || null;

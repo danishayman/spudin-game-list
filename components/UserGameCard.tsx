@@ -83,6 +83,8 @@ export function UserGameCard({ game }: UserGameCardProps) {
   };
 
   const statusInfo = getStatusInfo(game.status);
+  
+  // Handle the case when games is null
   const gameName = game.games?.name || 'Unknown Game';
   const gameImage = game.games?.background_image || null;
   const gameReleased = game.games?.released || null;
@@ -123,7 +125,7 @@ export function UserGameCard({ game }: UserGameCardProps) {
         )}
         
         {/* Hover Actions */}
-        <div 
+        <div
           className={`absolute inset-0 bg-black/50 flex items-center justify-center gap-2 transition-opacity duration-200 ${
             isHovered ? 'opacity-100' : 'opacity-0'
           }`}
