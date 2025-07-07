@@ -204,9 +204,18 @@ export default function PrivacyPolicyPage() {
                 If you have any questions about this privacy policy or our data practices, please contact us at:
               </p>
               <div className="bg-white/5 rounded-lg p-4 mt-4">
-                <p><strong>Email:</strong> privacy@spudingamelist.com</p>
-                <p><strong>Address:</strong> [Your Company Address]</p>
+                <p><strong>Email:</strong> zagreusaiman@gmail.com</p>
+
               </div>
+              <p className="mt-4">
+                For questions about your rights and responsibilities as a user, please also review our{" "}
+                <a 
+                  href="/terms-of-service" 
+                  className="text-purple-400 hover:text-purple-300 underline"
+                >
+                  Terms of Service
+                </a>.
+              </p>
             </section>
           </div>
 

@@ -228,6 +228,12 @@ export default function ModernNavBar() {
                     >
                       Privacy Policy
                     </Link>
+                    <Link 
+                      href="/terms-of-service"
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700"
+                    >
+                      Terms of Service
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700"
@@ -395,6 +401,15 @@ export default function ModernNavBar() {
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
                             Privacy Policy
+                          </Link>
+                        </li>
+                        <li>
+                          <Link 
+                            href="/terms-of-service" 
+                            className="block py-2 px-4 text-gray-300 hover:bg-gray-800 rounded-md text-sm"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            Terms of Service
                           </Link>
                         </li>
                       </ul>

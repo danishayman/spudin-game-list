@@ -62,6 +62,14 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link 
+                  href="/terms-of-service" 
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
                 <a 
                   href="mailto:support@spudingamelist.com" 
                   className="text-gray-300 hover:text-white transition-colors text-sm"
