@@ -29,7 +29,7 @@ export default function TermsOfServicePage() {
                 If you do not agree to abide by the above, please do not use this service.
               </p>
               <p>
-                These Terms of Service ("Terms") govern your use of our gaming platform and services. 
+                These Terms of Service (&quot;Terms&quot;) govern your use of our gaming platform and services. 
                 By creating an account or using our service, you acknowledge that you have read, 
                 understood, and agree to be bound by these Terms.
               </p>
@@ -158,7 +158,7 @@ export default function TermsOfServicePage() {
                 <ul className="list-disc list-inside ml-4 space-y-1">
                   <li>Spudin Game List owns all rights to the platform and its features</li>
                   <li>Our trademarks and logos are protected intellectual property</li>
-                  <li>The platform's design, code, and functionality are proprietary</li>
+                  <li>The platform&apos;s design, code, and functionality are proprietary</li>
                 </ul>
 
                 <h3 className="text-lg font-medium text-purple-300">
@@ -254,7 +254,7 @@ export default function TermsOfServicePage() {
                   Service Disclaimers
                 </h3>
                 <ul className="list-disc list-inside ml-4 space-y-1">
-                  <li>Our service is provided "as is" without warranties</li>
+                  <li>Our service is provided &quot;as is&quot; without warranties</li>
                   <li>We do not guarantee the accuracy of game data or user content</li>
                   <li>Third-party integrations may have their own terms and limitations</li>
                   <li>We are not responsible for user-generated content</li>
@@ -311,7 +311,7 @@ export default function TermsOfServicePage() {
               <ul className="list-disc list-inside ml-4 space-y-1">
                 <li>Email notification to registered users</li>
                 <li>Prominent notice on our platform</li>
-                <li>Updating the "Last updated" date</li>
+                <li>Updating the &quot;Last updated&quot; date</li>
               </ul>
               <p>
                 Continued use of the service after changes constitutes acceptance of the new Terms.
