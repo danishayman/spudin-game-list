@@ -44,7 +44,7 @@ export default function PrivacyPolicyPage() {
                   We store information about your gaming activities including:
                 </p>
                 <ul className="list-disc list-inside ml-4 space-y-1">
-                  <li>Games you've added to your lists</li>
+                  <li>Games you&apos;ve added to your lists</li>
                   <li>Ratings and reviews you provide</li>
                   <li>Game completion status</li>
                   <li>Personal notes and comments</li>
@@ -166,7 +166,7 @@ export default function PrivacyPolicyPage() {
 
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold text-white">
-                8. Children's Privacy
+                8. Children&apos;s Privacy
               </h2>
               <p>
                 Our service is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and believe your child has provided us with personal information, please contact us.
@@ -191,7 +191,7 @@ export default function PrivacyPolicyPage() {
               </p>
               <ul className="list-disc list-inside ml-4 space-y-1">
                 <li>Posting the new privacy policy on this page</li>
-                <li>Updating the "Last updated" date</li>
+                <li>Updating the &quot;Last updated&quot; date</li>
                 <li>Sending you an email notification for significant changes</li>
               </ul>
             </section>
