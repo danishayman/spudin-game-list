@@ -3,20 +3,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 
-type SupabaseUserGameEntry = {
-  game_id: number;
-  status: string | null;
-  rating: number | null;
-  updated_at: string;
-  games: {
-    id: number;
-    name: string;
-    background_image: string | null;
-    released: string | null;
-    rating: number | null;
-  }[];
-};
-
 export type UserGameEntry = {
   game_id: number;
   status: string | null;
@@ -33,6 +19,20 @@ export type UserGameEntry = {
 
 export type GamesByStatus = {
   [key: string]: UserGameEntry[];
+};
+
+type RawSupabaseGameEntry = {
+  game_id: number;
+  status: string | null;
+  rating: number | null;
+  updated_at: string;
+  games: {
+    id: number;
+    name: string;
+    background_image: string | null;
+    released: string | null;
+    rating: number | null;
+  }[] | null;
 };
 
 /**
@@ -91,22 +91,39 @@ export async function getUserGames(): Promise<GamesByStatus> {
     }
     
     console.log('Raw games data from join:', rawGamesData);
-    
+
     // Check if we have any games with missing game details
-    const missingGameDetails = (rawGamesData as SupabaseUserGameEntry[])?.filter(
-      item => !item.games || item.games.length === 0
-    );
-    
-    if (missingGameDetails && missingGameDetails.length > 0) {
+    const missingGameDetails = Array.isArray(rawGamesData)
+      ? rawGamesData.filter((item: RawSupabaseGameEntry) => !item.games)
+      : [];
+
+    if (missingGameDetails.length > 0) {
       console.error('Games with missing details:', missingGameDetails);
     }
-    
-    // Transform the data to match expected format (games array -> single game object)
-    const gamesData: UserGameEntry[] = (rawGamesData as SupabaseUserGameEntry[])?.map(item => ({
-      ...item,
-      games: item.games && item.games.length > 0 ? item.games[0] : null // Take the first game from the array, or null if empty
-    })) || [];
-    
+
+    // Transform the data to match expected format
+    const gamesData: UserGameEntry[] = Array.isArray(rawGamesData)
+      ? rawGamesData.map((item: RawSupabaseGameEntry) => {
+          // Defensive: if item.games is an array, take the first element (should be 1:1 join)
+          const gameDetails = Array.isArray(item.games) ? item.games[0] : item.games;
+          return {
+            game_id: item.game_id,
+            status: item.status,
+            rating: item.rating,
+            updated_at: item.updated_at,
+            games: gameDetails
+              ? {
+                  id: gameDetails.id,
+                  name: gameDetails.name,
+                  background_image: gameDetails.background_image,
+                  released: gameDetails.released,
+                  rating: gameDetails.rating,
+                }
+              : null,
+          };
+        })
+      : [];
+
     // Group games by status
     const gamesByStatus: GamesByStatus = {
       'Playing': [],
