@@ -221,6 +221,13 @@ export default function ModernNavBar() {
                     >
                       Settings
                     </Link>
+                    <div className="border-t border-gray-700 my-1"></div>
+                    <Link 
+                      href="/privacy-policy"
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700"
+                    >
+                      Privacy Policy
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700"
@@ -377,6 +384,21 @@ export default function ModernNavBar() {
                         </li>
                       )}
                     </ul>
+                    
+                    {/* Footer links in mobile menu */}
+                    <div className="mt-8 pt-4 border-t border-gray-700">
+                      <ul className="space-y-2">
+                        <li>
+                          <Link 
+                            href="/privacy-policy" 
+                            className="block py-2 px-4 text-gray-300 hover:bg-gray-800 rounded-md text-sm"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            Privacy Policy
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
                   </nav>
                 </div>
               </div>
