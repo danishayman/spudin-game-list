@@ -178,7 +178,7 @@ export default async function Home() {
                   href={`/games/${game.id}`}
                   className="flex-shrink-0 group"
                 >
-                  <div className="bg-slate-700 rounded-lg overflow-hidden w-64 transition-transform group-hover:scale-105">
+                  <div className="bg-slate-700 rounded-lg overflow-hidden w-64 h-64 flex flex-col transition-transform group-hover:scale-105">
                     <div className="relative h-36">
                       {game.background_image ? (
                         <Image
@@ -193,12 +193,12 @@ export default async function Home() {
                         </div>
                       )}
                     </div>
-                    <div className="p-4">
+                    <div className="p-4 flex flex-col flex-grow">
                       <h3 className="font-bold text-sm mb-1 truncate">{game.name}</h3>
-                      <p className="text-slate-400 text-xs mb-2">
+                      <p className="text-slate-400 text-xs mb-2 h-8 line-clamp-2 overflow-hidden">
                         {game.genres?.map((g: { name: string }) => g.name).join(', ') || 'Various Genres'}
                       </p>
-                      <div className="flex items-center justify-between">
+                      <div className="mt-auto flex items-center justify-between">
                         <span className="text-xs text-slate-500">
                           {game.released ? new Date(game.released).getFullYear() : 'TBA'}
                         </span>
