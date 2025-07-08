@@ -155,7 +155,7 @@ export default async function Home() {
               </Button>
             </Link>
             <Link href="/games">
-              <Button variant="outline" className="bg-white/10 backdrop-blur-sm border-white/30 text-white px-8 py-6 text-lg hover:bg-white/20">
+              <Button variant="outline" className="bg-white/10 backdrop-blur-sm border-white/30 text-white px-8 py-6 text-lg hover:bg-white/20 hover:text-white">
                 Browse Games
               </Button>
             </Link>

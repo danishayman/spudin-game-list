@@ -141,7 +141,7 @@ export default function ModernNavBar() {
             <SearchDialog 
               buttonVariant="outline" 
               buttonText="Game" 
-              triggerClassName="text-black border-gray-700 hover:bg-gray-800"
+              triggerClassName="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 hover:text-white"
             />
 
             {/* Mobile menu button */}

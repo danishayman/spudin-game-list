@@ -101,7 +101,7 @@ export function GameSearch({ onGameSelect, className = '' }: GameSearchProps) {
           placeholder="Search for games..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="pl-10 pr-4 py-3 rounded-lg shadow-sm bg-slate-700 border-slate-600 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className="pl-10 pr-4 py-3 rounded-lg shadow-sm bg-slate-700 border-slate-600 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg"
           autoFocus
         />
       </div>
@@ -183,6 +183,76 @@ export function GameSearch({ onGameSelect, className = '' }: GameSearchProps) {
           <p className="text-slate-300 text-center">
             We couldn&apos;t find any games matching &quot;{query}&quot;
           </p>
+        </div>
+      )}
+
+      {!query.trim() && !isLoading && (
+        <div className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-slate-700/50 p-6 rounded-lg border border-slate-600 flex flex-col items-center text-center">
+              <div className="w-14 h-14 bg-purple-500/20 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-white mb-2">Discover Games</h3>
+              <p className="text-slate-300">Search through our database of 300,000+ games across all platforms</p>
+            </div>
+            
+            <div className="bg-slate-700/50 p-6 rounded-lg border border-slate-600 flex flex-col items-center text-center">
+              <div className="w-14 h-14 bg-blue-500/20 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-white mb-2">Track Your Collection</h3>
+              <p className="text-slate-300">Add games to your collection and track your progress</p>
+            </div>
+            
+            <div className="bg-slate-700/50 p-6 rounded-lg border border-slate-600 flex flex-col items-center text-center">
+              <div className="w-14 h-14 bg-green-500/20 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-white mb-2">Rate & Review</h3>
+              <p className="text-slate-300">Share your opinions and see what others think</p>
+            </div>
+          </div>
+          
+          <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-lg border border-slate-600 p-6">
+            <h3 className="text-xl font-bold text-white mb-4">Search Tips</h3>
+            <ul className="space-y-2 text-slate-300">
+              <li className="flex items-start">
+                <svg className="w-5 h-5 text-purple-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4"></path>
+                </svg>
+                <span>Use specific game titles for best results</span>
+              </li>
+              <li className="flex items-start">
+                <svg className="w-5 h-5 text-purple-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4"></path>
+                </svg>
+                <span>Filter by platform to narrow down results</span>
+              </li>
+              <li className="flex items-start">
+                <svg className="w-5 h-5 text-purple-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4"></path>
+                </svg>
+                <span>Sort by rating to find the highest rated games</span>
+              </li>
+              <li className="flex items-start">
+                <svg className="w-5 h-5 text-purple-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4"></path>
+                </svg>
+                <span>Try searching by genre (e.g., "RPG", "FPS", "Strategy")</span>
+              </li>
+            </ul>
+          </div>
+          
+          <div className="mt-6 text-center">
+            <p className="text-slate-400">Start typing to search our database of over 300,000+ games</p>
+          </div>
         </div>
       )}
     </div>

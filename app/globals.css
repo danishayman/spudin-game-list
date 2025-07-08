@@ -101,10 +101,3 @@
   .scrollbar-track-slate-800::-webkit-scrollbar-track {
     background-color: rgb(30 41 59);
   }
-
-  /* Custom positioning for search dialog */
-  .search-dialog-content {
-    position: fixed !important;
-    top: 35% !important;
-    transform: translate(-50%, -35%) !important;
-  }
