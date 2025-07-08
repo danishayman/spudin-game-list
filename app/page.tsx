@@ -272,7 +272,7 @@ export default async function Home() {
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
             <a 
-              href="https://discord.gg/gaming" 
+              href="https://discord.gg/bexed" 
               target="_blank" 
               rel="noopener noreferrer"
               className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-lg transition-colors flex items-center justify-center gap-3 text-lg font-semibold"
@@ -297,28 +297,6 @@ export default async function Home() {
           </div>
         </div>
       </div>
-
-      {/* CTA Section */}
-      {/* <div className="bg-gradient-to-r from-purple-700 to-indigo-800 py-16 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Start Your Gaming Journey?</h2>
-          <p className="text-xl mb-8">Join thousands of gamers tracking and sharing their gaming experiences.</p>
-          <div className="flex justify-center gap-4">
-            <LoginButton />
-          </div>
-        </div>
-      </div> */}
-
-      {/* Footer */}
-      <footer className="bg-slate-950 py-8 px-4">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-4 md:mb-0">
-            <p className="text-slate-400">© {new Date().getFullYear()} Spudin&apos;s Game List</p>
-          </div>
-          <div className="flex gap-4">
-          </div>
-        </div>
-      </footer>
     </main>
   );
 }
