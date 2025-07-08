@@ -112,9 +112,11 @@ export function UserGameList({ games }: UserGameListProps) {
                 </div>
                 
                 <div className="ml-4 flex-1">
-                  <Link href={`/games/${game.game_id}`} className="hover:text-purple-400 transition-colors">
-                    <h3 className="font-bold text-xl text-white hover:text-purple-400">{gameName}</h3>
-                  </Link>
+                  <h3 className="font-bold text-xl text-white">
+                    <Link href={`/games/${game.game_id}`} className="hover:text-purple-400 transition-colors inline">
+                      {gameName}
+                    </Link>
+                  </h3>
                   
                   <div className="text-sm text-slate-400 mt-1">
                     {gameGenres && <span>{gameGenres}</span>}
