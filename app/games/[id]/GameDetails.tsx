@@ -43,8 +43,6 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
   const [showAllScreenshots, setShowAllScreenshots] = useState(false);
   const [gameSeries, setGameSeries] = useState<GameSeries[]>([]);
   const [gameVideos, setGameVideos] = useState<GameVideo[]>([]);
-  const [isLoadingSeries, setIsLoadingSeries] = useState(false);
-  const [isLoadingVideos, setIsLoadingVideos] = useState(false);
 
   useEffect(() => {
     async function fetchGame() {
@@ -71,7 +69,6 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
     async function fetchGameSeries() {
       if (!game) return;
       
-      setIsLoadingSeries(true);
       try {
         const response = await fetch(`/api/games/${gameId}/series`);
         if (!response.ok) throw new Error('Failed to fetch game series');
@@ -82,8 +79,6 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
         }
       } catch (err) {
         console.error('Error fetching game series:', err);
-      } finally {
-        setIsLoadingSeries(false);
       }
     }
 
@@ -97,7 +92,6 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
     async function fetchGameVideos() {
       if (!game) return;
       
-      setIsLoadingVideos(true);
       try {
         const response = await fetch(`/api/games/${gameId}/videos`);
         if (!response.ok) throw new Error('Failed to fetch game videos');
@@ -108,8 +102,6 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
         }
       } catch (err) {
         console.error('Error fetching game videos:', err);
-      } finally {
-        setIsLoadingVideos(false);
       }
     }
 

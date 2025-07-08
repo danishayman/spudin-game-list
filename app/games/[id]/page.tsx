@@ -5,7 +5,6 @@ import type { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const resolvedParams = await params;
-  const id = resolvedParams.id;
   return {
     title: `Game Details - Spudin Game List`,
     description: 'View detailed information about this game including ratings, screenshots, videos, and more.'
