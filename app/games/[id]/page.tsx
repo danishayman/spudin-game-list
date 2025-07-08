@@ -4,8 +4,8 @@ import GameDetails from './GameDetails';
 import GameLoading from './loading';
 import type { Metadata } from 'next';
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const gameId = params.id;
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id: gameId } = await params;
   
   return {
     title: `Game ${gameId} - Spudin Game List`,
@@ -13,8 +13,9 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   };
 }
 
-export default async function GamePage({ params }: { params: { id: string } }) {
-  const gameId = parseInt(params.id, 10);
+export default async function GamePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const gameId = parseInt(id, 10);
   
   if (isNaN(gameId)) {
     notFound();
