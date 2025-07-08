@@ -56,7 +56,7 @@ export function GameCard({ game, onClick }: GameCardProps) {
   const addToListButton = (
     <Button
       variant="ghost"
-      className="absolute bottom-3 right-3 bg-black/70 hover:bg-black/90 text-white text-xs py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity"
+      className="absolute bottom-3 right-3 bg-black/80 hover:bg-purple-600 text-white text-xs py-1.5 px-3 rounded-md opacity-0 group-hover:opacity-100 transition-all duration-200 z-10 shadow-md hover:shadow-purple-500/40 hover:translate-y-[-2px]"
       data-dialog-trigger="true"
       onClick={(e) => e.stopPropagation()}
     >
