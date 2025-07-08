@@ -5,8 +5,10 @@ import GameLoading from './loading';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const gameId = params.id;
+  
   return {
-    title: `Game Details - Spudin Game List`,
+    title: `Game ${gameId} - Spudin Game List`,
     description: 'View detailed information about this game including ratings, screenshots, videos, and more.'
   };
 }
