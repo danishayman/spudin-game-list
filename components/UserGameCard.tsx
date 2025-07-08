@@ -131,7 +131,7 @@ export function UserGameCard({ game }: UserGameCardProps) {
           }`}
         >
           <Link href={`/games/${game.game_id}`}>
-            <Button variant="outline" size="sm" className="bg-slate-800/90 text-white border-slate-600 hover:bg-slate-700">
+            <Button variant="outline" size="sm" className="bg-slate-800/90 text-white border-slate-600 hover:bg-slate-700 hover:text-white">
               View Details
             </Button>
           </Link>

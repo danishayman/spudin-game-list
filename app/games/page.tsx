@@ -5,7 +5,6 @@ import { GameExplorerHero } from '@/components/GameExplorerHero';
 import { GameCollection } from '@/components/GameCollection';
 import { getTrendingGamesClient, getNewReleasesClient } from '@/lib/games-client';
 import { RawgGame } from '@/lib/rawg';
-import { SearchDialog } from '@/components/SearchDialog';
 
 export default function GamesPage() {
   const [trendingGames, setTrendingGames] = useState<RawgGame[]>([]);

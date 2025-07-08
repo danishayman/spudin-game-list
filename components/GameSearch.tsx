@@ -245,7 +245,7 @@ export function GameSearch({ onGameSelect, className = '' }: GameSearchProps) {
                 <svg className="w-5 h-5 text-purple-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4"></path>
                 </svg>
-                <span>Try searching by genre (e.g., "RPG", "FPS", "Strategy")</span>
+                <span>Try searching by genre (e.g., &quot;RPG&quot;, &quot;FPS&quot;, &quot;Strategy&quot;)</span>
               </li>
             </ul>
           </div>
