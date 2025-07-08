@@ -2,8 +2,6 @@
 
 import { UserGameEntry } from '@/lib/game-actions';
 import DragScrollContainer from './DragScrollContainer';
-import Link from 'next/link';
-import Image from 'next/image';
 import { UserGameCard } from './UserGameCard';
 
 interface UserGameCollectionProps {
