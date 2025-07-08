@@ -16,49 +16,169 @@ export default async function Image({ params }: { params: Promise<{ id: string }
     const id = parseInt(resolvedParams.id);
     const game = await getGameById(id);
     
+    // Function to determine metacritic color
+    const getMetacriticColor = (score: number) => {
+      if (score >= 75) return '#4ade80'; // green
+      if (score >= 50) return '#facc15'; // yellow
+      return '#ef4444'; // red
+    };
+    
     return new ImageResponse(
       (
         <div
           style={{
             display: 'flex',
-            background: 'linear-gradient(to bottom, #4f46e5, #1e1b4b)',
+            background: 'linear-gradient(to bottom, rgba(30, 27, 75, 0.9), rgba(15, 23, 42, 0.95))',
             width: '100%',
             height: '100%',
             flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
+            justifyContent: 'flex-end',
+            position: 'relative',
             padding: '40px',
           }}
         >
+          {/* Background image with overlay */}
+          {game.background_image && (
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundImage: `url(${game.background_image})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                opacity: 0.4,
+                zIndex: -1,
+              }}
+            />
+          )}
+          
+          {/* Spudin Game List Logo/Text */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 40,
+              left: 40,
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <div
+              style={{
+                fontSize: '24px',
+                fontWeight: 'bold',
+                color: 'white',
+              }}
+            >
+              Spudin Game List
+            </div>
+          </div>
+          
+          {/* Game information */}
           <div
             style={{
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '40px',
+              flexDirection: 'column',
+              zIndex: 1,
             }}
           >
             <h1
               style={{
-                fontSize: '60px',
+                fontSize: '72px',
                 fontWeight: 'bold',
                 color: 'white',
-                textAlign: 'center',
+                marginBottom: '16px',
+                textShadow: '0 4px 8px rgba(0, 0, 0, 0.5)',
               }}
             >
               {game.name}
             </h1>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              fontSize: '30px',
-              color: 'white',
-              opacity: 0.8,
-            }}
-          >
-            {game.released ? `Released: ${new Date(game.released).getFullYear()}` : ''}
-            {game.rating ? ` • Rating: ${game.rating.toFixed(1)}` : ''}
+            
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                marginBottom: '16px',
+              }}
+            >
+              {game.released && (
+                <div
+                  style={{
+                    fontSize: '28px',
+                    color: 'white',
+                    opacity: 0.9,
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    background: 'rgba(0, 0, 0, 0.4)',
+                  }}
+                >
+                  Released: {new Date(game.released).getFullYear()}
+                </div>
+              )}
+              
+              {game.rating && (
+                <div
+                  style={{
+                    fontSize: '28px',
+                    color: 'white',
+                    opacity: 0.9,
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    background: 'rgba(0, 0, 0, 0.4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  <span style={{ color: '#facc15' }}>★</span>
+                  {game.rating.toFixed(1)}
+                </div>
+              )}
+              
+              {game.metacritic && (
+                <div
+                  style={{
+                    fontSize: '28px',
+                    color: 'white',
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    background: getMetacriticColor(game.metacritic),
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Metacritic: {game.metacritic}
+                </div>
+              )}
+            </div>
+            
+            {/* Genres */}
+            {game.genres && game.genres.length > 0 && (
+              <div
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '8px',
+                }}
+              >
+                {game.genres.slice(0, 4).map((genre, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      fontSize: '20px',
+                      color: 'white',
+                      padding: '4px 12px',
+                      borderRadius: '16px',
+                      background: 'rgba(79, 70, 229, 0.6)',
+                    }}
+                  >
+                    {genre.name}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       ),

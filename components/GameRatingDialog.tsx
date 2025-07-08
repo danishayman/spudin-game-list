@@ -306,11 +306,11 @@ export function GameRatingDialog({
       <DialogTrigger asChild>
         {triggerComponent ? customTrigger : defaultTrigger}
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             {gameImage && (
-              <div className="w-12 h-12 relative overflow-hidden rounded">
+              <div className="w-12 h-12 relative overflow-hidden rounded flex-shrink-0">
                 <Image 
                   src={gameImage} 
                   alt={gameName} 
@@ -319,7 +319,11 @@ export function GameRatingDialog({
                 />
               </div>
             )}
-            <div className="flex-1 truncate">{gameName}</div>
+            <div className="flex-1 min-w-0">
+              <div className="truncate text-sm md:text-base leading-tight" title={gameName}>
+                {gameName}
+              </div>
+            </div>
           </DialogTitle>
         </DialogHeader>
         
