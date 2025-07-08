@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import DragScrollContainer from "@/components/DragScrollContainer";
 
 interface Game {
   id: number;
@@ -42,7 +43,8 @@ async function getNewReleases(): Promise<Game[]> {
     console.log('Environment:', process.env.VERCEL_ENV || 'local');
     
     // Server components always need absolute URLs
-    const apiUrl = `${baseUrl}/api/games/new-releases`;
+    // Add count=20 parameter to explicitly request 20 games
+    const apiUrl = `${baseUrl}/api/games/new-releases?count=20`;
       
     const response = await fetch(apiUrl, {
       next: { revalidate: 3600 } // Revalidate every hour
@@ -77,7 +79,8 @@ async function getNewReleases(): Promise<Game[]> {
       return [];
     }
     
-    return data.results?.slice(0, 10) || [];
+    // Return all results without slicing
+    return data.results || [];
   } catch (error) {
     console.error('Failed to fetch new releases:', error);
     return [];
@@ -168,7 +171,7 @@ export default async function Home() {
           </div>
           
           <div className="relative">
-            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
+            <DragScrollContainer className="flex gap-4 overflow-x-auto pb-4 scrollbar-none">
               {newReleases.map((game: Game) => (
                 <Link
                   key={game.id}
@@ -212,7 +215,7 @@ export default async function Home() {
                   </div>
                 </Link>
               ))}
-            </div>
+            </DragScrollContainer>
           </div>
         </div>
       </div>

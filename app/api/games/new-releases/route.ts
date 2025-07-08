@@ -4,11 +4,18 @@ import { getNewReleases, RawgGame } from '@/lib/rawg';
 const RAWG_API_KEY = process.env.RAWG_API_KEY;
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     console.log('[API] /api/games/new-releases called');
     console.log('[API] RAWG_API_KEY exists:', !!RAWG_API_KEY);
     console.log('[API] Environment:', process.env.NODE_ENV);
+    
+    // Get count parameter from URL if present
+    const url = new URL(request.url);
+    const countParam = url.searchParams.get('count');
+    const count = countParam ? parseInt(countParam, 10) : 20;
+    
+    console.log('[API] Requested count:', count);
     
     // Check for required API key
     if (!RAWG_API_KEY) {
@@ -22,9 +29,29 @@ export async function GET() {
     // Try the original method first - now with improved fallback to stale cache
     const results = await getNewReleases();
     
+    // Add debug information
+    console.log('[API] Results count:', results?.results?.length || 0);
+    console.log('[API] Page size in URL:', results?.next?.includes('page_size=20') ? '20' : 'other');
+    
     // If we got results from either fresh API call or cache fallback, return them
     if (results && results.results && results.results.length > 0) {
-      return NextResponse.json(results);
+      // Make sure we return the requested number of results
+      if (results.results.length > count) {
+        results.results = results.results.slice(0, count);
+      }
+      
+      // Add debugging info to the response
+      const debugResults = {
+        ...results,
+        debug: {
+          resultsCount: results.results.length,
+          requestedCount: count,
+          pageSize: results.next?.includes('page_size=20') ? '20' : 'other',
+          apiKeyExists: !!RAWG_API_KEY,
+          environment: process.env.NODE_ENV
+        }
+      };
+      return NextResponse.json(debugResults);
     }
     
     // If we still have no results, try a direct approach as last resort
@@ -39,17 +66,17 @@ export async function GET() {
     const toDate = now.toISOString().split('T')[0];
     const fromDate = threeMonthsAgo.toISOString().split('T')[0];
 
-    const url = new URL(`${RAWG_BASE_URL}/games`);
-    url.searchParams.append('key', RAWG_API_KEY);
-    url.searchParams.append('dates', `${fromDate},${toDate}`);
-    url.searchParams.append('ordering', '-added');
-    url.searchParams.append('page_size', '20');  // Increased for more filtering options
-    url.searchParams.append('metacritic', '70,100');  // Filter for games with decent metacritic scores
+    const directUrl = new URL(`${RAWG_BASE_URL}/games`);
+    directUrl.searchParams.append('key', RAWG_API_KEY);
+    directUrl.searchParams.append('dates', `${fromDate},${toDate}`);
+    directUrl.searchParams.append('ordering', '-added');
+    directUrl.searchParams.append('page_size', count.toString());  // Use requested count
+    directUrl.searchParams.append('metacritic', '70,100');  // Filter for games with decent metacritic scores
     
-    console.log('[API] Fetching from URL:', url.toString().replace(RAWG_API_KEY, '[API_KEY]'));
+    console.log('[API] Fetching from URL:', directUrl.toString().replace(RAWG_API_KEY, '[API_KEY]'));
     
     try {
-      const response = await fetch(url.toString(), { 
+      const response = await fetch(directUrl.toString(), { 
         next: { revalidate: 3600 } // Revalidate every hour instead of no-store
       });
       
@@ -69,7 +96,7 @@ export async function GET() {
         ratingUrl.searchParams.append('key', RAWG_API_KEY);
         ratingUrl.searchParams.append('dates', `${fromDate},${toDate}`);
         ratingUrl.searchParams.append('ordering', '-added');
-        ratingUrl.searchParams.append('page_size', '20');
+        ratingUrl.searchParams.append('page_size', count.toString());  // Use requested count
         ratingUrl.searchParams.append('ratings_count', '5');  // At least 5 ratings
         
         console.log('[API] Trying with rating filter:', ratingUrl.toString().replace(RAWG_API_KEY, '[API_KEY]'));
@@ -86,24 +113,50 @@ export async function GET() {
         const ratingResults = await ratingResponse.json();
         console.log(`[API] Rating approach returned ${ratingResults.results?.length || 0} results`);
         
-        // Filter locally for games with at least 3.5 rating
+        // Filter locally for games with at least 3.0 rating (lowered from 3.5)
         if (ratingResults.results && ratingResults.results.length > 0) {
-          ratingResults.results = ratingResults.results.filter((game: RawgGame) => game.rating >= 3.5);
+          ratingResults.results = ratingResults.results.filter((game: RawgGame) => game.rating >= 3.0);
           console.log(`[API] After filtering, ${ratingResults.results.length} results remain`);
           
-          // Limit to 10 results after filtering
-          ratingResults.results = ratingResults.results.slice(0, 10);
+          // Limit to requested count
+          if (ratingResults.results.length > count) {
+            ratingResults.results = ratingResults.results.slice(0, count);
+          }
           
-          return NextResponse.json(ratingResults);
+          // Add debugging info
+          const debugRatingResults = {
+            ...ratingResults,
+            debug: {
+              resultsCount: ratingResults.results.length,
+              requestedCount: count,
+              pageSize: ratingResults.next?.includes(`page_size=${count}`) ? count.toString() : 'other',
+              apiKeyExists: !!RAWG_API_KEY,
+              environment: process.env.NODE_ENV
+            }
+          };
+          
+          return NextResponse.json(debugRatingResults);
         }
       }
       
-      // Limit to 10 results
-      if (directResults.results && directResults.results.length > 10) {
-        directResults.results = directResults.results.slice(0, 10);
+      // Limit to requested count
+      if (directResults.results && directResults.results.length > count) {
+        directResults.results = directResults.results.slice(0, count);
       }
       
-      return NextResponse.json(directResults);
+      // Add debugging info
+      const debugDirectResults = {
+        ...directResults,
+        debug: {
+          resultsCount: directResults.results.length,
+          requestedCount: count,
+          pageSize: directResults.next?.includes(`page_size=${count}`) ? count.toString() : 'other',
+          apiKeyExists: !!RAWG_API_KEY,
+          environment: process.env.NODE_ENV
+        }
+      };
+      
+      return NextResponse.json(debugDirectResults);
     } catch (fetchError) {
       console.error('[API] Fetch error in direct approach:', fetchError);
       throw fetchError;
