@@ -7,7 +7,6 @@ import {
   DialogContent,
   DialogHeader, 
   DialogTitle, 
-  DialogFooter,
   DialogTrigger,
   DialogClose
 } from './ui/dialog';
@@ -26,7 +25,6 @@ interface GameRatingDialogProps {
   triggerComponent?: React.ReactNode;
   gameReleased?: string;
   gameRating?: number;
-  hideStatusIndicator?: boolean;
   onUpdate?: () => void;
 }
 
@@ -43,7 +41,6 @@ export function GameRatingDialog({
   gameReleased,
   gameRating,
   triggerComponent,
-  hideStatusIndicator = false,
   onUpdate
 }: GameRatingDialogProps) {
   const router = useRouter();
@@ -128,42 +125,22 @@ export function GameRatingDialog({
     }
   };
 
-  // Get color based on rating value
-  const getRatingColor = () => {
-    const rating = gameListEntry.rating;
-    if (rating >= 8) return 'text-green-500';
-    if (rating >= 6) return 'text-lime-500';
-    if (rating >= 4) return 'text-yellow-500';
-    if (rating >= 2) return 'text-orange-500';
-    return 'text-red-500';
+  // Format rating display
+  const formatRatingDisplay = () => {
+    if (gameListEntry.rating === 0) return "—";
+    return gameListEntry.rating.toFixed(1);
   };
-
-  // Get background color for the rating display
-  const getRatingBgColor = () => {
+  
+  // Get rating label
+  const getRatingLabel = () => {
     const rating = gameListEntry.rating;
-    if (rating >= 8) return 'bg-green-500/20';
-    if (rating >= 6) return 'bg-lime-500/20';
-    if (rating >= 4) return 'bg-yellow-500/20';
-    if (rating >= 2) return 'bg-orange-500/20';
-    return 'bg-red-500/20';
-  };
-
-  // Get status color and icon
-  const getStatusInfo = (status: GameStatus) => {
-    switch (status) {
-      case 'Finished':
-        return { icon: '✓', color: 'text-blue-500', bgColor: 'bg-blue-500/20' };
-      case 'Playing':
-        return { icon: '◉', color: 'text-green-500', bgColor: 'bg-green-500/20' };
-      case 'Dropped':
-        return { icon: '✗', color: 'text-red-500', bgColor: 'bg-red-500/20' };
-      case 'Want':
-        return { icon: '✧', color: 'text-purple-500', bgColor: 'bg-purple-500/20' };
-      case 'On-hold':
-        return { icon: '❚❚', color: 'text-amber-500', bgColor: 'bg-amber-500/20' };
-      default:
-        return { icon: '?', color: 'text-slate-500', bgColor: 'bg-slate-500/20' };
-    }
+    if (rating === 0) return "";
+    if (rating >= 9) return "Masterpiece";
+    if (rating >= 8) return "Great";
+    if (rating >= 6) return "Good";
+    if (rating >= 4) return "Average";
+    if (rating >= 2) return "Poor";
+    return "Terrible";
   };
 
   // Save changes to database
@@ -260,24 +237,6 @@ export function GameRatingDialog({
     } finally {
       setIsSaving(false);
     }
-  };
-
-  // Format rating display
-  const formatRatingDisplay = () => {
-    if (gameListEntry.rating === 0) return "—";
-    return gameListEntry.rating.toFixed(1);
-  };
-
-  // Get rating label
-  const getRatingLabel = () => {
-    const rating = gameListEntry.rating;
-    if (rating === 0) return "";
-    if (rating >= 9) return "Masterpiece";
-    if (rating >= 8) return "Great";
-    if (rating >= 6) return "Good";
-    if (rating >= 4) return "Average";
-    if (rating >= 2) return "Poor";
-    return "Terrible";
   };
 
   return (
