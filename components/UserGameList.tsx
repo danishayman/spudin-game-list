@@ -143,7 +143,6 @@ export function UserGameList({ games }: UserGameListProps) {
                         gameImage={gameImage || undefined}
                         gameReleased={gameReleased || undefined}
                         gameRating={game.games?.rating || undefined}
-                        hideStatusIndicator={true}
                         onUpdate={handleGameUpdate}
                         triggerComponent={
                           <Button 
