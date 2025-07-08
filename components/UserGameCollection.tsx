@@ -1,8 +1,7 @@
 'use client';
 
 import { UserGameEntry } from '@/lib/game-actions';
-import DragScrollContainer from './DragScrollContainer';
-import { UserGameCard } from './UserGameCard';
+import { UserGameList } from './UserGameList';
 
 interface UserGameCollectionProps {
   title?: string;
@@ -22,13 +21,11 @@ export function UserGameCollection({
   return (
     <div className="w-full">
       {title && (
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className="text-xl md:text-2xl font-bold text-white">{title}</h2>
-            {description && (
-              <p className="text-slate-300 text-sm mt-1">{description}</p>
-            )}
-          </div>
+        <div className="mb-4">
+          <h2 className="text-xl md:text-2xl font-bold text-white">{title}</h2>
+          {description && (
+            <p className="text-slate-300 text-sm mt-1">{description}</p>
+          )}
         </div>
       )}
 
@@ -54,15 +51,7 @@ export function UserGameCollection({
       )}
 
       {!isLoading && !error && games.length > 0 && (
-        <div className="relative">
-          <DragScrollContainer className="flex gap-4 overflow-x-auto pb-4 scrollbar-none">
-            {games.map((userGame) => (
-              <div key={userGame.game_id} className="flex-shrink-0">
-                <UserGameCard game={userGame} />
-              </div>
-            ))}
-          </DragScrollContainer>
-        </div>
+        <UserGameList games={games} />
       )}
     </div>
   );
