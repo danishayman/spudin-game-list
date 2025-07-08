@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import GameDetails from './GameDetails';
 import type { Metadata } from 'next';
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+export async function generateMetadata(): Promise<Metadata> {
   return {
     title: `Game Details - Spudin Game List`,
     description: 'View detailed information about this game including ratings, screenshots, videos, and more.'
