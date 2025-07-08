@@ -14,8 +14,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default async function GamePage({ params }: { params: { id: string } }) {
-  const id = params.id;
-  const gameId = parseInt(id, 10);
+  const gameId = parseInt(params.id, 10);
   
   if (isNaN(gameId)) {
     notFound();

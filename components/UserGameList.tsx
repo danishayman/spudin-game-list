@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
 import { UserGameEntry } from '@/lib/game-actions';
 import { GameRatingDialog } from './GameRatingDialog';
 import { Button } from './ui/button';
@@ -14,7 +13,6 @@ interface UserGameListProps {
 
 export function UserGameList({ games }: UserGameListProps) {
   const router = useRouter();
-  const [updatingGame, setUpdatingGame] = useState<number | null>(null);
 
   // Format release date
   const formatReleaseDate = (date: string | null) => {
@@ -32,7 +30,6 @@ export function UserGameList({ games }: UserGameListProps) {
   const handleGameUpdate = () => {
     // Refresh the page data
     router.refresh();
-    setUpdatingGame(null);
   };
 
   // Get status color and icon
@@ -151,7 +148,6 @@ export function UserGameList({ games }: UserGameListProps) {
                             variant="outline" 
                             size="icon" 
                             className="bg-slate-700 border-slate-600 hover:bg-slate-600 hover:border-slate-500 hover:text-cyan-400 transition-all rounded-full w-8 h-8"
-                            onClick={() => setUpdatingGame(game.game_id)}
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
