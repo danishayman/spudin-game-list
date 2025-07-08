@@ -7,9 +7,15 @@ interface GameStatusButtonsProps {
   initialStatus?: GameStatus;
   onChange: (status: GameStatus) => void;
   disabled?: boolean;
+  className?: string;
 }
 
-export function GameStatusButtons({ initialStatus = null, onChange, disabled = false }: GameStatusButtonsProps) {
+export function GameStatusButtons({ 
+  initialStatus = null, 
+  onChange, 
+  disabled = false,
+  className = ''
+}: GameStatusButtonsProps) {
   const [selectedStatus, setSelectedStatus] = useState<GameStatus>(initialStatus);
 
   // Update internal state when initialStatus prop changes
@@ -65,7 +71,7 @@ export function GameStatusButtons({ initialStatus = null, onChange, disabled = f
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:flex lg:flex-wrap">
+    <div className={`grid grid-cols-5 w-full gap-2 ${className}`}>
       {statusButtons.map(({ status, icon, label, activeClass, inactiveClass }) => {
         const isSelected = selectedStatus === status;
         return (
