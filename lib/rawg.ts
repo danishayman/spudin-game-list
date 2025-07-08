@@ -13,8 +13,37 @@ import {
 } from './cache-utils';
 import { createClient } from '@/utils/supabase/server';
 
+// =============================================================================
+// CONFIGURATION PARAMETERS - Adjust these values as needed
+// =============================================================================
+
+// API Configuration
 const RAWG_API_KEY = process.env.RAWG_API_KEY;
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
+
+// Cache Configuration
+const CACHE_REVALIDATION_TIME = 3600; // 1 hour in seconds
+
+// Search Configuration
+const SEARCH_PAGE_SIZE = 20;
+
+// Game Details Configuration
+const INCLUDE_SCREENSHOTS = true;
+
+// Trending Games Configuration
+const TRENDING_PAGE_SIZE = 50;
+const TRENDING_ORDERING = '-added'; // Options: '-added', '-rating', '-released', '-metacritic'
+
+// New Releases Configuration
+const NEW_RELEASES_MONTHS_BACK = 3; // How many months back to search for new releases
+const NEW_RELEASES_PAGE_SIZE = 50; // Initial fetch size (gets filtered down)
+const NEW_RELEASES_FINAL_SIZE = 20; // Final number of results to return
+const NEW_RELEASES_MIN_METACRITIC = 20; // Minimum Metacritic score (0-100)
+const NEW_RELEASES_MIN_RATING = 0.5; // Minimum RAWG rating (0-5)
+const NEW_RELEASES_MIN_RATINGS_COUNT = 1; // Minimum number of ratings required
+const NEW_RELEASES_ORDERING = '-released'; // Options: '-released', '-rating', '-metacritic'
+
+// =============================================================================
 
 export type RawgGame = {
   id: number;
@@ -74,10 +103,10 @@ export async function searchGames(query: string): Promise<RawgSearchResponse> {
   const url = new URL(`${RAWG_BASE_URL}/games`);
   url.searchParams.append('key', RAWG_API_KEY);
   url.searchParams.append('search', query);
-  url.searchParams.append('page_size', '10');
+  url.searchParams.append('page_size', SEARCH_PAGE_SIZE.toString());
 
   const response = await fetch(url.toString(), { 
-    next: { revalidate: 3600 } // Revalidate every hour
+    next: { revalidate: CACHE_REVALIDATION_TIME }
   });
   
   if (!response.ok) {
@@ -115,7 +144,7 @@ export async function getGameById(id: number): Promise<RawgGame> {
 
   // Request game details
   const response = await fetch(url.toString(), { 
-    next: { revalidate: 3600 } // Revalidate every hour
+    next: { revalidate: CACHE_REVALIDATION_TIME }
   });
   
   if (!response.ok) {
@@ -124,24 +153,26 @@ export async function getGameById(id: number): Promise<RawgGame> {
   
   const gameData = await response.json();
   
-  // Get screenshots
-  const screenshotsUrl = new URL(`${RAWG_BASE_URL}/games/${id}/screenshots`);
-  screenshotsUrl.searchParams.append('key', RAWG_API_KEY);
-  
-  try {
-    const screenshotsResponse = await fetch(screenshotsUrl.toString(), {
-      next: { revalidate: 3600 } // Revalidate every hour
-    });
+  // Get screenshots (if enabled)
+  if (INCLUDE_SCREENSHOTS) {
+    const screenshotsUrl = new URL(`${RAWG_BASE_URL}/games/${id}/screenshots`);
+    screenshotsUrl.searchParams.append('key', RAWG_API_KEY);
     
-    if (screenshotsResponse.ok) {
-      const screenshotsData = await screenshotsResponse.json();
-      if (screenshotsData.results && Array.isArray(screenshotsData.results)) {
-        gameData.screenshots = screenshotsData.results;
+    try {
+      const screenshotsResponse = await fetch(screenshotsUrl.toString(), {
+        next: { revalidate: CACHE_REVALIDATION_TIME }
+      });
+      
+      if (screenshotsResponse.ok) {
+        const screenshotsData = await screenshotsResponse.json();
+        if (screenshotsData.results && Array.isArray(screenshotsData.results)) {
+          gameData.screenshots = screenshotsData.results;
+        }
       }
+    } catch (error) {
+      console.error("Error fetching screenshots:", error);
+      // Continue without screenshots if there's an error
     }
-  } catch (error) {
-    console.error("Error fetching screenshots:", error);
-    // Continue without screenshots if there's an error
   }
   
   // Cache the game data
@@ -170,11 +201,11 @@ export async function getTrendingGames(): Promise<RawgSearchResponse> {
 
   const url = new URL(`${RAWG_BASE_URL}/games`);
   url.searchParams.append('key', RAWG_API_KEY);
-  url.searchParams.append('ordering', '-added');
-  url.searchParams.append('page_size', '10');
+  url.searchParams.append('ordering', TRENDING_ORDERING);
+  url.searchParams.append('page_size', TRENDING_PAGE_SIZE.toString());
 
   const response = await fetch(url.toString(), { 
-    next: { revalidate: 3600 } // Revalidate every hour
+    next: { revalidate: CACHE_REVALIDATION_TIME }
   });
   
   if (!response.ok) {
@@ -239,30 +270,28 @@ export async function getNewReleases(): Promise<RawgSearchResponse> {
       throw new Error('RAWG API key is not defined');
     }
 
-    // Get current date and date from 3 months ago
+    // Get current date and date from N months ago
     const now = new Date();
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setMonth(now.getMonth() - 3);
+    const monthsAgo = new Date();
+    monthsAgo.setMonth(now.getMonth() - NEW_RELEASES_MONTHS_BACK);
     
     // Format dates as YYYY-MM-DD
     const toDate = now.toISOString().split('T')[0];
-    const fromDate = threeMonthsAgo.toISOString().split('T')[0];
+    const fromDate = monthsAgo.toISOString().split('T')[0];
 
     const url = new URL(`${RAWG_BASE_URL}/games`);
     url.searchParams.append('key', RAWG_API_KEY);
     url.searchParams.append('dates', `${fromDate},${toDate}`);
-    url.searchParams.append('ordering', '-released');  // Sort by release date, newest first
-    url.searchParams.append('page_size', '20');  // Increased page size to get more results to filter from
+    url.searchParams.append('ordering', NEW_RELEASES_ORDERING);
+    url.searchParams.append('page_size', NEW_RELEASES_PAGE_SIZE.toString());
     
-    // Filter for decent ratings (minimum 70/100 on Metacritic or 3.5/5 on RAWG rating)
-    url.searchParams.append('metacritic', '60,100');  // Games with Metacritic score between 70 and 100
+    // Filter for decent ratings (minimum Metacritic score)
+    url.searchParams.append('metacritic', `${NEW_RELEASES_MIN_METACRITIC},100`);
     
-    console.log('[API] Fetching from URL:', url.toString().replace(RAWG_API_KEY, '[API_KEY]'));
-    
-    try {
-      const response = await fetch(url.toString(), { 
-        next: { revalidate: 3600 } // Revalidate every hour
-      });
+    console.log('[API] Fetching from URL:', url.toString().replace(RAWG_API_KEY, '[API_KEY]'));      try {
+        const response = await fetch(url.toString(), { 
+          next: { revalidate: CACHE_REVALIDATION_TIME }
+        });
       
       if (!response.ok) {
         console.error(`[API] RAWG API error: ${response.status} - ${response.statusText}`);
@@ -288,14 +317,14 @@ export async function getNewReleases(): Promise<RawgSearchResponse> {
         const ratingUrl = new URL(`${RAWG_BASE_URL}/games`);
         ratingUrl.searchParams.append('key', RAWG_API_KEY);
         ratingUrl.searchParams.append('dates', `${fromDate},${toDate}`);
-        ratingUrl.searchParams.append('ordering', '-released');
-        ratingUrl.searchParams.append('page_size', '20');
-        ratingUrl.searchParams.append('ratings_count', '5');  // At least 5 ratings
+        ratingUrl.searchParams.append('ordering', NEW_RELEASES_ORDERING);
+        ratingUrl.searchParams.append('page_size', NEW_RELEASES_PAGE_SIZE.toString());
+        ratingUrl.searchParams.append('ratings_count', NEW_RELEASES_MIN_RATINGS_COUNT.toString());
         
         console.log('[API] Trying with rating filter:', ratingUrl.toString().replace(RAWG_API_KEY, '[API_KEY]'));
         
         const ratingResponse = await fetch(ratingUrl.toString(), { 
-          next: { revalidate: 3600 } // Revalidate every hour
+          next: { revalidate: CACHE_REVALIDATION_TIME }
         });
         
         if (!ratingResponse.ok) {
@@ -315,13 +344,16 @@ export async function getNewReleases(): Promise<RawgSearchResponse> {
         const ratingResults = await ratingResponse.json();
         console.log(`[API] Rating approach returned ${ratingResults.results?.length || 0} results`);
         
-        // Filter locally for games with at least 3.5 rating
+        // Filter locally for games with minimum rating
         if (ratingResults.results && ratingResults.results.length > 0) {
-          ratingResults.results = ratingResults.results.filter((game: RawgGame) => game.rating >= 3.5);
+          ratingResults.results = ratingResults.results.filter((game: RawgGame) => game.rating >= NEW_RELEASES_MIN_RATING);
           console.log(`[API] After filtering, ${ratingResults.results.length} results remain`);
           
-          // Limit to 10 results after filtering
-          ratingResults.results = ratingResults.results.slice(0, 10);
+          // Ensure we have exactly the desired number of results
+          if (ratingResults.results.length > NEW_RELEASES_FINAL_SIZE) {
+            ratingResults.results = ratingResults.results.slice(0, NEW_RELEASES_FINAL_SIZE);
+            console.log(`[API] Trimmed to ${NEW_RELEASES_FINAL_SIZE} results`);
+          }
           
           // Cache these results
           await cacheNewReleases(ratingResults);
@@ -330,9 +362,9 @@ export async function getNewReleases(): Promise<RawgSearchResponse> {
         }
       }
       
-      // Limit to 10 results
-      if (results.results && results.results.length > 10) {
-        results.results = results.results.slice(0, 10);
+      // Limit to desired number of results
+      if (results.results && results.results.length > NEW_RELEASES_FINAL_SIZE) {
+        results.results = results.results.slice(0, NEW_RELEASES_FINAL_SIZE);
       }
       
       // Cache the results

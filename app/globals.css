@@ -76,6 +76,15 @@
   }
 
   /* Custom scrollbar for new releases section */
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  
   .scrollbar-thin {
     scrollbar-width: thin;
   }

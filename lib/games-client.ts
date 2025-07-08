@@ -40,4 +40,18 @@ export async function getTrendingGamesClient(): Promise<RawgSearchResponse> {
   }
   
   return response.json();
+}
+
+/**
+ * Get new releases through the API route
+ */
+export async function getNewReleasesClient(count: number = 8): Promise<RawgSearchResponse> {
+  const response = await fetch(`/api/games/new-releases?count=${count}`);
+  
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(error.error || `Error fetching new releases: ${response.status}`);
+  }
+  
+  return response.json();
 } 

@@ -1,7 +1,7 @@
 'use client';
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
-import { GameCollection } from './GameCollection';
+import { UserGameCollection } from './UserGameCollection';
 import { ViewToggle } from './ViewToggle';
 import type { GamesByStatus } from '@/lib/game-actions';
 
@@ -39,22 +39,22 @@ export default function ClientTabsWrapper({ gamesByStatus, counts }: ClientTabsW
       </div>
 
       <TabsContent value="All">
-        <GameCollection games={gamesByStatus.All} />
+        <UserGameCollection games={gamesByStatus.All} />
       </TabsContent>
       <TabsContent value="Playing">
-        <GameCollection games={gamesByStatus.Playing} />
+        <UserGameCollection games={gamesByStatus.Playing} />
       </TabsContent>
       <TabsContent value="Finished">
-        <GameCollection games={gamesByStatus.Finished} />
+        <UserGameCollection games={gamesByStatus.Finished} />
       </TabsContent>
       <TabsContent value="Want">
-        <GameCollection games={gamesByStatus.Want} />
+        <UserGameCollection games={gamesByStatus.Want} />
       </TabsContent>
       <TabsContent value="On-hold">
-        <GameCollection games={gamesByStatus['On-hold']} />
+        <UserGameCollection games={gamesByStatus['On-hold']} />
       </TabsContent>
       <TabsContent value="Dropped">
-        <GameCollection games={gamesByStatus.Dropped} />
+        <UserGameCollection games={gamesByStatus.Dropped} />
       </TabsContent>
     </Tabs>
   );

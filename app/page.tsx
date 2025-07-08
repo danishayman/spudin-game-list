@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import DragScrollContainer from "@/components/DragScrollContainer";
 
 interface Game {
   id: number;
@@ -42,7 +43,8 @@ async function getNewReleases(): Promise<Game[]> {
     console.log('Environment:', process.env.VERCEL_ENV || 'local');
     
     // Server components always need absolute URLs
-    const apiUrl = `${baseUrl}/api/games/new-releases`;
+    // Add count=20 parameter to explicitly request 20 games
+    const apiUrl = `${baseUrl}/api/games/new-releases?count=20`;
       
     const response = await fetch(apiUrl, {
       next: { revalidate: 3600 } // Revalidate every hour
@@ -77,7 +79,8 @@ async function getNewReleases(): Promise<Game[]> {
       return [];
     }
     
-    return data.results?.slice(0, 10) || [];
+    // Return all results without slicing
+    return data.results || [];
   } catch (error) {
     console.error('Failed to fetch new releases:', error);
     return [];
@@ -152,7 +155,7 @@ export default async function Home() {
               </Button>
             </Link>
             <Link href="/games">
-              <Button variant="outline" className="bg-white/10 backdrop-blur-sm border-white/30 text-white px-8 py-6 text-lg hover:bg-white/20">
+              <Button variant="outline" className="bg-white/10 backdrop-blur-sm border-white/30 text-white px-8 py-6 text-lg hover:bg-white/20 hover:text-white">
                 Browse Games
               </Button>
             </Link>
@@ -168,14 +171,14 @@ export default async function Home() {
           </div>
           
           <div className="relative">
-            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
+            <DragScrollContainer className="flex gap-4 overflow-x-auto pb-4 scrollbar-none">
               {newReleases.map((game: Game) => (
                 <Link
                   key={game.id}
                   href={`/games/${game.id}`}
                   className="flex-shrink-0 group"
                 >
-                  <div className="bg-slate-700 rounded-lg overflow-hidden w-64 transition-transform group-hover:scale-105">
+                  <div className="bg-slate-700 rounded-lg overflow-hidden w-64 h-64 flex flex-col transition-transform group-hover:scale-105">
                     <div className="relative h-36">
                       {game.background_image ? (
                         <Image
@@ -190,12 +193,12 @@ export default async function Home() {
                         </div>
                       )}
                     </div>
-                    <div className="p-4">
-                      <h3 className="font-bold text-sm mb-1 truncate">{game.name}</h3>
-                      <p className="text-slate-400 text-xs mb-2">
+                    <div className="p-4 flex flex-col flex-grow">
+                      <h3 className="font-bold text-sm mb-1 truncate text-white">{game.name}</h3>
+                      <p className="text-slate-400 text-xs mb-2 h-8 line-clamp-2 overflow-hidden">
                         {game.genres?.map((g: { name: string }) => g.name).join(', ') || 'Various Genres'}
                       </p>
-                      <div className="flex items-center justify-between">
+                      <div className="mt-auto flex items-center justify-between">
                         <span className="text-xs text-slate-500">
                           {game.released ? new Date(game.released).getFullYear() : 'TBA'}
                         </span>
@@ -212,7 +215,7 @@ export default async function Home() {
                   </div>
                 </Link>
               ))}
-            </div>
+            </DragScrollContainer>
           </div>
         </div>
       </div>
@@ -269,7 +272,7 @@ export default async function Home() {
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
             <a 
-              href="https://discord.gg/gaming" 
+              href="https://discord.gg/bexed" 
               target="_blank" 
               rel="noopener noreferrer"
               className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-lg transition-colors flex items-center justify-center gap-3 text-lg font-semibold"
@@ -294,28 +297,6 @@ export default async function Home() {
           </div>
         </div>
       </div>
-
-      {/* CTA Section */}
-      {/* <div className="bg-gradient-to-r from-purple-700 to-indigo-800 py-16 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Start Your Gaming Journey?</h2>
-          <p className="text-xl mb-8">Join thousands of gamers tracking and sharing their gaming experiences.</p>
-          <div className="flex justify-center gap-4">
-            <LoginButton />
-          </div>
-        </div>
-      </div> */}
-
-      {/* Footer */}
-      <footer className="bg-slate-950 py-8 px-4">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-4 md:mb-0">
-            <p className="text-slate-400">© {new Date().getFullYear()} Spudin&apos;s Game List</p>
-          </div>
-          <div className="flex gap-4">
-          </div>
-        </div>
-      </footer>
     </main>
   );
 }
