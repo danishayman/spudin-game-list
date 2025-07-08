@@ -7,7 +7,12 @@ import { GameCard } from './GameCard';
 import { type RawgGame } from '@/lib/rawg';
 import { searchGamesClient } from '@/lib/games-client';
 
-export function GameSearch() {
+interface GameSearchProps {
+  onGameSelect?: (gameId: number) => void;
+  className?: string;
+}
+
+export function GameSearch({ onGameSelect, className = '' }: GameSearchProps) {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<RawgGame[]>([]);
@@ -54,7 +59,11 @@ export function GameSearch() {
   }, [query]);
 
   const handleGameClick = (gameId: number) => {
-    router.push(`/games/${gameId}`);
+    if (onGameSelect) {
+      onGameSelect(gameId);
+    } else {
+      router.push(`/games/${gameId}`);
+    }
   };
 
   // Filter results based on selected platform
@@ -80,7 +89,7 @@ export function GameSearch() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-4 ${className}`}>
       <div className="relative">
         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
           <svg className="w-4 h-4 text-slate-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -93,6 +102,7 @@ export function GameSearch() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="pl-10 pr-4 py-3 rounded-lg shadow-sm bg-slate-700 border-slate-600 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          autoFocus
         />
       </div>
 
@@ -152,7 +162,7 @@ export function GameSearch() {
             <h2 className="text-xl font-semibold text-white">Search Results</h2>
             <span className="text-sm text-slate-400">{sortedResults.length} games found</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto pr-2 pb-4">
             {sortedResults.map((game) => (
               <GameCard 
                 key={game.id} 

@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
+import { SearchDialog } from "./SearchDialog";
 
 interface Profile {
   id: string;
@@ -137,24 +138,11 @@ export default function ModernNavBar() {
           {/* Right side - Search and profile */}
           <div className="flex items-center space-x-4">
             {/* Game search button */}
-            <Link href="/games" className="flex items-center">
-              <Button variant="outline" className="text-black border-gray-700 hover:bg-gray-800">
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                className="mr-2 h-4 w-4"
-              >
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.35-4.35"></path>
-              </svg>
-              Game
-              </Button>
-            </Link>
+            <SearchDialog 
+              buttonVariant="outline" 
+              buttonText="Game" 
+              triggerClassName="text-black border-gray-700 hover:bg-gray-800"
+            />
 
             {/* Mobile menu button */}
             <button
@@ -328,13 +316,18 @@ export default function ModernNavBar() {
                         </Link>
                       </li>
                       <li>
-                        <Link 
-                          href="/games" 
-                          className="block py-2 px-4 text-white hover:bg-gray-800 rounded-md"
-                          onClick={() => setIsMobileMenuOpen(false)}
+                        <button
+                          className="block w-full text-left py-2 px-4 text-white hover:bg-gray-800 rounded-md"
+                          onClick={() => {
+                            setIsMobileMenuOpen(false);
+                          }}
                         >
-                          Browse Games
-                        </Link>
+                          <SearchDialog 
+                            buttonVariant="ghost" 
+                            buttonText="Search Games" 
+                            triggerClassName="w-full justify-start p-0 h-auto"
+                          />
+                        </button>
                       </li>
                       {user && (
                         <li>

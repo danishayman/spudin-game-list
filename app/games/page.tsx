@@ -1,4 +1,4 @@
-import { GameSearch } from '@/components/GameSearch';
+import { SearchDialog } from '@/components/SearchDialog';
 
 export const metadata = {
   title: 'Discover Games - Spudin Game List',
@@ -8,20 +8,6 @@ export const metadata = {
 export default function GamesPage() {
   return (
     <div className="min-h-screen bg-slate-900">
-      {/* Hero Section */}
-      {/* <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
-        <div className="container mx-auto py-12 px-4">
-          <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-center">
-              Discover Your Next Gaming Adventure
-            </h1>
-            <p className="text-xl opacity-90 mb-6">
-              Search through thousands of games across all platforms. Find hidden gems, trending titles, and upcoming releases.
-            </p>
-          </div>
-        </div>
-      </div> */}
-
       {/* Main Content */}
       <div className="container mx-auto py-8 px-4">
         <div className="bg-slate-800 text-white rounded-lg shadow-md p-6 md:p-8 -mt-6 relative z-10">
@@ -43,7 +29,17 @@ export default function GamesPage() {
             </div>
           </div>
           
-          <GameSearch />
+          <div className="flex flex-col items-center justify-center py-12">
+            <h3 className="text-3xl font-bold mb-6 text-center">Find Your Next Gaming Adventure</h3>
+            <p className="text-slate-300 mb-8 text-center max-w-2xl">
+              Search through thousands of games across all platforms. Find hidden gems, trending titles, and upcoming releases.
+            </p>
+            <SearchDialog 
+              buttonVariant="default" 
+              buttonText="Search Games" 
+              triggerClassName="bg-purple-600 hover:bg-purple-700 text-lg py-6 px-8"
+            />
+          </div>
           
           <div className="mt-12 pt-8 border-t border-slate-700">
             <h3 className="text-lg font-medium text-slate-200 mb-4">Search Tips</h3>
