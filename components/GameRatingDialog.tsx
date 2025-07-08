@@ -16,6 +16,7 @@ import { Slider } from './ui/slider';
 import { GameStatusButtons, type GameStatus } from './GameStatusButtons';
 import { createClient } from '@/utils/supabase/client';
 import { useUser } from '@/lib/hooks';
+import { useRouter } from 'next/navigation';
 
 interface GameRatingDialogProps {
   gameId: number;
@@ -24,6 +25,8 @@ interface GameRatingDialogProps {
   triggerComponent?: React.ReactNode;
   gameReleased?: string;
   gameRating?: number;
+  hideStatusIndicator?: boolean;
+  onUpdate?: () => void;
 }
 
 interface GameListEntry {
@@ -38,8 +41,11 @@ export function GameRatingDialog({
   gameImage,
   gameReleased,
   gameRating,
-  triggerComponent 
+  triggerComponent,
+  hideStatusIndicator = false,
+  onUpdate
 }: GameRatingDialogProps) {
+  const router = useRouter();
   const { user, isLoading: userLoading } = useUser();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -215,6 +221,14 @@ export function GameRatingDialog({
         if (error) throw error;
         setGameListEntry(prev => ({ ...prev, isInList: false }));
         setOpen(false); // Close dialog after removing
+        
+        // Call onUpdate callback if provided
+        if (onUpdate) {
+          onUpdate();
+        } else {
+          // Refresh the page data
+          router.refresh();
+        }
       } else {
         // Otherwise upsert the entry
         const { error } = await supabase
@@ -230,6 +244,14 @@ export function GameRatingDialog({
         if (error) throw error;
         setGameListEntry(prev => ({ ...prev, isInList: true }));
         setOpen(false); // Close dialog after saving
+        
+        // Call onUpdate callback if provided
+        if (onUpdate) {
+          onUpdate();
+        } else {
+          // Refresh the page data
+          router.refresh();
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save your game data');
@@ -268,21 +290,24 @@ export function GameRatingDialog({
     </Button>
   );
 
-  // Custom trigger component with status/rating info if game is in list
-  const customTrigger = gameListEntry.isInList ? (
-    <div onClick={(e) => e.stopPropagation()} className="absolute bottom-3 right-3 z-10 flex items-center gap-2">
-      {gameListEntry.status && (
-        <div className={`px-2 py-1 rounded text-xs font-bold ${getStatusInfo(gameListEntry.status).bgColor} ${getStatusInfo(gameListEntry.status).color}`}>
-          {getStatusInfo(gameListEntry.status).icon} {gameListEntry.status}
-        </div>
-      )}
-      {gameListEntry.rating > 0 && (
-        <div className={`px-2 py-1 rounded text-xs font-bold ${getRatingBgColor()} ${getRatingColor()}`}>
-          ★ {gameListEntry.rating.toFixed(1)}
-        </div>
-      )}
-    </div>
-  ) : triggerComponent;
+  // If hideStatusIndicator is true, always use the provided triggerComponent
+  // Otherwise, show status/rating info if game is in list
+  const customTrigger = hideStatusIndicator ? 
+    triggerComponent : 
+    (gameListEntry.isInList && !hideStatusIndicator) ? (
+      <div onClick={(e) => e.stopPropagation()} className="absolute bottom-3 right-3 z-10 flex items-center gap-2">
+        {gameListEntry.status && (
+          <div className={`px-2 py-1 rounded text-xs font-bold ${getStatusInfo(gameListEntry.status).bgColor} ${getStatusInfo(gameListEntry.status).color}`}>
+            {getStatusInfo(gameListEntry.status).icon} {gameListEntry.status}
+          </div>
+        )}
+        {gameListEntry.rating > 0 && (
+          <div className={`px-2 py-1 rounded text-xs font-bold ${getRatingBgColor()} ${getRatingColor()}`}>
+            ★ {gameListEntry.rating.toFixed(1)}
+          </div>
+        )}
+      </div>
+    ) : triggerComponent;
 
   if (userLoading) {
     return (
@@ -300,6 +325,13 @@ export function GameRatingDialog({
       </div>
     );
   }
+
+  // Format the rating display
+  const formatRatingDisplay = () => {
+    if (gameListEntry.rating === 0) return "—";
+    if (gameListEntry.rating === 10) return "10";
+    return gameListEntry.rating.toFixed(1);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -359,7 +391,7 @@ export function GameRatingDialog({
                   />
                   <div className="flex justify-center">
                     <div className={`font-bold text-2xl ${getRatingColor()} px-4 py-2 rounded ${getRatingBgColor()}`}>
-                      {gameListEntry.rating.toFixed(1)}
+                      {formatRatingDisplay()}
                     </div>
                   </div>
                 </div>

@@ -43,6 +43,24 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
   const [showAllScreenshots, setShowAllScreenshots] = useState(false);
   const [gameSeries, setGameSeries] = useState<GameSeries[]>([]);
   const [gameVideos, setGameVideos] = useState<GameVideo[]>([]);
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Hide the skeleton UI when game data is loaded
+  useEffect(() => {
+    if (!isLoading && game) {
+      // Short delay to ensure smooth transition
+      const timer = setTimeout(() => {
+        // Find and hide the skeleton UI
+        const skeletonUI = document.querySelector('[data-skeleton="true"]');
+        if (skeletonUI) {
+          (skeletonUI as HTMLElement).style.display = 'none';
+        }
+        setIsVisible(true);
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, game]);
 
   useEffect(() => {
     async function fetchGame() {
@@ -110,8 +128,9 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
     }
   }, [game, gameId]);
 
+  // If we're still loading, return null
   if (isLoading) {
-    return null; // Parent component handles loading state
+    return null;
   }
 
   if (error) {
@@ -152,7 +171,10 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
   const activeScreenshot = allScreenshots[activeScreenshotIndex]?.image || '';
 
   return (
-    <div className="container mx-auto py-8 text-white">
+    <div className="container mx-auto py-8 text-white" style={{
+      opacity: isVisible ? 1 : 0,
+      transition: 'opacity 0.3s ease-in'
+    }}>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Game Image and Screenshots */}
         <div className="md:col-span-1">
