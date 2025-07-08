@@ -153,7 +153,7 @@ export function UserGameCard({ game }: UserGameCardProps) {
       </div>
       
       <CardContent className="p-3 flex flex-col flex-grow text-white">
-        <h3 className="font-semibold text-base line-clamp-1">{gameName}</h3>
+        <h3 className="font-semibold text-base line-clamp-1 text-white">{gameName}</h3>
         
         <div className="mt-auto pt-2 flex items-center justify-between text-xs text-slate-400">
           <div>

@@ -194,7 +194,7 @@ export default async function Home() {
                       )}
                     </div>
                     <div className="p-4 flex flex-col flex-grow">
-                      <h3 className="font-bold text-sm mb-1 truncate">{game.name}</h3>
+                      <h3 className="font-bold text-sm mb-1 truncate text-white">{game.name}</h3>
                       <p className="text-slate-400 text-xs mb-2 h-8 line-clamp-2 overflow-hidden">
                         {game.genres?.map((g: { name: string }) => g.name).join(', ') || 'Various Genres'}
                       </p>

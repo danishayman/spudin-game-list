@@ -100,7 +100,7 @@ export function GameCard({ game, onClick }: GameCardProps) {
         </div>
       </div>
       <CardContent className="p-4 flex flex-col flex-grow text-white">
-        <h3 className="font-semibold text-lg line-clamp-1">{game.name}</h3>
+        <h3 className="font-semibold text-lg line-clamp-1 text-white">{game.name}</h3>
         
         <div className="flex items-center gap-1 mt-2 mb-3">
           {uniquePlatforms.map((platform) => (
