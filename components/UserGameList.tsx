@@ -14,9 +14,6 @@ interface UserGameListProps {
 export function UserGameList({ games }: UserGameListProps) {
   const router = useRouter();
   
-  // Log the games data to see what we're getting
-  console.log('UserGameList games:', games);
-
   // Format release date
   const formatReleaseDate = (date: string | null) => {
     if (!date) return 'TBA';
@@ -144,10 +141,10 @@ export function UserGameList({ games }: UserGameListProps) {
                   
                   <div className="flex justify-between mt-1 text-sm text-slate-400">
                     <div>
-                      {gameReleased ? formatReleaseDate(gameReleased) : 'TBA'}
+                      Released: {gameReleased ? formatReleaseDate(gameReleased) : 'TBA'}
                     </div>
                     <div>
-                      {formatAddedDate(game.updated_at)}
+                      Added: {formatAddedDate(game.updated_at)}
                     </div>
                   </div>
                 </div>
