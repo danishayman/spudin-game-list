@@ -508,8 +508,6 @@ export function GameRatingDialog({
                   <h4 className="text-xl font-bold">Review</h4>
                   <div className="py-2">
                     <ReviewInput
-                      gameId={gameId}
-                      userId={user.id}
                       initialContent={gameListEntry.review || ''}
                       onChange={handleReviewChange}
                       disabled={isSaving || isDeleting}

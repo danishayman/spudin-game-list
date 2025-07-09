@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Textarea } from './ui/textarea';
-import { Button } from './ui/button';
-import { Send, Loader2 } from 'lucide-react';
 
 interface ReviewInputProps {
-  gameId: number;
-  userId: string;
   initialContent?: string;
   onChange: (content: string) => void;
   disabled?: boolean;
@@ -13,8 +9,6 @@ interface ReviewInputProps {
 }
 
 export function ReviewInput({ 
-  gameId, 
-  userId, 
   initialContent = '', 
   onChange, 
   disabled = false,
