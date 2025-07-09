@@ -5,6 +5,9 @@ import Image from 'next/image';
 import { type RawgGame } from '@/lib/rawg';
 import { getGameByIdClient } from '@/lib/games-client';
 import { GameRatingDialog } from '@/components/GameRatingDialog';
+import { createClient } from '@/utils/supabase/client';
+import { useUser } from '@/lib/hooks';
+import type { GameStatus } from '@/components/GameStatusButtons';
 
 interface GameDetailsProps {
   gameId: number;
@@ -35,6 +38,13 @@ interface GameVideo {
   };
 }
 
+// Define a type for user game list entry
+interface UserGameListEntry {
+  status: GameStatus | null;
+  rating: number;
+  isInList: boolean;
+}
+
 export default function GameDetails({ gameId }: GameDetailsProps) {
   const [game, setGame] = useState<RawgGame | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,6 +54,12 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
   const [gameSeries, setGameSeries] = useState<GameSeries[]>([]);
   const [gameVideos, setGameVideos] = useState<GameVideo[]>([]);
   const [isVisible, setIsVisible] = useState(false);
+  const [userGameEntry, setUserGameEntry] = useState<UserGameListEntry>({
+    status: null,
+    rating: 0,
+    isInList: false,
+  });
+  const { user } = useUser();
 
   // Hide the skeleton UI when game data is loaded
   useEffect(() => {
@@ -61,6 +77,42 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
       return () => clearTimeout(timer);
     }
   }, [isLoading, game]);
+
+  // Fetch user's game list entry if logged in
+  useEffect(() => {
+    async function fetchUserGameEntry() {
+      if (!user) return;
+      
+      try {
+        const supabase = createClient();
+        
+        // Get user's game list entry
+        const { data, error } = await supabase
+          .from('game_lists')
+          .select('status, rating')
+          .eq('user_id', user.id)
+          .eq('game_id', gameId)
+          .single();
+          
+        if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
+          console.error('Error fetching user game entry:', error);
+          return;
+        }
+        
+        if (data) {
+          setUserGameEntry({
+            status: data.status as GameStatus,
+            rating: data.rating || 0,
+            isInList: true,
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching user game entry:', err);
+      }
+    }
+    
+    fetchUserGameEntry();
+  }, [gameId, user]);
 
   useEffect(() => {
     async function fetchGame() {
@@ -162,6 +214,51 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
     return 'bg-red-700 text-red-100';
   };
 
+  // Function to get status color
+  const getStatusColor = (status: GameStatus | null) => {
+    if (!status) return '';
+    
+    switch (status) {
+      case 'Finished': return 'bg-cyan-500 text-white';
+      case 'Playing': return 'bg-green-500 text-white';
+      case 'Dropped': return 'bg-red-500 text-white';
+      case 'Want': return 'bg-purple-500 text-white';
+      case 'On-hold': return 'bg-amber-500 text-white';
+      default: return 'bg-slate-500 text-white';
+    }
+  };
+
+  // Function to get status icon
+  const getStatusIcon = (status: GameStatus | null) => {
+    if (!status) return '';
+    
+    switch (status) {
+      case 'Finished': return '✓';
+      case 'Playing': return '◉';
+      case 'Dropped': return '✗';
+      case 'Want': return '✧';
+      case 'On-hold': return '❚❚';
+      default: return '';
+    }
+  };
+
+  // Format rating display
+  const formatRatingDisplay = (rating: number) => {
+    if (rating === 0) return "—";
+    return rating.toFixed(1);
+  };
+  
+  // Get rating label
+  const getRatingLabel = (rating: number) => {
+    if (rating === 0) return "";
+    if (rating >= 9) return "Masterpiece";
+    if (rating >= 8) return "Great";
+    if (rating >= 6) return "Good";
+    if (rating >= 4) return "Average";
+    if (rating >= 2) return "Poor";
+    return "Terrible";
+  };
+
   // Get all screenshots including the main background image, with proper typing
   const allScreenshots: Screenshot[] = [
     ...(game.background_image ? [{ id: 0, image: game.background_image }] : []),
@@ -227,6 +324,67 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
             </div>
           )}
           
+          {/* User Game Status and Rating */}
+          {userGameEntry.isInList && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-slate-800 to-slate-800/80 rounded-lg border border-slate-700 shadow-lg overflow-hidden relative">
+              {/* Sparkle elements */}
+              <div className="absolute right-6 top-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-300/60">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              </div>
+              <div className="absolute right-2 top-8">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-300/40">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                {/* User avatar/icon */}
+                <div className="relative w-14 h-14 rounded-full overflow-hidden bg-cyan-500/20 border-2 border-cyan-400/30 flex items-center justify-center">
+                  {user?.user_metadata?.avatar_url ? (
+                    <Image
+                      src={user.user_metadata.avatar_url}
+                      alt="User avatar"
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <span className="text-cyan-300 text-xl font-bold">
+                      {user?.user_metadata?.name?.charAt(0) || user?.email?.charAt(0) || '?'}
+                    </span>
+                  )}
+                </div>
+                
+                <div className="flex-1 flex flex-col items-center">
+                  <div className="text-4xl font-bold text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.3)]">
+                    {formatRatingDisplay(userGameEntry.rating)}
+                  </div>
+                  
+                  {userGameEntry.status && (
+                    <div className="mt-1">
+                      <div className={`px-3 py-1 rounded-full text-sm font-medium flex items-center ${getStatusColor(userGameEntry.status)}`}>
+                        {userGameEntry.status}
+                        {userGameEntry.status === 'Finished' && (
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Decorative elements */}
+                <div className="absolute right-2 top-2 text-cyan-300/10">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {/* Add to Game List */}
           <div className="mb-6">
             <GameRatingDialog
@@ -236,6 +394,52 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
               gameReleased={game.released || undefined}
               gameRating={game.rating || undefined}
               gameGenres={game.genres || undefined}
+              onUpdate={() => {
+                // Refresh the user game entry when updated
+                if (user) {
+                  const supabase = createClient();
+                  supabase
+                    .from('game_lists')
+                    .select('status, rating')
+                    .eq('user_id', user.id)
+                    .eq('game_id', gameId)
+                    .single()
+                    .then(({ data, error }) => {
+                      if (error && error.code !== 'PGRST116') {
+                        console.error('Error fetching updated user game entry:', error);
+                        return;
+                      }
+                      
+                      if (data) {
+                        setUserGameEntry({
+                          status: data.status as GameStatus,
+                          rating: data.rating || 0,
+                          isInList: true,
+                        });
+                      } else {
+                        setUserGameEntry({
+                          status: null,
+                          rating: 0,
+                          isInList: false,
+                        });
+                      }
+                    });
+                }
+              }}
+              triggerComponent={
+                <button className="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-md transition shadow-md font-medium flex items-center justify-center">
+                  <span className="mr-2">{userGameEntry.isInList ? 'Update in List' : 'Add to List'}</span>
+                  {userGameEntry.isInList ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </button>
+              }
             />
           </div>
 

@@ -152,47 +152,52 @@ export function UserGameList({ games }: UserGameListProps) {
                   </div>
                 </div>
                 
-                <div className="flex flex-col items-end justify-between ml-4">
-                  <div className="flex items-center">
-                    {game.rating && game.rating > 0 ? (
-                      <div className="text-center mr-2">
-                        <div className="text-5xl font-bold text-cyan-400">
+                <div className="flex flex-col items-end ml-4">
+                  <div className="flex items-center mb-1">
+                    <div className="flex flex-col items-center mr-2">
+                      {game.rating && game.rating > 0 ? (
+                        <div className="text-5xl font-bold text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.3)]">
                           {formatRating(game.rating)}
                         </div>
-                      </div>
-                    ) : (
-                      <div className="mr-2"></div>
-                    )}
+                      ) : (
+                        <div className="text-5xl font-bold text-slate-500">—</div>
+                      )}
+                      
+                      {game.status && (
+                        <div className="mt-1">
+                          <div className={`${statusInfo.color} rounded-full px-3 py-1 text-white text-sm flex items-center`}>
+                            {game.status}
+                            {game.status === 'Finished' && (
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     
-                    <div>
-                      <GameRatingDialog
-                        gameId={game.game_id}
-                        gameName={gameName}
-                        gameImage={gameImage || undefined}
-                        gameReleased={gameReleased || undefined}
-                        gameRating={game.games?.rating || undefined}
-                        onUpdate={handleGameUpdate}
-                        triggerComponent={
-                          <Button 
-                            variant="outline" 
-                            size="icon" 
-                            className="bg-slate-700 border-slate-600 hover:bg-slate-600 hover:border-slate-500 hover:text-cyan-400 transition-all rounded-full w-8 h-8"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                          </Button>
-                        }
-                      />
-                    </div>
+                    <GameRatingDialog
+                      gameId={game.game_id}
+                      gameName={gameName}
+                      gameImage={gameImage || undefined}
+                      gameReleased={gameReleased || undefined}
+                      gameRating={game.games?.rating || undefined}
+                      onUpdate={handleGameUpdate}
+                      triggerComponent={
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="bg-slate-700 border-slate-600 hover:bg-slate-600 hover:border-slate-500 hover:text-cyan-400 transition-all rounded-full w-8 h-8"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                          </svg>
+                        </Button>
+                      }
+                    />
                   </div>
-                  
-                  {game.status && (
-                    <div className={`${statusInfo.color} rounded-md px-3 py-1 text-white text-sm mt-2`}>
-                      {game.status}
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
