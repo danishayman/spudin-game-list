@@ -8,7 +8,8 @@ import {
   DialogHeader, 
   DialogTitle, 
   DialogTrigger,
-  DialogClose
+  DialogClose,
+  DialogFooter
 } from './ui/dialog';
 import { Button } from './ui/button';
 import { Slider } from './ui/slider';
@@ -16,7 +17,7 @@ import { GameStatusButtons, type GameStatus } from './GameStatusButtons';
 import { createClient } from '@/utils/supabase/client';
 import { useUser } from '@/lib/hooks';
 import { useRouter } from 'next/navigation';
-import { X } from 'lucide-react';
+import { X, Trash2 } from 'lucide-react';
 
 interface GameRatingDialogProps {
   gameId: number;
@@ -47,6 +48,8 @@ export function GameRatingDialog({
   const { user, isLoading: userLoading } = useUser();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [gameListEntry, setGameListEntry] = useState<GameListEntry>({
@@ -141,6 +144,50 @@ export function GameRatingDialog({
     if (rating >= 4) return "Average";
     if (rating >= 2) return "Poor";
     return "Terrible";
+  };
+
+  // Delete game from list
+  const handleDelete = async () => {
+    if (!user) {
+      setError('You must be logged in to remove games from your list');
+      return;
+    }
+    
+    try {
+      setIsDeleting(true);
+      setError(null);
+      const supabase = createClient();
+      
+      const { error } = await supabase
+        .from('game_lists')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('game_id', gameId);
+        
+      if (error) throw error;
+      
+      setGameListEntry({
+        status: null,
+        rating: 0,
+        isInList: false,
+      });
+      
+      setShowDeleteConfirm(false);
+      setOpen(false); // Close dialog after removing
+      
+      // Call onUpdate callback if provided
+      if (onUpdate) {
+        onUpdate();
+      } else {
+        // Refresh the page data
+        router.refresh();
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to remove game from your list');
+      console.error('Error deleting game list entry:', err);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   // Save changes to database
@@ -239,136 +286,208 @@ export function GameRatingDialog({
     }
   };
 
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {triggerComponent || (
-          <Button 
-            variant="outline" 
-            className="w-full bg-slate-800 border-slate-700 hover:bg-slate-700 text-white"
+  // Delete confirmation dialog
+  const DeleteConfirmationDialog = () => (
+    <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+      <DialogContent className="bg-slate-900 border-slate-700 text-white p-6 max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-medium">Remove Game</DialogTitle>
+        </DialogHeader>
+        <p className="py-4">Are you sure you want to remove this game from your list?</p>
+        <DialogFooter className="flex sm:justify-between gap-3 pt-2">
+          <Button
+            variant="outline"
+            onClick={() => setShowDeleteConfirm(false)}
+            className="border-slate-700 hover:bg-slate-300 text-black"
+            disabled={isDeleting}
           >
-            {gameListEntry.isInList ? 'Update in List' : 'Add to List'}
+            Cancel
           </Button>
-        )}
-      </DialogTrigger>
-      <DialogContent hideCloseButton className="bg-slate-900 border-slate-700 text-white max-w-lg w-full p-0 overflow-hidden rounded-lg">
-        {isLoading || userLoading ? (
-          <div className="flex flex-col items-center justify-center p-8 space-y-4">
-            <DialogTitle className="sr-only">Loading Game Information</DialogTitle>
-            <div className="w-8 h-8 border-4 border-t-purple-600 border-slate-700 rounded-full animate-spin"></div>
-            <p className="text-slate-300">Loading...</p>
-          </div>
-        ) : !user ? (
-          <div className="p-6 space-y-6">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-center">Sign In Required</DialogTitle>
-            </DialogHeader>
-            <div className="text-center space-y-4">
-              <p className="text-slate-300">You need to be signed in to add games to your list.</p>
-              <Button 
-                onClick={() => {
-                  setOpen(false);
-                  router.push('/login');
-                }}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
-              >
-                Sign In
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <>
-                          <div className="relative">
-              {/* Game image header with gradient overlay */}
-              <div className="relative h-48 w-full overflow-hidden">
-                <DialogTitle className="sr-only">{gameName} - Add to List</DialogTitle>
-                {gameImage ? (
-                  <Image 
-                    src={gameImage} 
-                    alt={gameName} 
-                    className="object-cover w-full"
-                    fill
-                    sizes="(max-width: 768px) 100vw, 600px"
-                    priority
-                  />
-                ) : (
-                  <div className="w-full h-full bg-slate-800"></div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {isDeleting ? (
+              <div className="flex items-center gap-2 justify-center">
+                <div className="w-4 h-4 border-2 border-t-white/20 border-white rounded-full animate-spin"></div>
+                <span>Removing...</span>
               </div>
-              
-              {/* Close button */}
-              <DialogClose className="absolute right-2 top-2 rounded-full p-1 bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">
-                <X className="h-5 w-5" />
-                <span className="sr-only">Close</span>
-              </DialogClose>
-              
-              {/* Game title */}
-              <div className="absolute bottom-2 left-4 right-4">
-                <h3 className="text-xl font-bold text-white truncate">{gameName}</h3>
-              </div>
+            ) : (
+              'Delete'
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+
+  return (
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          {triggerComponent || (
+            <Button 
+              variant="outline" 
+              className="w-full bg-slate-800 border-slate-700 hover:bg-slate-600 text-white"
+            >
+              {gameListEntry.isInList ? 'Update in List' : 'Add to List'}
+            </Button>
+          )}
+        </DialogTrigger>
+        <DialogContent hideCloseButton className="bg-slate-900 border-slate-700 text-white max-w-lg w-full p-0 overflow-hidden rounded-lg">
+          {isLoading || userLoading ? (
+            <div className="flex flex-col items-center justify-center p-8 space-y-4">
+              <DialogTitle className="sr-only">Loading Game Information</DialogTitle>
+              <div className="w-8 h-8 border-4 border-t-purple-600 border-slate-700 rounded-full animate-spin"></div>
+              <p className="text-slate-300">Loading...</p>
             </div>
-            
-            <div className="p-5 space-y-6">
-              <DialogHeader className="p-0 space-y-2">
-                <DialogTitle className="text-xl font-bold">Status</DialogTitle>
+          ) : !user ? (
+            <div className="p-6 space-y-6">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold text-center">Sign In Required</DialogTitle>
               </DialogHeader>
-              
-              {error && (
-                <div className="bg-red-900/30 border border-red-800 text-red-200 p-3 rounded-md text-sm">
-                  {error}
-                </div>
-              )}
-              
-              <div className="px-5 flex justify-center">
-                <GameStatusButtons 
-                  initialStatus={gameListEntry.status} 
-                  onChange={handleStatusChange}
-                  disabled={isSaving}
-                  className="flex-nowrap w-full justify-center"
-                />
-              </div>
-              
-                              <div className="px-5 space-y-4">
-                <div className="flex justify-between items-center">
-                  <h4 className="text-xl font-bold">Rating</h4>
-                  <div className="bg-green-900/30 text-green-400 font-bold text-xl px-4 py-2 rounded-md">
-                    <span className="mr-2">{formatRatingDisplay()}</span>
-                    <span className="text-sm text-green-300">{getRatingLabel()}</span>
-                  </div>
-                </div>
-                <div className="py-6 px-2">
-                  <Slider
-                    defaultValue={[gameListEntry.rating]}
-                    max={10}
-                    step={0.5}
-                    value={[gameListEntry.rating]}
-                    onValueChange={handleRatingChange}
-                    disabled={isSaving}
-                    className="py-2"
-                  />
-                </div>
-              </div>
-              
-              <div className="px-5 pb-5">
+              <div className="text-center space-y-4">
+                <p className="text-slate-300">You need to be signed in to add games to your list.</p>
                 <Button 
-                  onClick={handleSave} 
-                  disabled={isSaving}
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white text-lg py-6"
+                  onClick={() => {
+                    setOpen(false);
+                    router.push('/login');
+                  }}
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
                 >
-                  {isSaving ? 
-                    <div className="flex items-center gap-2 justify-center">
-                      <div className="w-4 h-4 border-2 border-t-white/20 border-white rounded-full animate-spin"></div>
-                      <span>Saving...</span>
-                    </div> 
-                    : 'Save to List'
-                  }
+                  Sign In
                 </Button>
               </div>
             </div>
-          </>
-        )}
-      </DialogContent>
-    </Dialog>
+          ) : (
+            <>
+              <div className="relative">
+                {/* Game image header with gradient overlay */}
+                <div className="relative h-48 w-full overflow-hidden">
+                  <DialogTitle className="sr-only">{gameName} - Add to List</DialogTitle>
+                  {gameImage ? (
+                    <Image 
+                      src={gameImage} 
+                      alt={gameName} 
+                      className="object-cover w-full"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 600px"
+                      priority
+                    />
+                  ) : (
+                    <div className="w-full h-48 bg-slate-800"></div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+                </div>
+                
+                {/* Close button */}
+                <DialogClose className="absolute right-2 top-2 rounded-full p-1 bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">
+                  <X className="h-5 w-5" />
+                  <span className="sr-only">Close</span>
+                </DialogClose>
+                
+                {/* Game title */}
+                <div className="absolute bottom-2 left-4 right-4">
+                  <h3 className="text-xl font-bold text-white truncate">{gameName}</h3>
+                </div>
+              </div>
+              
+              <div className="p-5 space-y-6">
+                <DialogHeader className="p-0 space-y-2">
+                  <DialogTitle className="text-xl font-bold">Status</DialogTitle>
+                </DialogHeader>
+                
+                {error && (
+                  <div className="bg-red-900/30 border border-red-800 text-red-200 p-3 rounded-md text-sm">
+                    {error}
+                  </div>
+                )}
+                
+                <div className="px-5 flex justify-center">
+                  <GameStatusButtons 
+                    initialStatus={gameListEntry.status} 
+                    onChange={handleStatusChange}
+                    disabled={isSaving || isDeleting}
+                    className="flex-nowrap w-full justify-center"
+                  />
+                </div>
+                
+                <div className="px-5 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-xl font-bold">Rating</h4>
+                    <div className="bg-green-900/30 text-green-400 font-bold text-xl px-4 py-2 rounded-md">
+                      <span className="mr-2">{formatRatingDisplay()}</span>
+                      <span className="text-sm text-green-300">{getRatingLabel()}</span>
+                    </div>
+                  </div>
+                  <div className="py-6 px-2">
+                    <Slider
+                      defaultValue={[gameListEntry.rating]}
+                      max={10}
+                      step={0.5}
+                      value={[gameListEntry.rating]}
+                      onValueChange={handleRatingChange}
+                      disabled={isSaving || isDeleting}
+                      className="py-2"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Footer with action buttons */}
+              <div className="bg-black/30 p-4 flex items-center justify-between border-t border-slate-800">
+                {gameListEntry.isInList ? (
+                  <>
+                    <Button
+                      onClick={() => setShowDeleteConfirm(true)}
+                      variant="ghost"
+                      className="text-slate-300 hover:text-white hover:bg-transparent"
+                      disabled={isSaving}
+                    >
+                      <Trash2 className="w-5 h-5 mr-2" />
+                      Delete
+                    </Button>
+                    <Button 
+                      onClick={handleSave} 
+                      disabled={isSaving}
+                      className="bg-slate-200 hover:bg-white text-slate-900 font-medium px-8 py-2 rounded-full"
+                    >
+                      {isSaving ? (
+                        <div className="flex items-center gap-2 justify-center">
+                          <div className="w-4 h-4 border-2 border-t-slate-400 border-slate-900 rounded-full animate-spin"></div>
+                          <span>Saving...</span>
+                        </div>
+                      ) : (
+                        'Update'
+                      )}
+                    </Button>
+                  </>
+                ) : (
+                  <Button 
+                    onClick={handleSave} 
+                    disabled={isSaving}
+                    className="bg-slate-200 hover:bg-white text-slate-900 font-medium px-8 py-2 rounded-full ml-auto"
+                  >
+                    {isSaving ? (
+                      <div className="flex items-center gap-2 justify-center">
+                        <div className="w-4 h-4 border-2 border-t-slate-400 border-slate-900 rounded-full animate-spin"></div>
+                        <span>Saving...</span>
+                      </div>
+                    ) : (
+                      'Save to List'
+                    )}
+                  </Button>
+                )}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+      
+      {/* Separate delete confirmation dialog */}
+      <DeleteConfirmationDialog />
+    </>
   );
 } 

@@ -43,8 +43,7 @@ async function getNewReleases(): Promise<Game[]> {
     console.log('Environment:', process.env.VERCEL_ENV || 'local');
     
     // Server components always need absolute URLs
-    // Add count=20 parameter to explicitly request 20 games
-    const apiUrl = `${baseUrl}/api/games/new-releases?count=20`;
+    const apiUrl = `${baseUrl}/api/games/new-releases`;
       
     const response = await fetch(apiUrl, {
       next: { revalidate: 3600 } // Revalidate every hour
@@ -69,7 +68,6 @@ async function getNewReleases(): Promise<Game[]> {
       }
       return [];
     }
-    
     const data = await response.json();
     console.log('New releases data:', JSON.stringify(data).substring(0, 200) + '...');
     console.log('Number of results:', data.results?.length || 0);
@@ -79,8 +77,7 @@ async function getNewReleases(): Promise<Game[]> {
       return [];
     }
     
-    // Return all results without slicing
-    return data.results || [];
+    return data.results?.slice(0, 10) || [];
   } catch (error) {
     console.error('Failed to fetch new releases:', error);
     return [];
