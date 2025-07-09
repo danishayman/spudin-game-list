@@ -12,6 +12,7 @@ interface Review {
   content: string;
   created_at: string;
   updated_at: string;
+  user_id: string;
   user: {
     full_name: string | null;
     username: string;
@@ -31,12 +32,15 @@ export default function GameReviews({ gameId }: GameReviewsProps) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [debug, setDebug] = useState<any>(null);
 
   useEffect(() => {
     async function fetchReviews() {
       try {
         setIsLoading(true);
         const supabase = createClient();
+        
+        console.log('Fetching reviews for game ID:', gameId);
         
         // First, let's fetch all reviews for this game
         const { data: reviewsData, error: reviewsError } = await supabase
@@ -50,15 +54,19 @@ export default function GameReviews({ gameId }: GameReviewsProps) {
           throw reviewsError;
         }
         
+        console.log('Found reviews:', reviewsData?.length || 0);
+        
         if (!reviewsData || reviewsData.length === 0) {
           setReviews([]);
           setIsLoading(false);
           return;
         }
-        
-        // Now fetch user profiles for these reviews
+
+        // Extract all user IDs from the reviews
         const userIds = [...new Set(reviewsData.map(review => review.user_id))];
+        console.log('User IDs from reviews:', userIds);
         
+        // Fetch user profiles for these reviews
         const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
           .select('*')
@@ -69,26 +77,36 @@ export default function GameReviews({ gameId }: GameReviewsProps) {
           throw profilesError;
         }
         
+        console.log('Found profiles:', profilesData?.length || 0);
+        
         // Create a map of user_id to profile data for easier access
         const profilesMap = (profilesData || []).reduce((acc, profile) => {
           acc[profile.id] = profile;
           return acc;
         }, {} as Record<string, any>);
         
-        // Now fetch game list entries for these users and this game
-        const { data: gameListsData, error: gameListsError } = await supabase
+        // Directly query game_lists without the user_id filter to get all entries for this game
+        const { data: allGameListsData, error: allGameListsError } = await supabase
           .from('game_lists')
           .select('*')
-          .in('user_id', userIds)
           .eq('game_id', gameId);
           
-        if (gameListsError) {
-          console.error('Error fetching game lists:', gameListsError);
-          throw gameListsError;
+        if (allGameListsError) {
+          console.error('Error fetching all game lists:', allGameListsError);
+          throw allGameListsError;
         }
         
+        console.log('Found game lists for this game:', allGameListsData?.length || 0);
+        
+        // Debug - log all game lists to see what we're getting
+        setDebug({
+          reviewsData,
+          profilesData,
+          allGameListsData
+        });
+        
         // Create a map of user_id to game list data for easier access
-        const gameListsMap = (gameListsData || []).reduce((acc, gameList) => {
+        const gameListsMap = (allGameListsData || []).reduce((acc, gameList) => {
           acc[gameList.user_id] = gameList;
           return acc;
         }, {} as Record<string, any>);
@@ -98,11 +116,20 @@ export default function GameReviews({ gameId }: GameReviewsProps) {
           const profile = profilesMap[review.user_id] || {};
           const gameList = gameListsMap[review.user_id];
           
+          // Debug info for each review
+          console.log(`Processing review for user ${review.user_id}:`, {
+            hasProfile: !!profile,
+            hasGameList: !!gameList,
+            gameListStatus: gameList?.status,
+            gameListRating: gameList?.rating
+          });
+          
           return {
             id: review.id,
             content: review.content,
             created_at: review.created_at,
             updated_at: review.updated_at,
+            user_id: review.user_id,
             user: {
               full_name: profile.full_name || null,
               username: profile.username || 'unknown',
@@ -115,6 +142,7 @@ export default function GameReviews({ gameId }: GameReviewsProps) {
           };
         });
         
+        console.log('Processed reviews:', processedReviews);
         setReviews(processedReviews);
       } catch (err) {
         console.error('Error fetching reviews:', err);
@@ -195,6 +223,15 @@ export default function GameReviews({ gameId }: GameReviewsProps) {
   return (
     <div className="my-8">
       <h2 className="text-2xl font-bold mb-6 text-white">Game Reviews</h2>
+      
+      {/* Debug information - uncomment to debug */}
+      {/* debug && (
+        <div className="mb-6 p-4 bg-slate-800 border border-slate-700 rounded-lg overflow-auto max-h-80">
+          <pre className="text-xs text-slate-300">
+            {JSON.stringify(debug, null, 2)}
+          </pre>
+        </div>
+      ) */}
       
       {reviews.length === 0 ? (
         <div className="p-6 bg-slate-800 border border-slate-700 rounded-lg text-center">

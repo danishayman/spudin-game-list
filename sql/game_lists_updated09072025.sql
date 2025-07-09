@@ -1,57 +1,51 @@
--- Create a games table to store game information
-CREATE TABLE IF NOT EXISTS public.games (
-    id INT PRIMARY KEY, -- RAWG game ID
-    name TEXT NOT NULL,
-    background_image TEXT,
-    released DATE,
-    rating FLOAT
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.game_cache (
+  id integer NOT NULL DEFAULT nextval('game_cache_id_seq'::regclass),
+  cache_key text NOT NULL UNIQUE,
+  data jsonb NOT NULL,
+  cache_type text NOT NULL,
+  last_updated timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT game_cache_pkey PRIMARY KEY (id)
 );
-
--- Create a game_lists table to track user game collections
-CREATE TABLE IF NOT EXISTS public.game_lists (
-    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-    game_id INT REFERENCES public.games(id) ON DELETE CASCADE,
-    status TEXT CHECK (status IN ('Finished', 'Playing', 'Dropped', 'Want', 'On-hold')),
-    rating DECIMAL(3,1) CHECK (rating BETWEEN 0 AND 10),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
-    PRIMARY KEY (user_id, game_id)
+CREATE TABLE public.game_lists (
+  user_id uuid NOT NULL,
+  game_id integer NOT NULL,
+  status text CHECK (status = ANY (ARRAY['Finished'::text, 'Playing'::text, 'Dropped'::text, 'Want'::text, 'On-hold'::text])),
+  rating numeric CHECK (rating >= 0::numeric AND rating <= 10::numeric),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT game_lists_pkey PRIMARY KEY (user_id, game_id),
+  CONSTRAINT game_lists_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id),
+  CONSTRAINT game_lists_game_id_fkey FOREIGN KEY (game_id) REFERENCES public.games(id)
 );
-
--- Add indexes for faster queries
-CREATE INDEX IF NOT EXISTS idx_game_lists_user_id ON public.game_lists(user_id);
-CREATE INDEX IF NOT EXISTS idx_game_lists_game_id ON public.game_lists(game_id);
-CREATE INDEX IF NOT EXISTS idx_game_lists_status ON public.game_lists(status);
-
--- Enable Row Level Security
-ALTER TABLE public.games ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.game_lists ENABLE ROW LEVEL SECURITY;
-
--- Create policies for games table
-CREATE POLICY "Anyone can read games" 
-ON public.games FOR SELECT 
-USING (true);
-
-CREATE POLICY "Authenticated users can insert games" 
-ON public.games FOR INSERT 
-TO authenticated
-WITH CHECK (true);
-
--- Create policies for game_lists table
-CREATE POLICY "Users can read their own game lists" 
-ON public.game_lists FOR SELECT 
-USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert into their own game lists" 
-ON public.game_lists FOR INSERT 
-TO authenticated
-WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update their own game lists" 
-ON public.game_lists FOR UPDATE 
-TO authenticated
-USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete from their own game lists" 
-ON public.game_lists FOR DELETE 
-TO authenticated
-USING (auth.uid() = user_id); 
+CREATE TABLE public.games (
+  id integer NOT NULL,
+  name text NOT NULL,
+  background_image text,
+  released date,
+  rating double precision,
+  genres jsonb,
+  CONSTRAINT games_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.profiles (
+  id uuid NOT NULL,
+  full_name text,
+  email text UNIQUE,
+  avatar_url text,
+  username text NOT NULL UNIQUE,
+  is_admin boolean DEFAULT false,
+  CONSTRAINT profiles_pkey PRIMARY KEY (id),
+  CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.reviews (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  user_id uuid NOT NULL,
+  game_id integer NOT NULL,
+  content text NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT reviews_pkey PRIMARY KEY (id),
+  CONSTRAINT reviews_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id),
+  CONSTRAINT reviews_game_id_fkey FOREIGN KEY (game_id) REFERENCES public.games(id)
+);
