@@ -11,6 +11,7 @@ interface GameListManagerProps {
   gameImage?: string;
   gameReleased?: string;
   gameRating?: number;
+  gameGenres?: { id: number; name: string }[];
 }
 
 type GameListEntry = {
@@ -18,7 +19,7 @@ type GameListEntry = {
   rating: number;
 };
 
-export function GameListManager({ gameId, gameName, gameImage, gameReleased, gameRating }: GameListManagerProps) {
+export function GameListManager({ gameId, gameName, gameImage, gameReleased, gameRating, gameGenres }: GameListManagerProps) {
   const { user, isLoading: userLoading } = useUser();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -57,7 +58,8 @@ export function GameListManager({ gameId, gameName, gameImage, gameReleased, gam
             name: gameName,
             background_image: gameImage,
             released: gameReleased || null,
-            rating: gameRating || null
+            rating: gameRating || null,
+            genres: gameGenres || null
           });
         }
         
@@ -90,7 +92,7 @@ export function GameListManager({ gameId, gameName, gameImage, gameReleased, gam
     }
     
     fetchGameListEntry();
-  }, [user, gameId, gameName, gameImage, gameReleased, gameRating]);
+  }, [user, gameId, gameName, gameImage, gameReleased, gameRating, gameGenres]);
   
   const handleStatusChange = (status: GameStatus | null) => {
     setGameListEntry(prev => ({ ...prev, status }));

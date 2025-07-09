@@ -25,6 +25,15 @@ export function UserGameCard({ game }: UserGameCardProps) {
     });
   };
 
+  // Format added date
+  const formatAddedDate = (date: string) => {
+    return new Date(date).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
   // Get status color and icon
   const getStatusInfo = (status: string | null) => {
     switch (status) {
@@ -89,6 +98,11 @@ export function UserGameCard({ game }: UserGameCardProps) {
   const gameImage = game.games?.background_image || null;
   const gameReleased = game.games?.released || null;
   const gameRating = game.games?.rating || null;
+  
+  // Safely handle genres if they exist
+  const gameGenres = game.games && 'genres' in game.games && Array.isArray(game.games.genres)
+    ? game.games.genres.map((g: { name: string }) => g.name).join(', ')
+    : '';
   
   return (
     <Card 
@@ -155,12 +169,16 @@ export function UserGameCard({ game }: UserGameCardProps) {
       <CardContent className="p-3 flex flex-col flex-grow text-white">
         <h3 className="font-semibold text-base line-clamp-1 text-white">{gameName}</h3>
         
-        <div className="mt-auto pt-2 flex items-center justify-between text-xs text-slate-400">
-          <div>
-            {gameReleased ? formatReleaseDate(gameReleased) : 'TBA'}
+        <div className="mt-1 text-xs text-slate-400">
+          {gameGenres && <div className="line-clamp-1">{gameGenres}</div>}
+          <div className="flex justify-between mt-1">
+            <span>{gameReleased ? formatReleaseDate(gameReleased) : 'TBA'}</span>
           </div>
+        </div>
+        
+        <div className="mt-auto pt-2 text-xs text-slate-400">
           <div>
-            Updated: {new Date(game.updated_at).toLocaleDateString()}
+            Added: {formatAddedDate(game.updated_at)}
           </div>
         </div>
       </CardContent>

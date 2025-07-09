@@ -14,6 +14,7 @@ export type UserGameEntry = {
     background_image: string | null;
     released: string | null;
     rating: number | null;
+    genres?: { id: number; name: string }[];
   } | null;
 };
 
@@ -32,6 +33,7 @@ type RawSupabaseGameEntry = {
     background_image: string | null;
     released: string | null;
     rating: number | null;
+    genres?: { id: number; name: string }[];
   }[] | null;
 };
 
@@ -79,7 +81,8 @@ export async function getUserGames(): Promise<GamesByStatus> {
           name,
           background_image,
           released,
-          rating
+          rating,
+          genres
         )
       `)
       .eq('user_id', user.id)
@@ -118,6 +121,7 @@ export async function getUserGames(): Promise<GamesByStatus> {
                   background_image: gameDetails.background_image,
                   released: gameDetails.released,
                   rating: gameDetails.rating,
+                  genres: gameDetails.genres,
                 }
               : null,
           };

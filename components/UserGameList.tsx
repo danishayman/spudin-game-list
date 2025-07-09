@@ -13,11 +13,27 @@ interface UserGameListProps {
 
 export function UserGameList({ games }: UserGameListProps) {
   const router = useRouter();
+  
+  // Log the games data to see what we're getting
+  console.log('UserGameList games:', games);
 
   // Format release date
   const formatReleaseDate = (date: string | null) => {
     if (!date) return 'TBA';
-    return new Date(date).getFullYear().toString();
+    return new Date(date).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
+  // Format added date
+  const formatAddedDate = (date: string) => {
+    return new Date(date).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
   };
 
   // Format rating to show one decimal point except for 10
@@ -84,9 +100,13 @@ export function UserGameList({ games }: UserGameListProps) {
           const gameReleased = game.games?.released || null;
           
           // Safely handle genres if they exist
-          const gameGenres = game.games && 'genres' in game.games && Array.isArray(game.games.genres)
-            ? game.games.genres.map((g: { name: string }) => g.name).join(', ')
-            : '';
+          console.log(`Game ${gameName} data:`, game);
+          console.log(`Game ${gameName} genres:`, game.games?.genres);
+          
+          // Hardcoded genres for testing
+          const gameGenres = "Action, Adventure, RPG";
+          
+          console.log(`Game ${gameName} formatted genres:`, gameGenres);
           
           return (
             <div key={game.game_id} className="bg-slate-800 rounded-lg shadow-md relative">
@@ -119,12 +139,20 @@ export function UserGameList({ games }: UserGameListProps) {
                   </h3>
                   
                   <div className="text-sm text-slate-400 mt-1">
-                    {gameGenres && <span>{gameGenres}</span>}
-                    {gameReleased && <span className="ml-2">{formatReleaseDate(gameReleased)}</span>}
+                    <div className="line-clamp-1">{gameGenres}</div>
+                  </div>
+                  
+                  <div className="flex justify-between mt-1 text-sm text-slate-400">
+                    <div>
+                      {gameReleased ? formatReleaseDate(gameReleased) : 'TBA'}
+                    </div>
+                    <div>
+                      {formatAddedDate(game.updated_at)}
+                    </div>
                   </div>
                 </div>
                 
-                <div className="flex flex-col items-end justify-between">
+                <div className="flex flex-col items-end justify-between ml-4">
                   <div className="flex items-center">
                     {game.rating && game.rating > 0 ? (
                       <div className="text-center mr-2">

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { type RawgGame } from '@/lib/rawg';
 import { getGameByIdClient } from '@/lib/games-client';
 import { GameRatingDialog } from '@/components/GameRatingDialog';
+import { GameListManager } from '@/components/GameListManager';
 
 interface GameDetailsProps {
   gameId: number;
@@ -66,6 +67,8 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
     async function fetchGame() {
       try {
         const gameData = await getGameByIdClient(gameId);
+        console.log('Fetched game data:', gameData);
+        console.log('Game genres:', gameData.genres);
         setGame(gameData);
         
         // Dynamically update the document title
@@ -225,14 +228,27 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
             </div>
           )}
           
-          {/* Game Rating Dialog */}
+          {/* Add to Game List */}
           <div className="mb-6">
-            <GameRatingDialog 
-              gameId={game.id} 
-              gameName={game.name} 
+            <GameListManager
+              gameId={game.id}
+              gameName={game.name}
               gameImage={game.background_image || undefined}
               gameReleased={game.released || undefined}
               gameRating={game.rating || undefined}
+              gameGenres={game.genres || undefined}
+            />
+          </div>
+
+          {/* Game Rating Dialog */}
+          <div className="mb-6">
+            <GameRatingDialog
+              gameId={game.id}
+              gameName={game.name}
+              gameImage={game.background_image || undefined}
+              gameReleased={game.released || undefined}
+              gameRating={game.rating || undefined}
+              gameGenres={game.genres || undefined}
             />
           </div>
 

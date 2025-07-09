@@ -26,6 +26,7 @@ interface GameRatingDialogProps {
   triggerComponent?: React.ReactNode;
   gameReleased?: string;
   gameRating?: number;
+  gameGenres?: { id: number; name: string }[];
   onUpdate?: () => void;
 }
 
@@ -41,6 +42,7 @@ export function GameRatingDialog({
   gameImage,
   gameReleased,
   gameRating,
+  gameGenres,
   triggerComponent,
   onUpdate
 }: GameRatingDialogProps) {
@@ -222,7 +224,8 @@ export function GameRatingDialog({
           name: gameName,
           background_image: gameImage || null,
           released: gameReleased || null,
-          rating: gameRating || null
+          rating: gameRating || null,
+          genres: gameGenres || null
         }).select();
         
         if (insertError) {
