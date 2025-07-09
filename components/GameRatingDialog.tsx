@@ -14,6 +14,7 @@ import {
 import { Button } from './ui/button';
 import { Slider } from './ui/slider';
 import { GameStatusButtons, type GameStatus } from './GameStatusButtons';
+import { ReviewInput } from './ReviewInput';
 import { createClient } from '@/utils/supabase/client';
 import { useUser } from '@/lib/hooks';
 import { useRouter } from 'next/navigation';
@@ -34,6 +35,7 @@ interface GameListEntry {
   status: GameStatus | null;
   rating: number;
   isInList: boolean;
+  review: string | null;
 }
 
 export function GameRatingDialog({ 
@@ -58,7 +60,9 @@ export function GameRatingDialog({
     status: null,
     rating: 0,
     isInList: false,
+    review: null
   });
+  const [reviewContent, setReviewContent] = useState<string>('');
 
   // Fetch existing game list entry if user is logged in
   useEffect(() => {
@@ -74,29 +78,45 @@ export function GameRatingDialog({
         const supabase = createClient();
         
         // Get user's game list entry
-        const { data, error } = await supabase
+        const { data: gameListData, error: gameListError } = await supabase
           .from('game_lists')
           .select('status, rating')
           .eq('user_id', user.id)
           .eq('game_id', gameId)
           .single();
           
-        if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
-          throw error;
+        if (gameListError && gameListError.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
+          throw gameListError;
+        }
+
+        // Get user's review if exists
+        const { data: reviewData, error: reviewError } = await supabase
+          .from('reviews')
+          .select('content')
+          .eq('user_id', user.id)
+          .eq('game_id', gameId)
+          .single();
+
+        if (reviewError && reviewError.code !== 'PGRST116') {
+          throw reviewError;
         }
         
-        if (data) {
+        if (gameListData || reviewData) {
           setGameListEntry({
-            status: data.status as GameStatus,
-            rating: data.rating || 0,
-            isInList: true,
+            status: gameListData?.status as GameStatus || null,
+            rating: gameListData?.rating || 0,
+            isInList: !!gameListData,
+            review: reviewData?.content || null
           });
+          setReviewContent(reviewData?.content || '');
         } else {
           setGameListEntry({
             status: null,
             rating: 0,
             isInList: false,
+            review: null
           });
+          setReviewContent('');
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load your game data');
@@ -130,6 +150,13 @@ export function GameRatingDialog({
     }
   };
 
+  // Handle review content change
+  const handleReviewChange = (content: string) => {
+    setReviewContent(content);
+    // Clear any previous error messages
+    setError(null);
+  };
+
   // Format rating display
   const formatRatingDisplay = () => {
     if (gameListEntry.rating === 0) return "—";
@@ -160,19 +187,31 @@ export function GameRatingDialog({
       setError(null);
       const supabase = createClient();
       
-      const { error } = await supabase
+      // Delete from game_lists
+      const { error: gameListError } = await supabase
         .from('game_lists')
         .delete()
         .eq('user_id', user.id)
         .eq('game_id', gameId);
         
-      if (error) throw error;
+      if (gameListError) throw gameListError;
+      
+      // Delete review if exists
+      const { error: reviewError } = await supabase
+        .from('reviews')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('game_id', gameId);
+        
+      if (reviewError) throw reviewError;
       
       setGameListEntry({
         status: null,
         rating: 0,
         isInList: false,
+        review: null
       });
+      setReviewContent('');
       
       setShowDeleteConfirm(false);
       setOpen(false); // Close dialog after removing
@@ -238,28 +277,14 @@ export function GameRatingDialog({
         console.log('Game already exists in database:', gameExists);
       }
       
-      if (gameListEntry.status === null && gameListEntry.rating === 0) {
-        // If both status and rating are empty/default, delete the entry
-        const { error } = await supabase
-          .from('game_lists')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('game_id', gameId);
-          
-        if (error) throw error;
-        setGameListEntry(prev => ({ ...prev, isInList: false }));
-        setOpen(false); // Close dialog after removing
-        
-        // Call onUpdate callback if provided
-        if (onUpdate) {
-          onUpdate();
-        } else {
-          // Refresh the page data
-          router.refresh();
-        }
-      } else {
-        // Otherwise upsert the entry
-        const { error } = await supabase
+      // Determine what to save
+      const hasGameEntry = gameListEntry.status !== null || gameListEntry.rating > 0;
+      const hasReview = reviewContent.trim() !== '';
+      
+      // Process game list entry if needed
+      if (hasGameEntry) {
+        // Upsert the game list entry
+        const { error: gameListError } = await supabase
           .from('game_lists')
           .upsert({
             user_id: user.id,
@@ -269,17 +294,57 @@ export function GameRatingDialog({
             updated_at: new Date().toISOString(),
           });
           
-        if (error) throw error;
-        setGameListEntry(prev => ({ ...prev, isInList: true }));
-        setOpen(false); // Close dialog after saving
-        
-        // Call onUpdate callback if provided
-        if (onUpdate) {
-          onUpdate();
-        } else {
-          // Refresh the page data
-          router.refresh();
-        }
+        if (gameListError) throw gameListError;
+      } else {
+        // If both status and rating are empty/default, delete the entry
+        const { error: deleteError } = await supabase
+          .from('game_lists')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('game_id', gameId);
+          
+        if (deleteError && deleteError.code !== 'PGRST116') throw deleteError;
+      }
+      
+      // Process review if needed
+      if (hasReview) {
+        // Upsert the review
+        const { error: reviewError } = await supabase
+          .from('reviews')
+          .upsert({
+            user_id: user.id,
+            game_id: gameId,
+            content: reviewContent,
+            updated_at: new Date().toISOString(),
+          });
+          
+        if (reviewError) throw reviewError;
+      } else if (gameListEntry.review !== null) {
+        // If review content is empty but there was a review before, delete it
+        const { error: deleteReviewError } = await supabase
+          .from('reviews')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('game_id', gameId);
+          
+        if (deleteReviewError && deleteReviewError.code !== 'PGRST116') throw deleteReviewError;
+      }
+      
+      // Update local state
+      setGameListEntry(prev => ({
+        ...prev,
+        isInList: hasGameEntry,
+        review: hasReview ? reviewContent : null
+      }));
+      
+      setOpen(false); // Close dialog after saving
+      
+      // Call onUpdate callback if provided
+      if (onUpdate) {
+        onUpdate();
+      } else {
+        // Refresh the page data
+        router.refresh();
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save your game data');
@@ -397,7 +462,7 @@ export function GameRatingDialog({
                 </div>
               </div>
               
-              <div className="p-5 space-y-6">
+              <div className="p-5 space-y-6 max-h-[70vh] overflow-y-auto">
                 <DialogHeader className="p-0 space-y-2">
                   <DialogTitle className="text-xl font-bold">Status</DialogTitle>
                 </DialogHeader>
@@ -437,11 +502,25 @@ export function GameRatingDialog({
                     />
                   </div>
                 </div>
+                
+                {/* Review Section */}
+                <div className="px-5 space-y-4">
+                  <h4 className="text-xl font-bold">Review</h4>
+                  <div className="py-2">
+                    <ReviewInput
+                      gameId={gameId}
+                      userId={user.id}
+                      initialContent={gameListEntry.review || ''}
+                      onChange={handleReviewChange}
+                      disabled={isSaving || isDeleting}
+                    />
+                  </div>
+                </div>
               </div>
               
               {/* Footer with action buttons */}
               <div className="bg-black/30 p-4 flex items-center justify-between border-t border-slate-800">
-                {gameListEntry.isInList ? (
+                {gameListEntry.isInList || gameListEntry.review ? (
                   <>
                     <Button
                       onClick={() => setShowDeleteConfirm(true)}

@@ -8,6 +8,7 @@ import { GameRatingDialog } from '@/components/GameRatingDialog';
 import { createClient } from '@/utils/supabase/client';
 import { useUser } from '@/lib/hooks';
 import type { GameStatus } from '@/components/GameStatusButtons';
+import GameReviews from '@/components/GameReviews';
 
 interface GameDetailsProps {
   gameId: number;
@@ -720,6 +721,11 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
         >
           RAWG.io
         </a>
+      </div>
+      
+      {/* Game Reviews Section */}
+      <div className="mt-8 border-t border-slate-700 pt-8">
+        <GameReviews gameId={gameId} />
       </div>
     </div>
   );
