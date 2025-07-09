@@ -228,37 +228,12 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
     }
   };
 
-  // Function to get status icon
-  const getStatusIcon = (status: GameStatus | null) => {
-    if (!status) return '';
-    
-    switch (status) {
-      case 'Finished': return '✓';
-      case 'Playing': return '◉';
-      case 'Dropped': return '✗';
-      case 'Want': return '✧';
-      case 'On-hold': return '❚❚';
-      default: return '';
-    }
-  };
-
   // Format rating display
   const formatRatingDisplay = (rating: number) => {
     if (rating === 0) return "—";
     return rating.toFixed(1);
   };
   
-  // Get rating label
-  const getRatingLabel = (rating: number) => {
-    if (rating === 0) return "";
-    if (rating >= 9) return "Masterpiece";
-    if (rating >= 8) return "Great";
-    if (rating >= 6) return "Good";
-    if (rating >= 4) return "Average";
-    if (rating >= 2) return "Poor";
-    return "Terrible";
-  };
-
   // Get all screenshots including the main background image, with proper typing
   const allScreenshots: Screenshot[] = [
     ...(game.background_image ? [{ id: 0, image: game.background_image }] : []),
