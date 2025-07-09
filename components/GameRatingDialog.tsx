@@ -330,7 +330,7 @@ export function GameRatingDialog({
           {triggerComponent || (
             <Button 
               variant="outline" 
-              className="w-full bg-slate-800 border-slate-700 hover:bg-slate-600 text-white"
+              className="w-full bg-purple-700 border-purple-600 hover:bg-purple-800 hover:text-white text-white"
             >
               {gameListEntry.isInList ? 'Update in List' : 'Add to List'}
             </Button>
