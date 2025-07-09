@@ -28,11 +28,24 @@ interface GameReviewsProps {
   gameId: number;
 }
 
+interface Profile {
+  id: string;
+  full_name: string | null;
+  username: string;
+  avatar_url: string | null;
+}
+
+interface GameList {
+  user_id: string;
+  game_id: number;
+  status: GameStatus | null;
+  rating: number | null;
+}
+
 export default function GameReviews({ gameId }: GameReviewsProps) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [debug, setDebug] = useState<any>(null);
 
   useEffect(() => {
     async function fetchReviews() {
@@ -83,7 +96,7 @@ export default function GameReviews({ gameId }: GameReviewsProps) {
         const profilesMap = (profilesData || []).reduce((acc, profile) => {
           acc[profile.id] = profile;
           return acc;
-        }, {} as Record<string, any>);
+        }, {} as Record<string, Profile>);
         
         // Directly query game_lists without the user_id filter to get all entries for this game
         const { data: allGameListsData, error: allGameListsError } = await supabase
@@ -98,18 +111,11 @@ export default function GameReviews({ gameId }: GameReviewsProps) {
         
         console.log('Found game lists for this game:', allGameListsData?.length || 0);
         
-        // Debug - log all game lists to see what we're getting
-        setDebug({
-          reviewsData,
-          profilesData,
-          allGameListsData
-        });
-        
         // Create a map of user_id to game list data for easier access
         const gameListsMap = (allGameListsData || []).reduce((acc, gameList) => {
           acc[gameList.user_id] = gameList;
           return acc;
-        }, {} as Record<string, any>);
+        }, {} as Record<string, GameList>);
         
         // Combine all the data into our reviews structure
         const processedReviews: Review[] = reviewsData.map(review => {
@@ -223,15 +229,6 @@ export default function GameReviews({ gameId }: GameReviewsProps) {
   return (
     <div className="my-8">
       <h2 className="text-2xl font-bold mb-6 text-white">Game Reviews</h2>
-      
-      {/* Debug information - uncomment to debug */}
-      {/* debug && (
-        <div className="mb-6 p-4 bg-slate-800 border border-slate-700 rounded-lg overflow-auto max-h-80">
-          <pre className="text-xs text-slate-300">
-            {JSON.stringify(debug, null, 2)}
-          </pre>
-        </div>
-      ) */}
       
       {reviews.length === 0 ? (
         <div className="p-6 bg-slate-800 border border-slate-700 rounded-lg text-center">
