@@ -80,15 +80,6 @@ export default function ClientTabsWrapper({ gamesByStatus, counts }: ClientTabsW
     return result;
   }, [gamesByStatus, searchQuery, sortBy]);
 
-  // Count filtered results to show in the interface
-  const filteredCounts = useMemo(() => {
-    const result: Record<string, number> = {};
-    Object.keys(processedGames).forEach(key => {
-      result[key] = processedGames[key as keyof GamesByStatus].length;
-    });
-    return result;
-  }, [processedGames]);
-
   const hasActiveFilters = searchQuery.trim() !== '' || sortBy !== '';
 
   // Get sort button label
@@ -104,31 +95,31 @@ export default function ClientTabsWrapper({ gamesByStatus, counts }: ClientTabsW
 
   return (
     <Tabs defaultValue="All" className="w-full">
-      <div className="mb-6">
-        <TabsList className="bg-slate-900 p-1 overflow-x-auto flex w-full">
-          <TabsTrigger value="All" className="flex-1">
-            All Games {filteredCounts?.All !== undefined ? `(${filteredCounts.All})` : counts?.All ? `(${counts.All})` : ''}
+      <div className="mb-4 sm:mb-6 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
+        <TabsList className="bg-slate-900 p-1 flex w-full min-w-max">
+          <TabsTrigger value="All" className="flex-1 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">
+            All{counts?.All ? ` (${processedGames.All.length})` : ''}
           </TabsTrigger>
-          <TabsTrigger value="Playing" className="flex-1">
-            Playing {filteredCounts?.Playing !== undefined ? `(${filteredCounts.Playing})` : counts?.Playing ? `(${counts.Playing})` : ''}
+          <TabsTrigger value="Playing" className="flex-1 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">
+            Playing{counts?.Playing ? ` (${processedGames.Playing.length})` : ''}
           </TabsTrigger>
-          <TabsTrigger value="Finished" className="flex-1">
-            Finished {filteredCounts?.Finished !== undefined ? `(${filteredCounts.Finished})` : counts?.Finished ? `(${counts.Finished})` : ''}
+          <TabsTrigger value="Finished" className="flex-1 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">
+            Finished{counts?.Finished ? ` (${processedGames.Finished.length})` : ''}
           </TabsTrigger>
-          <TabsTrigger value="Want" className="flex-1">
-            Want to Play {filteredCounts?.Want !== undefined ? `(${filteredCounts.Want})` : counts?.Want ? `(${counts.Want})` : ''}
+          <TabsTrigger value="Want" className="flex-1 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">
+            Want{counts?.Want ? ` (${processedGames.Want.length})` : ''}
           </TabsTrigger>
-          <TabsTrigger value="On-hold" className="flex-1">
-            On Hold {filteredCounts?.['On-hold'] !== undefined ? `(${filteredCounts['On-hold']})` : counts?.['On-hold'] ? `(${counts['On-hold']})` : ''}
+          <TabsTrigger value="On-hold" className="flex-1 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">
+            On Hold{counts?.['On-hold'] ? ` (${processedGames['On-hold'].length})` : ''}
           </TabsTrigger>
-          <TabsTrigger value="Dropped" className="flex-1">
-            Dropped {filteredCounts?.Dropped !== undefined ? `(${filteredCounts.Dropped})` : counts?.Dropped ? `(${counts.Dropped})` : ''}
+          <TabsTrigger value="Dropped" className="flex-1 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">
+            Dropped{counts?.Dropped ? ` (${processedGames.Dropped.length})` : ''}
           </TabsTrigger>
         </TabsList>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="relative w-full md:w-3/4">
+      <div className="flex flex-col gap-4 mb-4 sm:mb-6">
+        <div className="relative w-full">
           <Input
             type="search"
             placeholder="Search games..."
@@ -143,7 +134,7 @@ export default function ClientTabsWrapper({ gamesByStatus, counts }: ClientTabsW
           </div>
         </div>
 
-        <div className="flex gap-2 w-full md:w-1/4">
+        <div className="flex gap-2 w-full">
           <div className="relative flex-1">
             <Button 
               variant="outline"
