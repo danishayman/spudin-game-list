@@ -8,7 +8,6 @@ import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { SearchDialog } from "./SearchDialog";
-import { useLayoutEffect } from "react";
 
 interface Profile {
   id: string;

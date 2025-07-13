@@ -80,15 +80,6 @@ export default function ClientTabsWrapper({ gamesByStatus, counts }: ClientTabsW
     return result;
   }, [gamesByStatus, searchQuery, sortBy]);
 
-  // Count filtered results to show in the interface
-  const filteredCounts = useMemo(() => {
-    const result: Record<string, number> = {};
-    Object.keys(processedGames).forEach(key => {
-      result[key] = processedGames[key as keyof GamesByStatus].length;
-    });
-    return result;
-  }, [processedGames]);
-
   const hasActiveFilters = searchQuery.trim() !== '' || sortBy !== '';
 
   // Get sort button label
@@ -107,22 +98,22 @@ export default function ClientTabsWrapper({ gamesByStatus, counts }: ClientTabsW
       <div className="mb-4 sm:mb-6 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
         <TabsList className="bg-slate-900 p-1 flex w-full min-w-max">
           <TabsTrigger value="All" className="flex-1 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">
-            All{counts?.All ? ` (${counts.All})` : ''}
+            All{counts?.All ? ` (${processedGames.All.length})` : ''}
           </TabsTrigger>
           <TabsTrigger value="Playing" className="flex-1 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">
-            Playing{counts?.Playing ? ` (${counts.Playing})` : ''}
+            Playing{counts?.Playing ? ` (${processedGames.Playing.length})` : ''}
           </TabsTrigger>
           <TabsTrigger value="Finished" className="flex-1 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">
-            Finished{counts?.Finished ? ` (${counts.Finished})` : ''}
+            Finished{counts?.Finished ? ` (${processedGames.Finished.length})` : ''}
           </TabsTrigger>
           <TabsTrigger value="Want" className="flex-1 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">
-            Want{counts?.Want ? ` (${counts.Want})` : ''}
+            Want{counts?.Want ? ` (${processedGames.Want.length})` : ''}
           </TabsTrigger>
           <TabsTrigger value="On-hold" className="flex-1 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">
-            On Hold{counts?.['On-hold'] ? ` (${counts['On-hold']})` : ''}
+            On Hold{counts?.['On-hold'] ? ` (${processedGames['On-hold'].length})` : ''}
           </TabsTrigger>
           <TabsTrigger value="Dropped" className="flex-1 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">
-            Dropped{counts?.Dropped ? ` (${counts.Dropped})` : ''}
+            Dropped{counts?.Dropped ? ` (${processedGames.Dropped.length})` : ''}
           </TabsTrigger>
         </TabsList>
       </div>
