@@ -103,7 +103,7 @@ export default function ModernNavBar() {
   };
 
   return (
-    <header className="bg-opacity-10 bg-black backdrop-blur-sm text-white sticky top-0 z-50">
+    <header className="bg-gray-900 md:bg-opacity-80 bg-opacity-100 backdrop-blur-sm text-white sticky top-0 z-50 border-b border-gray-800 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Left side - Logo and nav links */}
@@ -141,33 +141,31 @@ export default function ModernNavBar() {
             <SearchDialog 
               buttonVariant="outline" 
               buttonText="Game" 
-              triggerClassName="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 hover:text-white"
+              triggerClassName="bg-white/15 backdrop-blur-sm border-white/40 text-white hover:bg-white/25 hover:text-white"
             />
 
             {/* Mobile menu button */}
             <button
-              className="md:hidden flex items-center focus:outline-none"
+              className="md:hidden flex items-center justify-center w-10 h-10 rounded-md bg-gray-700/80 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
               onClick={toggleMobileMenu}
             >
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex items-center justify-center">
-                {user && profile?.avatar_url ? (
-                  <Image 
-                    src={profile.avatar_url}
-                    alt="Profile"
-                    width={40}
-                    height={40}
-                    className="object-cover"
-                  />
-                ) : user ? (
-                  <span className="text-lg font-semibold">
-                    {(profile?.full_name || user.user_metadata?.full_name || "U").charAt(0)}
-                  </span>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-                  </svg>
-                )}
-              </div>
+              {user && profile?.avatar_url ? (
+                <Image 
+                  src={profile.avatar_url}
+                  alt="Profile"
+                  width={40}
+                  height={40}
+                  className="object-cover rounded-md"
+                />
+              ) : user ? (
+                <span className="text-lg font-semibold">
+                  {(profile?.full_name || user.user_metadata?.full_name || "U").charAt(0)}
+                </span>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+              )}
             </button>
 
             {/* Desktop profile dropdown */}
@@ -243,19 +241,19 @@ export default function ModernNavBar() {
             {isMobileMenuOpen && (
               <div 
                 ref={mobileMenuRef}
-                className="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden"
+                className="fixed inset-0 bg-black bg-opacity-70 z-50 md:hidden"
                 onClick={(e) => {
                   if (e.target === e.currentTarget) {
                     setIsMobileMenuOpen(false);
                   }
                 }}
               >
-                <div className="absolute right-0 top-0 h-full w-64 bg-gray-900 shadow-lg transform transition-transform duration-300 ease-in-out animate-slide-in-right">
-                  <div className="p-4 border-b border-gray-800">
+                <div className="absolute right-0 top-0 h-full w-64 bg-gray-900 shadow-xl border-l border-gray-700 transform transition-transform duration-300 ease-in-out animate-slide-in-right">
+                  <div className="p-4 border-b border-gray-700 bg-gray-800">
                     <div className="flex items-center justify-between">
                       {user ? (
                         <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex items-center justify-center border border-gray-600">
                             {profile?.avatar_url ? (
                               <Image 
                                 src={profile.avatar_url}
@@ -286,7 +284,7 @@ export default function ModernNavBar() {
                       )}
                       <button 
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="text-gray-400 hover:text-white"
+                        className="text-gray-400 hover:text-white bg-gray-700 rounded-md p-1"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -295,12 +293,12 @@ export default function ModernNavBar() {
                     </div>
                   </div>
                   
-                  <nav className="p-4">
+                  <nav className="p-4 bg-gray-900">
                     <ul className="space-y-2">
                       <li>
                         <Link 
                           href="/" 
-                          className="block py-2 px-4 text-white hover:bg-gray-800 rounded-md"
+                          className="block py-2 px-4 text-white hover:bg-gray-800 rounded-md font-medium bg-gray-800"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           Home
@@ -309,7 +307,7 @@ export default function ModernNavBar() {
                       <li>
                         <Link 
                           href="/about" 
-                          className="block py-2 px-4 text-white hover:bg-gray-800 rounded-md"
+                          className="block py-2 px-4 text-white hover:bg-gray-800 rounded-md font-medium bg-gray-800"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           About
@@ -317,7 +315,7 @@ export default function ModernNavBar() {
                       </li>
                       <li>
                         <button
-                          className="block w-full text-left py-2 px-4 text-white hover:bg-gray-800 rounded-md"
+                          className="block w-full text-left py-2 px-4 text-white hover:bg-gray-800 rounded-md font-medium bg-gray-800"
                           onClick={() => {
                             setIsMobileMenuOpen(false);
                           }}
@@ -325,7 +323,7 @@ export default function ModernNavBar() {
                           <SearchDialog 
                             buttonVariant="ghost" 
                             buttonText="Search Games" 
-                            triggerClassName="w-full justify-start p-0 h-auto"
+                            triggerClassName="w-full justify-start p-0 h-auto font-medium"
                           />
                         </button>
                       </li>
@@ -333,7 +331,7 @@ export default function ModernNavBar() {
                         <li>
                           <Link 
                             href="/my-games" 
-                            className="block py-2 px-4 text-white hover:bg-gray-800 rounded-md"
+                            className="block py-2 px-4 text-white hover:bg-gray-800 rounded-md font-medium bg-gray-800"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
                             My Games
@@ -344,7 +342,7 @@ export default function ModernNavBar() {
                         <li>
                           <Link 
                             href={`/profile/${profile?.username || user.id}`}
-                            className="block py-2 px-4 text-white hover:bg-gray-800 rounded-md"
+                            className="block py-2 px-4 text-white hover:bg-gray-800 rounded-md font-medium bg-gray-800"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
                             Profile
@@ -355,7 +353,7 @@ export default function ModernNavBar() {
                         <li>
                           <Link 
                             href="/settings"
-                            className="block py-2 px-4 text-white hover:bg-gray-800 rounded-md"
+                            className="block py-2 px-4 text-white hover:bg-gray-800 rounded-md font-medium bg-gray-800"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
                             Settings
@@ -366,7 +364,7 @@ export default function ModernNavBar() {
                         <li>
                           <button
                             onClick={handleLogout}
-                            className="block w-full text-left py-2 px-4 text-white hover:bg-gray-800 rounded-md"
+                            className="block w-full text-left py-2 px-4 text-white hover:bg-gray-800 rounded-md font-medium bg-gray-800"
                           >
                             Sign out
                           </button>
@@ -375,7 +373,7 @@ export default function ModernNavBar() {
                         <li>
                           <Link
                             href="/login"
-                            className="block py-2 px-4 text-white hover:bg-gray-800 rounded-md"
+                            className="block py-2 px-4 text-white bg-purple-600 hover:bg-purple-700 rounded-md font-medium"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
                             Login
@@ -390,7 +388,7 @@ export default function ModernNavBar() {
                         <li>
                           <Link 
                             href="/privacy-policy" 
-                            className="block py-2 px-4 text-gray-300 hover:bg-gray-800 rounded-md text-sm"
+                            className="block py-2 px-4 text-gray-300 hover:bg-gray-800 rounded-md text-sm bg-gray-800"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
                             Privacy Policy
@@ -399,7 +397,7 @@ export default function ModernNavBar() {
                         <li>
                           <Link 
                             href="/terms-of-service" 
-                            className="block py-2 px-4 text-gray-300 hover:bg-gray-800 rounded-md text-sm"
+                            className="block py-2 px-4 text-gray-300 hover:bg-gray-800 rounded-md text-sm bg-gray-800"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
                             Terms of Service
