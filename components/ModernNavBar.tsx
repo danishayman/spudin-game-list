@@ -8,6 +8,7 @@ import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { SearchDialog } from "./SearchDialog";
+import { useLayoutEffect } from "react";
 
 interface Profile {
   id: string;
@@ -23,10 +24,16 @@ export default function ModernNavBar() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const supabase = createClient();
+
+  // Set mounted state to true once component mounts
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -101,6 +108,11 @@ export default function ModernNavBar() {
       setIsMobileMenuOpen(false);
     }
   };
+
+  // Don't render anything until after client-side hydration
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <header className="bg-gray-900 md:bg-opacity-80 bg-opacity-100 backdrop-blur-sm text-white sticky top-0 z-50 border-b border-gray-800 shadow-md">
