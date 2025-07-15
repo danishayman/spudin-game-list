@@ -14,6 +14,15 @@ interface ClientTabsWrapperProps {
 
 type SortOption = 'name_asc' | 'name_desc' | 'rating_desc' | 'rating_asc' | 'date_desc' | 'date_asc' | '';
 
+/**
+ * Displays a tabbed interface for browsing and managing a user's game collection by status, with search, sorting, and a roadmap view for upcoming and released games in the "Want" category.
+ *
+ * Provides filtering by search query, sorting by name, rating, or date, and a toggleable roadmap view that splits "Want" games into released and upcoming sections based on release dates. Each tab shows the filtered and sorted games for its status, and the "Want" tab allows switching between standard and roadmap views.
+ *
+ * @param gamesByStatus - An object containing arrays of games grouped by their status.
+ * @param counts - Optional object with counts of games per status.
+ * @returns A React component rendering the tabbed game collection interface.
+ */
 export default function ClientTabsWrapper({ gamesByStatus, counts }: ClientTabsWrapperProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('');
