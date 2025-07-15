@@ -18,6 +18,7 @@ export default function ClientTabsWrapper({ gamesByStatus, counts }: ClientTabsW
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('');
   const [showSortMenu, setShowSortMenu] = useState(false);
+  const [showRoadmap, setShowRoadmap] = useState(false);
 
   const resetFilters = () => {
     setSearchQuery('');
@@ -79,6 +80,32 @@ export default function ClientTabsWrapper({ gamesByStatus, counts }: ClientTabsW
 
     return result;
   }, [gamesByStatus, searchQuery, sortBy]);
+
+  // Process Want games for roadmap view
+  const roadmapGames = useMemo(() => {
+    if (!showRoadmap) return { released: [], upcoming: [] };
+
+    const today = new Date();
+    const wantGames = [...processedGames.Want];
+    
+    // Sort all games by release date
+    wantGames.sort((a, b) => {
+      const dateA = a.games?.released ? new Date(a.games.released).getTime() : Number.MAX_SAFE_INTEGER;
+      const dateB = b.games?.released ? new Date(b.games.released).getTime() : Number.MAX_SAFE_INTEGER;
+      return dateA - dateB; // Sort by release date ascending
+    });
+
+    // Split into released and upcoming
+    const released = wantGames.filter(game => 
+      game.games?.released && new Date(game.games.released) <= today
+    );
+    
+    const upcoming = wantGames.filter(game => 
+      !game.games?.released || new Date(game.games.released) > today
+    );
+
+    return { released, upcoming };
+  }, [processedGames.Want, showRoadmap]);
 
   const hasActiveFilters = searchQuery.trim() !== '' || sortBy !== '';
 
@@ -352,7 +379,83 @@ export default function ClientTabsWrapper({ gamesByStatus, counts }: ClientTabsW
         <UserGameCollection games={processedGames.Finished} />
       </TabsContent>
       <TabsContent value="Want">
-        <UserGameCollection games={processedGames.Want} />
+        <div className="mb-4 flex justify-between items-center">
+          <Button
+            variant="outline"
+            className={`${showRoadmap ? 'bg-purple-700 border-purple-600' : 'bg-slate-700 border-slate-600'} text-white hover:bg-purple-600`}
+            onClick={() => setShowRoadmap(!showRoadmap)}
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="18" 
+              height="18" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              className="mr-2"
+            >
+              <path d="M3 3v18h18"/>
+              <path d="m9 9 3-3 3 3"/>
+              <path d="M9 9v9"/>
+              <path d="m15 9-3-3-3 3"/>
+              <path d="M15 9v9"/>
+            </svg>
+            {showRoadmap ? "Standard View" : "Roadmap View"}
+          </Button>
+        </div>
+        
+        {showRoadmap ? (
+          <div className="space-y-8">
+            {roadmapGames.released.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-slate-300 mb-4">Released Games</h3>
+                <UserGameCollection games={roadmapGames.released} />
+              </div>
+            )}
+            
+            <div className="relative py-4">
+              <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-purple-600 text-white px-4 py-1 rounded-full z-10">
+                <div className="flex items-center">
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    width="16" 
+                    height="16" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    className="mr-1"
+                  >
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+                  </svg>
+                  You are here
+                </div>
+              </div>
+              <div className="border-t-2 border-dashed border-purple-500"></div>
+            </div>
+            
+            {roadmapGames.upcoming.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-slate-300 mb-4">Upcoming Games</h3>
+                <UserGameCollection games={roadmapGames.upcoming} />
+              </div>
+            )}
+            
+            {roadmapGames.released.length === 0 && roadmapGames.upcoming.length === 0 && (
+              <div className="p-6 bg-slate-800 border border-slate-700 text-slate-300 rounded-lg text-center">
+                <p className="text-lg font-medium">No games in your Want list</p>
+                <p className="text-sm text-slate-400 mt-1">Add games to your Want list to see them in the roadmap</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <UserGameCollection games={processedGames.Want} />
+        )}
       </TabsContent>
       <TabsContent value="On-hold">
         <UserGameCollection games={processedGames['On-hold']} />
