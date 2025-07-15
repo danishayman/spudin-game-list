@@ -20,6 +20,21 @@ export default function ClientTabsWrapper({ gamesByStatus, counts }: ClientTabsW
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [showRoadmap, setShowRoadmap] = useState(false);
 
+  // Helper function to validate and parse dates safely
+  const parseReleaseDate = (dateString: string | null | undefined): Date | null => {
+    if (!dateString) return null;
+    
+    // Try to parse the date
+    const parsedDate = new Date(dateString);
+    
+    // Check if the date is valid (not Invalid Date)
+    if (isNaN(parsedDate.getTime())) {
+      return null;
+    }
+    
+    return parsedDate;
+  };
+
   const resetFilters = () => {
     setSearchQuery('');
     setSortBy('');
@@ -90,19 +105,34 @@ export default function ClientTabsWrapper({ gamesByStatus, counts }: ClientTabsW
     
     // Sort all games by release date
     wantGames.sort((a, b) => {
-      const dateA = a.games?.released ? new Date(a.games.released).getTime() : Number.MAX_SAFE_INTEGER;
-      const dateB = b.games?.released ? new Date(b.games.released).getTime() : Number.MAX_SAFE_INTEGER;
-      return dateA - dateB; // Sort by release date ascending
+      const dateA = parseReleaseDate(a.games?.released);
+      const dateB = parseReleaseDate(b.games?.released);
+      
+      // If both dates are invalid or null, maintain original order
+      if (!dateA && !dateB) return 0;
+      
+      // If only dateA is invalid, treat it as unreleased (future)
+      if (!dateA) return 1;
+      
+      // If only dateB is invalid, treat it as unreleased (future)
+      if (!dateB) return -1;
+      
+      // Both dates are valid, compare them
+      return dateA.getTime() - dateB.getTime(); // Sort by release date ascending
     });
 
     // Split into released and upcoming
-    const released = wantGames.filter(game => 
-      game.games?.released && new Date(game.games.released) <= today
-    );
+    const released = wantGames.filter(game => {
+      const releaseDate = parseReleaseDate(game.games?.released);
+      // Only include in released if there's a valid date and it's in the past or today
+      return releaseDate && releaseDate <= today;
+    });
     
-    const upcoming = wantGames.filter(game => 
-      !game.games?.released || new Date(game.games.released) > today
-    );
+    const upcoming = wantGames.filter(game => {
+      const releaseDate = parseReleaseDate(game.games?.released);
+      // Include in upcoming if there's no date or invalid date, or if it's in the future
+      return !releaseDate || releaseDate > today;
+    });
 
     return { released, upcoming };
   }, [processedGames.Want, showRoadmap]);
