@@ -4,11 +4,29 @@ import { getNewReleases, RawgGame } from '@/lib/rawg';
 const RAWG_API_KEY = process.env.RAWG_API_KEY;
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
 
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Content-Type': 'application/json',
+};
+
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 200,
+    headers: corsHeaders,
+  });
+}
+
 export async function GET(request: Request) {
   try {
     console.log('[API] /api/games/new-releases called');
     console.log('[API] RAWG_API_KEY exists:', !!RAWG_API_KEY);
     console.log('[API] Environment:', process.env.NODE_ENV);
+    
+    // Set CORS headers
+    const headers = corsHeaders;
     
     // Get count parameter from URL if present
     const url = new URL(request.url);
@@ -22,7 +40,7 @@ export async function GET(request: Request) {
       console.error('[API] RAWG API key is missing');
       return NextResponse.json(
         { error: 'Failed to fetch new releases', details: 'API key is missing' },
-        { status: 500 }
+        { status: 500, headers }
       );
     }
     
@@ -51,7 +69,7 @@ export async function GET(request: Request) {
           environment: process.env.NODE_ENV
         }
       };
-      return NextResponse.json(debugResults);
+      return NextResponse.json(debugResults, { headers });
     }
     
     // If we still have no results, try a direct approach as last resort
@@ -135,7 +153,7 @@ export async function GET(request: Request) {
             }
           };
           
-          return NextResponse.json(debugRatingResults);
+          return NextResponse.json(debugRatingResults, { headers });
         }
       }
       
@@ -156,7 +174,7 @@ export async function GET(request: Request) {
         }
       };
       
-      return NextResponse.json(debugDirectResults);
+      return NextResponse.json(debugDirectResults, { headers });
     } catch (fetchError) {
       console.error('[API] Fetch error in direct approach:', fetchError);
       throw fetchError;
@@ -165,7 +183,7 @@ export async function GET(request: Request) {
     console.error('[API] Error fetching new releases:', error);
     return NextResponse.json(
       { error: 'Failed to fetch new releases', details: error instanceof Error ? error.message : String(error) },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 } 
