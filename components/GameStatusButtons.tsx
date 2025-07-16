@@ -71,7 +71,7 @@ export function GameStatusButtons({
   ];
 
   return (
-    <div className={`grid grid-cols-5 w-full gap-2 ${className}`}>
+    <div className={`grid grid-cols-2 sm:grid-cols-5 w-full gap-2 ${className}`}>
       {statusButtons.map(({ status, icon, label, activeClass, inactiveClass }) => {
         const isSelected = selectedStatus === status;
         return (
@@ -80,7 +80,7 @@ export function GameStatusButtons({
             variant="outline"
             onClick={() => handleStatusChange(status)}
             disabled={disabled}
-            className={`flex items-center justify-center gap-1 ${isSelected ? activeClass : inactiveClass}`}
+            className={`flex items-center justify-center gap-1 text-xs sm:text-sm ${isSelected ? activeClass : inactiveClass}`}
           >
             <span className="mr-1">{icon}</span>
             <span>{label}</span>
