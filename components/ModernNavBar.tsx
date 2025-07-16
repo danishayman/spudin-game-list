@@ -151,7 +151,7 @@ export default function ModernNavBar() {
             {/* Game search button */}
             <SearchDialog 
               buttonVariant="outline" 
-              buttonText="Game" 
+              buttonText="Games" 
               triggerClassName="w-32 sm:w-40 md:w-60 justify-start bg-white/15 backdrop-blur-sm border-white/40 text-white hover:bg-white/25 hover:text-white"
             />
 
