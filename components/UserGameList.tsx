@@ -157,7 +157,7 @@ export function UserGameList({ games }: UserGameListProps) {
                   {/* Release and added dates */}
                   <div className="flex flex-col sm:flex-row sm:justify-between mt-1 text-xs sm:text-sm text-slate-400">
                     <div className="mb-1 sm:mb-0">
-                      Released: {gameReleased ? formatReleaseDate(gameReleased) : 'TBA'}
+                      {gameReleased ? formatReleaseDate(gameReleased) : 'TBA'}
                     </div>
                     <div>
                       Added: {formatAddedDate(game.updated_at)}
