@@ -115,14 +115,14 @@ export default function ModernNavBar() {
 
   return (
     <header className="bg-gray-900 md:bg-opacity-80 bg-opacity-100 backdrop-blur-sm text-white sticky top-0 z-50 border-b border-gray-800 shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-0">
+        <div className="flex justify-between h-16 items-center ">
           {/* Left side - Logo and nav links */}
           <div className="flex items-center">
-            <Link href="/" className="text-xl font-bold text-white mr-8">
+            <Link href="/" className="text-xl font-bold text-white mr-10">
               Spudin Game List
             </Link>
-            <nav className="hidden md:flex space-x-6">
+            <nav className="hidden md:flex space-x-8">
               <Link 
                 href="/" 
                 className="text-white hover:text-gray-300 transition-colors"
@@ -152,7 +152,7 @@ export default function ModernNavBar() {
             <SearchDialog 
               buttonVariant="outline" 
               buttonText="Game" 
-              triggerClassName="bg-white/15 backdrop-blur-sm border-white/40 text-white hover:bg-white/25 hover:text-white"
+              triggerClassName="w-32 sm:w-40 md:w-60 justify-start bg-white/15 backdrop-blur-sm border-white/40 text-white hover:bg-white/25 hover:text-white"
             />
 
             {/* Mobile menu button */}
@@ -308,35 +308,12 @@ export default function ModernNavBar() {
                     <ul className="space-y-2">
                       <li>
                         <Link 
-                          href="/" 
-                          className="block py-2 px-4 text-white hover:bg-gray-800 rounded-md font-medium bg-gray-800"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          Home
-                        </Link>
-                      </li>
-                      <li>
-                        <Link 
                           href="/about" 
                           className="block py-2 px-4 text-white hover:bg-gray-800 rounded-md font-medium bg-gray-800"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           About
                         </Link>
-                      </li>
-                      <li>
-                        <button
-                          className="block w-full text-left py-2 px-4 text-white hover:bg-gray-800 rounded-md font-medium bg-gray-800"
-                          onClick={() => {
-                            setIsMobileMenuOpen(false);
-                          }}
-                        >
-                          <SearchDialog 
-                            buttonVariant="ghost" 
-                            buttonText="Search Games" 
-                            triggerClassName="w-full justify-start p-0 h-auto font-medium"
-                          />
-                        </button>
                       </li>
                       {user && (
                         <li>
