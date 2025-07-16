@@ -77,7 +77,7 @@ async function getNewReleases(): Promise<Game[]> {
       return [];
     }
     
-    return data.results?.slice(0, 10) || [];
+    return data.results || [];
   } catch (error) {
     console.error('Failed to fetch new releases:', error);
     return [];

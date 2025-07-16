@@ -35,15 +35,81 @@ const TRENDING_PAGE_SIZE = 50;
 const TRENDING_ORDERING = '-added'; // Options: '-added', '-rating', '-released', '-metacritic'
 
 // New Releases Configuration
-const NEW_RELEASES_MONTHS_BACK = 3; // How many months back to search for new releases
+const NEW_RELEASES_MONTHS_BACK = 1; // How many months back to search for new releases
 const NEW_RELEASES_PAGE_SIZE = 50; // Initial fetch size (gets filtered down)
 const NEW_RELEASES_FINAL_SIZE = 20; // Final number of results to return
-const NEW_RELEASES_MIN_METACRITIC = 20; // Minimum Metacritic score (0-100)
-const NEW_RELEASES_MIN_RATING = 0.5; // Minimum RAWG rating (0-5)
-const NEW_RELEASES_MIN_RATINGS_COUNT = 1; // Minimum number of ratings required
+const NEW_RELEASES_MIN_METACRITIC = 80; // Minimum Metacritic score (0-100)
+const NEW_RELEASES_MIN_RATING = 0.0; // Minimum RAWG rating (0-5)
+const NEW_RELEASES_MIN_RATINGS_COUNT = 0; // Minimum number of ratings required
 const NEW_RELEASES_ORDERING = '-released'; // Options: '-released', '-rating', '-metacritic'
 
+// Content Filtering Configuration
+const ENABLE_CONTENT_FILTERING = true; // Set to false to disable content filtering
+const BLOCKED_ESRB_RATINGS = ['adults-only-ao']; // Block AO (Adults Only) rated games
+const BLOCKED_TAGS = [
+  'sexual-content',
+  'nudity', 
+  'mature',
+  'nsfw',
+  'adult',
+  'erotic',
+  'hentai',
+  'porn',
+  'sexual'
+]; // Block games with these tags (case-insensitive)
+
 // =============================================================================
+
+/**
+ * Filter out games with sexual or adult content
+ */
+function filterAdultContent(games: RawgGame[]): RawgGame[] {
+  if (!ENABLE_CONTENT_FILTERING) {
+    return games; // Return all games if filtering is disabled
+  }
+  
+  return games.filter(game => {
+    // Check ESRB rating
+    if (game.esrb_rating && BLOCKED_ESRB_RATINGS.includes(game.esrb_rating.slug)) {
+      console.log(`[Filter] Blocked game "${game.name}" due to ESRB rating: ${game.esrb_rating.name}`);
+      return false;
+    }
+    
+    // Check tags for adult content
+    if (game.tags && Array.isArray(game.tags)) {
+      const hasBlockedTag = game.tags.some(tag => 
+        BLOCKED_TAGS.some(blockedTag => 
+          tag.name.toLowerCase().includes(blockedTag.toLowerCase()) ||
+          tag.slug.toLowerCase().includes(blockedTag.toLowerCase())
+        )
+      );
+      
+      if (hasBlockedTag) {
+        const matchedTags = game.tags
+          .filter(tag => 
+            BLOCKED_TAGS.some(blockedTag => 
+              tag.name.toLowerCase().includes(blockedTag.toLowerCase()) ||
+              tag.slug.toLowerCase().includes(blockedTag.toLowerCase())
+            )
+          )
+          .map(tag => tag.name)
+          .join(', ');
+        console.log(`[Filter] Blocked game "${game.name}" due to tags: ${matchedTags}`);
+        return false;
+      }
+    }
+    
+    // Check game name for explicit terms (as an extra safety measure)
+    const gameName = game.name.toLowerCase();
+    const hasExplicitName = BLOCKED_TAGS.some(term => gameName.includes(term));
+    if (hasExplicitName) {
+      console.log(`[Filter] Blocked game "${game.name}" due to explicit name`);
+      return false;
+    }
+    
+    return true;
+  });
+}
 
 export type RawgGame = {
   id: number;
@@ -95,6 +161,14 @@ export async function searchGames(query: string): Promise<RawgSearchResponse> {
   const cachedResults = await getCachedSearchResults(query);
   if (cachedResults) {
     console.log(`[Cache] Using cached search results for query: ${query}`);
+    // Apply content filtering to cached results
+    if (cachedResults.results && Array.isArray(cachedResults.results)) {
+      const originalCount = cachedResults.results.length;
+      cachedResults.results = filterAdultContent(cachedResults.results);
+      if (cachedResults.results.length < originalCount) {
+        console.log(`[Filter] Filtered out ${originalCount - cachedResults.results.length} adult content games from cached search results`);
+      }
+    }
     return cachedResults;
   }
 
@@ -118,6 +192,15 @@ export async function searchGames(query: string): Promise<RawgSearchResponse> {
   }
   
   const results = await response.json();
+  
+  // Filter out adult content
+  if (results.results && Array.isArray(results.results)) {
+    const originalCount = results.results.length;
+    results.results = filterAdultContent(results.results);
+    if (results.results.length < originalCount) {
+      console.log(`[Filter] Filtered out ${originalCount - results.results.length} adult content games from search results`);
+    }
+  }
   
   // Cache the results
   await cacheSearchResults(query, results);
@@ -179,6 +262,13 @@ export async function getGameById(id: number): Promise<RawgGame> {
     }
   }
   
+  // Check if this game contains adult content
+  const filteredGames = filterAdultContent([gameData]);
+  if (filteredGames.length === 0) {
+    console.log(`[Filter] Blocked access to game "${gameData.name}" due to adult content`);
+    throw new Error('This game contains content that is not suitable for display');
+  }
+  
   // Cache the game data
   await cacheGameDetails(id, gameData);
   
@@ -194,6 +284,14 @@ export async function getTrendingGames(): Promise<RawgSearchResponse> {
   const cachedTrending = await getCachedTrendingGames();
   if (cachedTrending) {
     console.log('[Cache] Using cached trending games');
+    // Apply content filtering to cached results
+    if (cachedTrending.results && Array.isArray(cachedTrending.results)) {
+      const originalCount = cachedTrending.results.length;
+      cachedTrending.results = filterAdultContent(cachedTrending.results);
+      if (cachedTrending.results.length < originalCount) {
+        console.log(`[Filter] Filtered out ${originalCount - cachedTrending.results.length} adult content games from cached trending results`);
+      }
+    }
     return cachedTrending;
   }
 
@@ -218,6 +316,15 @@ export async function getTrendingGames(): Promise<RawgSearchResponse> {
   
   const results = await response.json();
   
+  // Filter out adult content
+  if (results.results && Array.isArray(results.results)) {
+    const originalCount = results.results.length;
+    results.results = filterAdultContent(results.results);
+    if (results.results.length < originalCount) {
+      console.log(`[Filter] Filtered out ${originalCount - results.results.length} adult content games from trending results`);
+    }
+  }
+  
   // Cache the results
   await cacheTrendingGames(results);
   
@@ -238,6 +345,14 @@ export async function getNewReleases(): Promise<RawgSearchResponse> {
       cachedNewReleases = await getCachedNewReleases();
       if (cachedNewReleases) {
         console.log('[Cache] Using fresh cached new releases');
+        // Apply content filtering to cached results
+        if (cachedNewReleases.results && Array.isArray(cachedNewReleases.results)) {
+          const originalCount = cachedNewReleases.results.length;
+          cachedNewReleases.results = filterAdultContent(cachedNewReleases.results);
+          if (cachedNewReleases.results.length < originalCount) {
+            console.log(`[Filter] Filtered out ${originalCount - cachedNewReleases.results.length} adult content games from cached new releases`);
+          }
+        }
         return cachedNewReleases;
       }
       
@@ -256,6 +371,14 @@ export async function getNewReleases(): Promise<RawgSearchResponse> {
       
       if (!error && data) {
         cachedNewReleases = data.data as RawgSearchResponse;
+        // Apply content filtering to stale cached results
+        if (cachedNewReleases && cachedNewReleases.results && Array.isArray(cachedNewReleases.results)) {
+          const originalCount = cachedNewReleases.results.length;
+          cachedNewReleases.results = filterAdultContent(cachedNewReleases.results);
+          if (cachedNewReleases.results.length < originalCount) {
+            console.log(`[Filter] Filtered out ${originalCount - cachedNewReleases.results.length} adult content games from stale cache`);
+          }
+        }
         console.log('[Cache] Found stale cache, will try API first');
       }
     } catch (cacheError) {
@@ -314,6 +437,15 @@ export async function getNewReleases(): Promise<RawgSearchResponse> {
       const results = await response.json();
       console.log(`[API] Initial approach returned ${results.results?.length || 0} results`);
       
+      // Filter out adult content
+      if (results.results && Array.isArray(results.results)) {
+        const originalCount = results.results.length;
+        results.results = filterAdultContent(results.results);
+        if (results.results.length < originalCount) {
+          console.log(`[Filter] Filtered out ${originalCount - results.results.length} adult content games from new releases`);
+        }
+      }
+      
       // If no results with Metacritic filter, try with minimum rating instead
       if (!results.results || results.results.length < 5) {
         console.log('[API] Not enough results with Metacritic filter, trying with rating filter');
@@ -348,10 +480,19 @@ export async function getNewReleases(): Promise<RawgSearchResponse> {
         const ratingResults = await ratingResponse.json();
         console.log(`[API] Rating approach returned ${ratingResults.results?.length || 0} results`);
         
+        // Filter out adult content first
+        if (ratingResults.results && Array.isArray(ratingResults.results)) {
+          const originalCount = ratingResults.results.length;
+          ratingResults.results = filterAdultContent(ratingResults.results);
+          if (ratingResults.results.length < originalCount) {
+            console.log(`[Filter] Filtered out ${originalCount - ratingResults.results.length} adult content games from rating approach`);
+          }
+        }
+        
         // Filter locally for games with minimum rating
         if (ratingResults.results && ratingResults.results.length > 0) {
           ratingResults.results = ratingResults.results.filter((game: RawgGame) => game.rating >= NEW_RELEASES_MIN_RATING);
-          console.log(`[API] After filtering, ${ratingResults.results.length} results remain`);
+          console.log(`[API] After rating filtering, ${ratingResults.results.length} results remain`);
           
           // Ensure we have exactly the desired number of results
           if (ratingResults.results.length > NEW_RELEASES_FINAL_SIZE) {
@@ -369,6 +510,15 @@ export async function getNewReleases(): Promise<RawgSearchResponse> {
       // Limit to desired number of results
       if (results.results && results.results.length > NEW_RELEASES_FINAL_SIZE) {
         results.results = results.results.slice(0, NEW_RELEASES_FINAL_SIZE);
+      }
+      
+      // Apply final adult content filter (in case it wasn't applied earlier due to cache fallback)
+      if (results.results && Array.isArray(results.results)) {
+        const originalCount = results.results.length;
+        results.results = filterAdultContent(results.results);
+        if (results.results.length < originalCount) {
+          console.log(`[Filter] Final filter removed ${originalCount - results.results.length} adult content games`);
+        }
       }
       
       // Cache the results
@@ -405,7 +555,16 @@ export async function getNewReleases(): Promise<RawgSearchResponse> {
       
       if (!cacheError && data) {
         console.log('[Cache] Using cache as final fallback after all API failures');
-        return data.data as RawgSearchResponse;
+        const fallbackData = data.data as RawgSearchResponse;
+        // Apply content filtering to final fallback cache
+        if (fallbackData && fallbackData.results && Array.isArray(fallbackData.results)) {
+          const originalCount = fallbackData.results.length;
+          fallbackData.results = filterAdultContent(fallbackData.results);
+          if (fallbackData.results.length < originalCount) {
+            console.log(`[Filter] Filtered out ${originalCount - fallbackData.results.length} adult content games from final fallback cache`);
+          }
+        }
+        return fallbackData;
       }
     } catch (fallbackError) {
       console.error('[CACHE] Error getting fallback cache:', fallbackError);
