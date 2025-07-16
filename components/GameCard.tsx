@@ -52,8 +52,76 @@ export function GameCard({ game, onClick }: GameCardProps) {
     }
   };
 
-  // Add to list button (used in dialog trigger)
-  const addToListButton = (
+  // Get status color and icon
+  const getStatusInfo = (status: string | null) => {
+    switch (status) {
+      case 'Finished':
+        return { 
+          icon: '✓', 
+          color: 'bg-blue-600', 
+          textColor: 'text-blue-100',
+          hoverColor: 'hover:bg-blue-700'
+        };
+      case 'Playing':
+        return { 
+          icon: '◉', 
+          color: 'bg-green-600', 
+          textColor: 'text-green-100',
+          hoverColor: 'hover:bg-green-700'
+        };
+      case 'Dropped':
+        return { 
+          icon: '✗', 
+          color: 'bg-red-600', 
+          textColor: 'text-red-100',
+          hoverColor: 'hover:bg-red-700'
+        };
+      case 'Want':
+        return { 
+          icon: '✧', 
+          color: 'bg-purple-600', 
+          textColor: 'text-purple-100',
+          hoverColor: 'hover:bg-purple-700'
+        };
+      case 'On-hold':
+        return { 
+          icon: '❚❚', 
+          color: 'bg-amber-600', 
+          textColor: 'text-amber-100',
+          hoverColor: 'hover:bg-amber-700'
+        };
+      default:
+        return { 
+          icon: '?', 
+          color: 'bg-slate-600', 
+          textColor: 'text-slate-100',
+          hoverColor: 'hover:bg-slate-700'
+        };
+    }
+  };
+
+  // Get user rating color
+  const getUserRatingColor = (rating: number) => {
+    if (rating >= 8) return 'text-green-400';
+    if (rating >= 6) return 'text-lime-400';
+    if (rating >= 4) return 'text-yellow-400';
+    if (rating >= 2) return 'text-orange-400';
+    return 'text-red-400';
+  };
+
+  const statusInfo = game.user_status ? getStatusInfo(game.user_status) : null;
+
+  // Add to list button or edit button based on whether the game is in the user's list
+  const actionButton = game.in_user_list ? (
+    <Button
+      variant="ghost"
+      className="absolute bottom-3 right-3 bg-purple-600/90 hover:bg-purple-700 text-white text-xs py-1.5 px-3 rounded-md opacity-0 group-hover:opacity-100 transition-all duration-200 z-10 shadow-md hover:shadow-purple-500/40 hover:translate-y-[-2px]"
+      data-dialog-trigger="true"
+      onClick={(e) => e.stopPropagation()}
+    >
+      Edit
+    </Button>
+  ) : (
     <Button
       variant="ghost"
       className="absolute bottom-3 right-3 bg-black/80 hover:bg-purple-600 text-white text-xs py-1.5 px-3 rounded-md opacity-0 group-hover:opacity-100 transition-all duration-200 z-10 shadow-md hover:shadow-purple-500/40 hover:translate-y-[-2px]"
@@ -88,6 +156,22 @@ export function GameCard({ game, onClick }: GameCardProps) {
             {game.metacritic}
           </div>
         )}
+        
+        {/* Status Badge - Show if game is in user's list */}
+        {game.in_user_list && game.user_status && statusInfo && (
+          <div className={`absolute top-2 left-2 ${statusInfo.color} ${statusInfo.textColor} px-2 py-1 rounded text-xs font-bold`}>
+            <span className="mr-1">{statusInfo.icon}</span>
+            {game.user_status}
+          </div>
+        )}
+        
+        {/* User Rating Badge - Show if game is rated by user */}
+        {game.in_user_list && game.user_rating && game.user_rating > 0 && (
+          <div className="absolute bottom-2 left-2 bg-black/70 px-2 py-1 rounded text-xs font-bold">
+            <span className={`${getUserRatingColor(game.user_rating)}`}>★ {game.user_rating.toFixed(1)}</span>
+          </div>
+        )}
+        
         <div data-dialog-trigger="true" onClick={(e) => e.stopPropagation()}>
           <GameRatingDialog
             gameId={game.id}
@@ -95,11 +179,12 @@ export function GameCard({ game, onClick }: GameCardProps) {
             gameImage={game.background_image || undefined}
             gameReleased={game.released || undefined}
             gameRating={game.rating || undefined}
-            triggerComponent={addToListButton}
+            triggerComponent={actionButton}
           />
         </div>
       </div>
-      <CardContent className="p-4 flex flex-col flex-grow text-white">
+      
+      <CardContent className="p-3 flex flex-col flex-grow">
         <h3 className="font-semibold text-lg line-clamp-1 text-white">{game.name}</h3>
         
         <div className="flex items-center gap-1 mt-2 mb-3">

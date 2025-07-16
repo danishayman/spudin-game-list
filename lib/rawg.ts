@@ -73,6 +73,10 @@ export type RawgGame = {
   reddit_description?: string | null;
   reddit_logo?: string | null;
   metacritic_url?: string | null;
+  // User-specific fields for games in user's list
+  user_status?: string | null;
+  user_rating?: number | null;
+  in_user_list?: boolean;
 };
 
 export type RawgSearchResponse = {
