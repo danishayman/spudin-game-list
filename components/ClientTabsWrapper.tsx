@@ -409,13 +409,13 @@ export default function ClientTabsWrapper({ gamesByStatus, counts }: ClientTabsW
       </div>
 
       <TabsContent value="All">
-        <UserGameCollection games={processedGames.All} />
+        <UserGameCollection games={processedGames.All} isOwnProfile={true} />
       </TabsContent>
       <TabsContent value="Playing">
-        <UserGameCollection games={processedGames.Playing} />
+        <UserGameCollection games={processedGames.Playing} isOwnProfile={true} />
       </TabsContent>
       <TabsContent value="Finished">
-        <UserGameCollection games={processedGames.Finished} />
+        <UserGameCollection games={processedGames.Finished} isOwnProfile={true} />
       </TabsContent>
       <TabsContent value="Want">
         <div className="mb-4 flex justify-between items-center">
@@ -451,7 +451,7 @@ export default function ClientTabsWrapper({ gamesByStatus, counts }: ClientTabsW
             {roadmapGames.released.length > 0 && (
               <div>
                 <h3 className="text-lg font-semibold text-slate-300 mb-4">Released Games</h3>
-                <UserGameCollection games={roadmapGames.released} />
+                <UserGameCollection games={roadmapGames.released} isOwnProfile={true} />
               </div>
             )}
             
@@ -481,7 +481,7 @@ export default function ClientTabsWrapper({ gamesByStatus, counts }: ClientTabsW
             {roadmapGames.upcoming.length > 0 && (
               <div>
                 <h3 className="text-lg font-semibold text-slate-300 mb-4">Upcoming Games</h3>
-                <UserGameCollection games={roadmapGames.upcoming} />
+                <UserGameCollection games={roadmapGames.upcoming} isOwnProfile={true} />
               </div>
             )}
             
@@ -493,14 +493,14 @@ export default function ClientTabsWrapper({ gamesByStatus, counts }: ClientTabsW
             )}
           </div>
         ) : (
-          <UserGameCollection games={processedGames.Want} />
+          <UserGameCollection games={processedGames.Want} isOwnProfile={true} />
         )}
       </TabsContent>
       <TabsContent value="On-hold">
-        <UserGameCollection games={processedGames['On-hold']} />
+        <UserGameCollection games={processedGames['On-hold']} isOwnProfile={true} />
       </TabsContent>
       <TabsContent value="Dropped">
-        <UserGameCollection games={processedGames.Dropped} />
+        <UserGameCollection games={processedGames.Dropped} isOwnProfile={true} />
       </TabsContent>
     </Tabs>
   );
