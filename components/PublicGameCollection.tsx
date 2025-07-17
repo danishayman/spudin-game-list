@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { UserGameEntry, GamesByStatus } from '@/lib/game-actions';
+import { GamesByStatus } from '@/lib/game-actions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { UserGameList } from './UserGameList';
 
@@ -11,8 +10,6 @@ interface PublicGameCollectionProps {
 }
 
 export function PublicGameCollection({ gamesByStatus, isOwnProfile = false }: PublicGameCollectionProps) {
-  const [activeTab, setActiveTab] = useState('all');
-  
   // Get counts for each status
   const counts = {
     all: gamesByStatus.All?.length || 0,
@@ -32,7 +29,7 @@ export function PublicGameCollection({ gamesByStatus, isOwnProfile = false }: Pu
           No games in collection yet.
         </p>
       ) : (
-        <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
+        <Tabs defaultValue="all" className="w-full">
           <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-6 bg-slate-600 border-slate-500">
             <TabsTrigger value="all" className="data-[state=active]:bg-slate-500 data-[state=active]:text-white text-slate-300">
               All ({counts.all})

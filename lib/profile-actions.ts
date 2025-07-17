@@ -185,7 +185,25 @@ export async function getPublicGameList(userId: string, limit: number = 12) {
     }
 
     // Transform the data to match expected format (handle array from join)
-    const games = (rawGames || []).map((item: any) => ({
+    const games = (rawGames || []).map((item: {
+      game_id: number;
+      status: string | null;
+      rating: number | null;
+      updated_at: string;
+      games: {
+        id: number;
+        name: string;
+        background_image: string | null;
+        released: string | null;
+        rating: number | null;
+      } | {
+        id: number;
+        name: string;
+        background_image: string | null;
+        released: string | null;
+        rating: number | null;
+      }[];
+    }) => ({
       game_id: item.game_id,
       status: item.status,
       rating: item.rating,
