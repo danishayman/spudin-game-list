@@ -37,41 +37,41 @@ export function GameStatusButtons({
       status: 'Finished' as GameStatus, 
       icon: '✓', 
       label: 'Finished', 
-      activeClass: 'bg-blue-600 hover:bg-blue-700 text-white',
-      inactiveClass: 'bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200'
+      activeClass: 'bg-blue-500 hover:bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-500/25',
+      inactiveClass: 'bg-slate-800/50 text-slate-300 border-slate-600 hover:bg-blue-500/10 hover:border-blue-500/50 hover:text-blue-400'
     },
     { 
       status: 'Playing' as GameStatus, 
-      icon: '◉', 
+      icon: '●', 
       label: 'Playing', 
-      activeClass: 'bg-green-600 hover:bg-green-700 text-white',
-      inactiveClass: 'bg-green-100 text-green-700 border-green-300 hover:bg-green-200'
+      activeClass: 'bg-green-500 hover:bg-green-600 text-white border-green-500 shadow-lg shadow-green-500/25',
+      inactiveClass: 'bg-slate-800/50 text-slate-300 border-slate-600 hover:bg-green-500/10 hover:border-green-500/50 hover:text-green-400'
     },
     { 
       status: 'Dropped' as GameStatus, 
-      icon: '✗', 
+      icon: '✕', 
       label: 'Dropped', 
-      activeClass: 'bg-red-600 hover:bg-red-700 text-white',
-      inactiveClass: 'bg-red-100 text-red-700 border-red-300 hover:bg-red-200'
+      activeClass: 'bg-red-500 hover:bg-red-600 text-white border-red-500 shadow-lg shadow-red-500/25',
+      inactiveClass: 'bg-slate-800/50 text-slate-300 border-slate-600 hover:bg-red-500/10 hover:border-red-500/50 hover:text-red-400'
     },
     { 
       status: 'Want' as GameStatus, 
-      icon: '✧', 
+      icon: '♦', 
       label: 'Want', 
-      activeClass: 'bg-purple-600 hover:bg-purple-700 text-white',
-      inactiveClass: 'bg-purple-100 text-purple-700 border-purple-300 hover:bg-purple-200'
+      activeClass: 'bg-purple-500 hover:bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-500/25',
+      inactiveClass: 'bg-slate-800/50 text-slate-300 border-slate-600 hover:bg-purple-500/10 hover:border-purple-500/50 hover:text-purple-400'
     },
     { 
       status: 'On-hold' as GameStatus, 
       icon: '❚❚', 
       label: 'On-hold', 
-      activeClass: 'bg-amber-600 hover:bg-amber-700 text-white',
-      inactiveClass: 'bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-200'
+      activeClass: 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500 shadow-lg shadow-orange-500/25',
+      inactiveClass: 'bg-slate-800/50 text-slate-300 border-slate-600 hover:bg-orange-500/10 hover:border-orange-500/50 hover:text-orange-400'
     },
   ];
 
   return (
-    <div className={`grid grid-cols-2 sm:grid-cols-5 w-full gap-2 ${className}`}>
+    <div className={`grid grid-cols-2 sm:grid-cols-5 w-full gap-2 sm:gap-3 ${className}`}>
       {statusButtons.map(({ status, icon, label, activeClass, inactiveClass }) => {
         const isSelected = selectedStatus === status;
         return (
@@ -80,10 +80,15 @@ export function GameStatusButtons({
             variant="outline"
             onClick={() => handleStatusChange(status)}
             disabled={disabled}
-            className={`flex items-center justify-center gap-1 text-xs sm:text-sm ${isSelected ? activeClass : inactiveClass}`}
+            className={`
+              flex flex-col items-center justify-center gap-1 p-3 sm:p-4 h-16 sm:h-18 
+              text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 
+              ${isSelected ? activeClass : inactiveClass}
+              ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+            `}
           >
-            <span className="mr-1">{icon}</span>
-            <span>{label}</span>
+            <span className="text-lg sm:text-xl">{icon}</span>
+            <span className="leading-tight">{label}</span>
           </Button>
         );
       })}

@@ -357,7 +357,10 @@ export function GameRatingDialog({
   // Delete confirmation dialog
   const DeleteConfirmationDialog = () => (
     <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-      <DialogContent className="bg-slate-900 border-slate-700 text-white p-6 max-w-sm">
+      <DialogContent 
+        className="bg-slate-900 border-slate-700 text-white p-6 max-w-sm w-[calc(100%-1rem)]"
+        style={{ margin: "0.5rem auto" }}
+      >
         <DialogHeader>
           <DialogTitle className="text-xl font-medium">Remove Game</DialogTitle>
         </DialogHeader>
@@ -404,7 +407,11 @@ export function GameRatingDialog({
             </Button>
           )}
         </DialogTrigger>
-        <DialogContent hideCloseButton className="bg-slate-900 border-slate-700 text-white max-w-lg w-full p-0 overflow-hidden rounded-lg sm:max-h-[90vh] max-h-[95vh] my-2 flex flex-col">
+        <DialogContent 
+          hideCloseButton 
+          className="bg-slate-900 border-slate-700 text-white max-w-lg w-[calc(100%-1rem)] p-0 overflow-hidden rounded-lg sm:max-h-[90vh] max-h-[95vh] flex flex-col"
+          style={{ margin: "0.5rem auto" }}
+        >
           {isLoading || userLoading ? (
             <div className="flex flex-col items-center justify-center p-8 space-y-4">
               <DialogTitle className="sr-only">Loading Game Information</DialogTitle>
@@ -462,9 +469,9 @@ export function GameRatingDialog({
                 </div>
               </div>
               
-              <div className="p-5 space-y-6 overflow-y-auto flex-1 scrollbar-thin scrollbar-track-slate-800 scrollbar-thumb-slate-600 hover:scrollbar-thumb-slate-500">
-                <DialogHeader className="p-0 space-y-2">
-                  <DialogTitle className="text-xl font-bold">Status</DialogTitle>
+              <div className="p-5 space-y-8 overflow-y-auto flex-1 scrollbar-thin scrollbar-track-slate-800 scrollbar-thumb-slate-600 hover:scrollbar-thumb-slate-500">
+                <DialogHeader className="p-0 space-y-3">
+                  <DialogTitle className="text-2xl font-bold text-center text-slate-100">Status</DialogTitle>
                 </DialogHeader>
                 
                 {error && (
@@ -473,18 +480,20 @@ export function GameRatingDialog({
                   </div>
                 )}
                 
-                <div className="px-2 sm:px-5 flex justify-center">
-                  <GameStatusButtons 
-                    initialStatus={gameListEntry.status} 
-                    onChange={handleStatusChange}
-                    disabled={isSaving || isDeleting}
-                    className="flex-nowrap w-full justify-center"
-                  />
+                <div className="px-2 sm:px-4 space-y-3">
+                  <div className="flex justify-center">
+                    <GameStatusButtons 
+                      initialStatus={gameListEntry.status} 
+                      onChange={handleStatusChange}
+                      disabled={isSaving || isDeleting}
+                      className="w-full max-w-2xl"
+                    />
+                  </div>
                 </div>
                 
                 <div className="px-5 space-y-4">
                   <div className="flex justify-between items-center">
-                    <h4 className="text-xl font-bold">Rating</h4>
+                    <h4 className="text-2xl font-bold text-slate-100">Rating</h4>
                     <div className="bg-green-900/30 text-green-400 font-bold text-xl px-4 py-2 rounded-md">
                       <span className="mr-2">{formatRatingDisplay()}</span>
                       <span className="text-sm text-green-300">{getRatingLabel()}</span>
@@ -505,7 +514,7 @@ export function GameRatingDialog({
                 
                 {/* Review Section */}
                 <div className="px-5 space-y-4">
-                  <h4 className="text-xl font-bold">Review</h4>
+                  <h4 className="text-2xl font-bold text-slate-100">Review</h4>
                   <div className="py-2">
                     <ReviewInput
                       initialContent={gameListEntry.review || ''}
