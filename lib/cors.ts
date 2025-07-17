@@ -64,10 +64,21 @@ export const getAllowedOrigins = (): string[] => {
  */
 export const isOriginAllowed = (origin: string, allowedOrigins: string[]): boolean => {
   return allowedOrigins.includes(origin) ||
-    allowedOrigins.some(allowed => 
-      allowed.includes('*') && 
-      origin.match(allowed.replace(/\*/g, '.*'))
-    );
+    allowedOrigins.some(allowed => {
+      if (!allowed.includes('*')) return false;
+      
+      // Escape all regex special characters except the wildcard
+      const escapedPattern = allowed.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
+      
+      // Replace wildcard with pattern that matches valid subdomains only
+      // Allow alphanumeric characters, hyphens, and dots for subdomains
+      const regexPattern = escapedPattern.replace(/\*/g, '[a-zA-Z0-9.-]*');
+      
+      // Anchor the regex at start and end for exact matching
+      const regex = new RegExp(`^${regexPattern}$`);
+      
+      return regex.test(origin);
+    });
 };
 
 /**
@@ -93,8 +104,14 @@ export const getCorsHeaders = (
     'Vary': 'Origin',
   };
   
-  // Set origin - use requesting origin if allowed, otherwise use first allowed origin
-  headers['Access-Control-Allow-Origin'] = isAllowed ? origin : allowedOrigins[0];
+  // Only set origin header if the origin is allowed
+  if (isAllowed && origin) {
+    headers['Access-Control-Allow-Origin'] = origin;
+  } else if (!origin && allowedOrigins.length > 0) {
+    // If no origin provided but we have allowed origins, use the first one
+    headers['Access-Control-Allow-Origin'] = allowedOrigins[0];
+  }
+  // If origin is not allowed, omit the Access-Control-Allow-Origin header entirely
   
   // Add credentials header if needed
   if (credentials) {
