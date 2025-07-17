@@ -14,33 +14,49 @@ export interface CorsOptions {
  * Get allowed origins from environment variables and defaults
  */
 export const getAllowedOrigins = (): string[] => {
-  const defaultOrigins = [
-    'http://localhost:3000', // Local development
-    'https://localhost:3000', // Local development with HTTPS
-  ];
+  const origins: string[] = [];
   
-  // Add origins from environment variable if available
+  // Add localhost origins only in development environment
+  if (process.env.NODE_ENV === 'development') {
+    origins.push(
+      'http://localhost:3000', // Local development
+      'https://localhost:3000' // Local development with HTTPS
+    );
+  }
+  
+  // Helper function to validate URL format
+  const isValidUrl = (url: string): boolean => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  
+  // Add origins from environment variable if available and valid
   if (process.env.ALLOWED_CORS_ORIGINS) {
-    const envOrigins = process.env.ALLOWED_CORS_ORIGINS.split(',').map(origin => origin.trim());
-    defaultOrigins.push(...envOrigins);
+    const envOrigins = process.env.ALLOWED_CORS_ORIGINS
+      .split(',')
+      .map(origin => origin.trim())
+      .filter(origin => origin && isValidUrl(origin));
+    origins.push(...envOrigins);
   }
   
-  // Add site URL if available
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    defaultOrigins.push(process.env.NEXT_PUBLIC_SITE_URL);
+  // Add site URL if available and valid
+  if (process.env.NEXT_PUBLIC_SITE_URL && isValidUrl(process.env.NEXT_PUBLIC_SITE_URL)) {
+    origins.push(process.env.NEXT_PUBLIC_SITE_URL);
   }
   
-  // Add current Vercel deployment URL
+  // Add current Vercel deployment URL if available and valid
   if (process.env.VERCEL_URL) {
-    defaultOrigins.push(`https://${process.env.VERCEL_URL}`);
+    const vercelUrl = `https://${process.env.VERCEL_URL}`;
+    if (isValidUrl(vercelUrl)) {
+      origins.push(vercelUrl);
+    }
   }
   
-  // Fallback to common deployment patterns for this project
-  const fallbackOrigins = [
-    'https://spudin-game-list.vercel.app',
-  ];
-  
-  return [...new Set([...defaultOrigins, ...fallbackOrigins])]; // Remove duplicates
+  return [...new Set(origins)]; // Remove duplicates
 };
 
 /**
