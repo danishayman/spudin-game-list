@@ -3,10 +3,10 @@
 
 CREATE TABLE public.game_cache (
   id integer NOT NULL DEFAULT nextval('game_cache_id_seq'::regclass),
+  last_updated timestamp with time zone NOT NULL DEFAULT now(),
   cache_key text NOT NULL UNIQUE,
   data jsonb NOT NULL,
   cache_type text NOT NULL,
-  last_updated timestamp with time zone NOT NULL DEFAULT now(),
   CONSTRAINT game_cache_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.game_lists (
@@ -30,7 +30,6 @@ CREATE TABLE public.games (
 );
 CREATE TABLE public.profiles (
   id uuid NOT NULL,
-  full_name text,
   email text UNIQUE,
   avatar_url text,
   username text NOT NULL UNIQUE,
@@ -39,10 +38,10 @@ CREATE TABLE public.profiles (
   CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
 );
 CREATE TABLE public.reviews (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
   user_id uuid NOT NULL,
   game_id integer NOT NULL,
   content text NOT NULL,
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
   CONSTRAINT reviews_pkey PRIMARY KEY (id),
