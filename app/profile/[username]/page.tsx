@@ -65,8 +65,10 @@ export default async function ProfilePage({
               )}
               
               <div>
-                <h1 className="text-2xl font-bold text-white">{profile.full_name || "User"}</h1>
-                <p className="text-slate-400">@{profile.username}</p>
+                <h1 className="text-2xl font-bold text-white">{profile.full_name || profile.username || "User"}</h1>
+                {profile.full_name && profile.username && profile.full_name !== profile.username && (
+                  <p className="text-slate-400">{profile.username}</p>
+                )}
               </div>
             </div>
             

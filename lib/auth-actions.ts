@@ -15,29 +15,30 @@ export async function signout() {
   redirect("/logout");
 }
 
-export async function signInWithGoogle() {
+export async function signInWithTwitch() {
   const supabase = await createClient();
   
   // Use localhost for development, production URL for production
   const isDevelopment = process.env.NODE_ENV === 'development';
+  
+  // For development, use port 3001 (which your server is currently using)
   const redirectTo = isDevelopment 
-    ? 'http://localhost:3000/auth/confirm'
+    ? 'http://localhost:3001/auth/confirm'
     : `${process.env.NEXT_PUBLIC_SITE_URL || 'https://spudin-game-list.vercel.app/'}/auth/confirm`;
   
+  console.log('Twitch OAuth redirect URL:', redirectTo);
+  
   const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
+    provider: "twitch",
     options: {
       redirectTo,
-      queryParams: {
-        access_type: "offline",
-        prompt: "consent",
-      },
+      scopes: "user:read:email", // Twitch requires explicit scope for email access
     },
   });
 
   if (error) {
-    console.log("Google sign-in error:", error);
-    redirect(`/error?error=${encodeURIComponent(error.message)}&message=${encodeURIComponent("Failed to sign in with Google. Please try again.")}`);
+    console.log("Twitch sign-in error:", error);
+    redirect(`/error?error=${encodeURIComponent(error.message)}&message=${encodeURIComponent("Failed to sign in with Twitch. Please try again.")}`);
   }
 
   redirect(data.url);
