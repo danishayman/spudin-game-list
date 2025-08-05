@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
-const RAWG_API_KEY = process.env.RAWG_API_KEY;
-const RAWG_BASE_URL = 'https://api.rawg.io/api';
+const IGDB_CLIENT_ID = process.env.IGDB_CLIENT_ID;
+const IGDB_CLIENT_SECRET = process.env.IGDB_CLIENT_SECRET;
+const IGDB_BASE_URL = 'https://api.igdb.com/v4';
 
 // Simple in-memory rate limiting
 // In production, consider using a distributed solution like Redis
@@ -111,58 +112,87 @@ export async function GET(request: Request) {
     }
 
     console.log('[TEST API] Test endpoint called');
-    console.log('[TEST API] RAWG_API_KEY exists:', !!RAWG_API_KEY);
+    console.log('[TEST API] IGDB credentials exist:', !!IGDB_CLIENT_ID && !!IGDB_CLIENT_SECRET);
     
-    // Check for required API key
-    if (!RAWG_API_KEY) {
-      console.error('[TEST API] RAWG API key is missing');
+    // Check for required credentials
+    if (!IGDB_CLIENT_ID || !IGDB_CLIENT_SECRET) {
+      console.error('[TEST API] IGDB credentials are missing');
       return NextResponse.json(
-        { error: 'API key is missing' },
+        { error: 'IGDB credentials are missing' },
         { status: 500 }
       );
     }
     
-    // Get current date and date from 3 months ago
+    // Get OAuth token for IGDB
+    const tokenResponse = await fetch('https://id.twitch.tv/oauth2/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        client_id: IGDB_CLIENT_ID,
+        client_secret: IGDB_CLIENT_SECRET,
+        grant_type: 'client_credentials',
+      }),
+    });
+
+    if (!tokenResponse.ok) {
+      throw new Error(`Failed to get IGDB access token: ${tokenResponse.status}`);
+    }
+
+    const tokenData = await tokenResponse.json();
+    const accessToken = tokenData.access_token;
+
+    // Get current date and date from 3 months ago (Unix timestamps)
     const now = new Date();
     const threeMonthsAgo = new Date();
     threeMonthsAgo.setMonth(now.getMonth() - 3);
     
-    // Format dates as YYYY-MM-DD
-    const toDate = now.toISOString().split('T')[0];
-    const fromDate = threeMonthsAgo.toISOString().split('T')[0];
+    const toDate = Math.floor(now.getTime() / 1000);
+    const fromDate = Math.floor(threeMonthsAgo.getTime() / 1000);
 
-    // Create a direct URL to test with page_size=20
-    const url = new URL(`${RAWG_BASE_URL}/games`);
-    url.searchParams.append('key', RAWG_API_KEY);
-    url.searchParams.append('dates', `${fromDate},${toDate}`);
-    url.searchParams.append('ordering', '-added');
-    url.searchParams.append('page_size', '20');
-    url.searchParams.append('ratings_count', '5');  // At least 5 ratings
+    // Create IGDB query
+    const igdbQuery = `
+      fields id, name, cover.url, first_release_date, total_rating, total_rating_count,
+             genres.name, platforms.name, summary;
+      where first_release_date >= ${fromDate} & first_release_date <= ${toDate} 
+            & total_rating_count >= 5;
+      sort first_release_date desc;
+      limit 20;
+    `;
     
-    console.log('[TEST API] Fetching from URL:', url.toString().replace(RAWG_API_KEY, '[API_KEY]'));
+    console.log('[TEST API] Making IGDB API call');
     
     // Make the API call with cache disabled to ensure fresh results
-    const response = await fetch(url.toString(), { 
+    const response = await fetch(`${IGDB_BASE_URL}/games`, {
+      method: 'POST',
+      headers: {
+        'Client-ID': IGDB_CLIENT_ID,
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: igdbQuery,
       cache: 'no-store'
     });
     
     if (!response.ok) {
-      console.error(`[TEST API] RAWG API error: ${response.status} - ${response.statusText}`);
+      console.error(`[TEST API] IGDB API error: ${response.status} - ${response.statusText}`);
       const errorText = await response.text();
       console.error(`[TEST API] Error response body: ${errorText}`);
-      throw new Error(`RAWG API error: ${response.status}`);
+      throw new Error(`IGDB API error: ${response.status}`);
     }
     
     const results = await response.json();
     
     // Add debug information to the response
     const debugResults = {
-      ...results,
+      results: results,
+      count: results.length,
       debug: {
-        resultsCount: results.results?.length || 0,
-        pageSize: results.next?.includes('page_size=20') ? '20' : 'other',
-        apiKeyExists: !!RAWG_API_KEY,
-        url: url.toString().replace(RAWG_API_KEY, '[API_KEY]')
+        resultsCount: results.length || 0,
+        credentialsExist: !!IGDB_CLIENT_ID && !!IGDB_CLIENT_SECRET,
+        api: 'IGDB',
+        query: igdbQuery.trim()
       }
     };
     

@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
-import type { RawgGame } from '@/lib/rawg';
+import type { IgdbGame as RawgGame } from '@/lib/igdb';
 import { GameRatingDialog } from './GameRatingDialog';
 
 type GameCardProps = {

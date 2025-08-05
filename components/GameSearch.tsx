@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from './ui/input';
 import { GameCard } from './GameCard';
-import { type RawgGame } from '@/lib/rawg';
+import { type IgdbGame as RawgGame } from '@/lib/igdb';
 import { searchGamesClient } from '@/lib/games-client';
 
 interface GameSearchProps {

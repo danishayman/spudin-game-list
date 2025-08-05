@@ -1,6 +1,6 @@
 # Test API Endpoint
 
-This endpoint is for admin use only and provides diagnostic information about the RAWG API integration.
+This endpoint is for admin use only and provides diagnostic information about the IGDB API integration.
 
 ## Security
 
@@ -42,19 +42,19 @@ Authorization: Bearer YOUR_ADMIN_API_KEY
 
 ### Response
 
-The endpoint returns diagnostic information about the RAWG API, including:
+The endpoint returns diagnostic information about the IGDB API, including:
 
 ```json
 {
   "count": 123,
-  "next": "https://api.rawg.io/api/games?page=2&page_size=20",
+  "next": null,
   "previous": null,
   "results": [...],
   "debug": {
     "resultsCount": 20,
-    "pageSize": "20",
-    "apiKeyExists": true,
-    "url": "https://api.rawg.io/api/games?key=[API_KEY]&dates=2023-01-01,2023-04-01&ordering=-added&page_size=20&ratings_count=5"
+    "credentialsExist": true,
+    "api": "IGDB",
+    "query": "fields id, name, cover.url, first_release_date, total_rating..."
   }
 }
 ```

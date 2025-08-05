@@ -39,7 +39,7 @@ async function getNewReleases(): Promise<Game[]> {
     }
       
     console.log('Fetching new releases from:', `${baseUrl}/api/games/new-releases`);
-    console.log('RAWG_API_KEY exists:', !!process.env.RAWG_API_KEY);
+    console.log('IGDB credentials exist:', !!process.env.IGDB_CLIENT_ID && !!process.env.IGDB_CLIENT_SECRET);
     console.log('Environment:', process.env.VERCEL_ENV || 'local');
     
     // Server components always need absolute URLs

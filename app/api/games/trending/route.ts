@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getTrendingGames } from '@/lib/rawg';
+import { getTrendingGames } from '@/lib/igdb';
 
 export async function GET() {
   try {

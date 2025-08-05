@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { GameExplorerHero } from '@/components/GameExplorerHero';
 import { GameCollection } from '@/components/GameCollection';
 import { getTrendingGamesClient, getNewReleasesClient } from '@/lib/games-client';
-import { RawgGame } from '@/lib/rawg';
+import { IgdbGame as RawgGame } from '@/lib/igdb';
 
 export default function GamesPage() {
   const [trendingGames, setTrendingGames] = useState<RawgGame[]>([]);

@@ -14,27 +14,19 @@ export async function GET(
             return NextResponse.json({ error: "Invalid game ID" }, { status: 400 });
         }
 
-        const RAWG_API_KEY = process.env.RAWG_API_KEY;
-        if (!RAWG_API_KEY) {
-            return NextResponse.json({ error: "API key not configured" }, { status: 500 });
-        }
-
-        // Get game videos data
-        const url = new URL(`https://api.rawg.io/api/games/${gameId}/movies`);
-        url.searchParams.append('key', RAWG_API_KEY);
+        // IGDB includes videos in the main game data when requested with "videos.*" field
+        // The main getGameById function in our IGDB wrapper already includes videos
+        // For now, return an empty array as videos are included in the main game details
+        console.log(`[IGDB] Videos are included in main game details for game ID: ${gameId}`);
         
-        const response = await fetch(url.toString(), { 
-            next: { revalidate: 3600 } // Cache for 1 hour
-        });
+        // Return empty result for now - videos are included in the main game endpoint
+        const videosData = {
+            count: 0,
+            next: null,
+            previous: null,
+            results: []
+        };
         
-        if (!response.ok) {
-            return NextResponse.json(
-                { error: `RAWG API error: ${response.status}` },
-                { status: response.status }
-            );
-        }
-        
-        const videosData = await response.json();
         return NextResponse.json(videosData);
     } catch (error) {
         console.error("Error fetching game videos:", error);

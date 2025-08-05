@@ -14,27 +14,20 @@ export async function GET(
             return NextResponse.json({ error: "Invalid game ID" }, { status: 400 });
         }
 
-        const RAWG_API_KEY = process.env.RAWG_API_KEY;
-        if (!RAWG_API_KEY) {
-            return NextResponse.json({ error: "API key not configured" }, { status: 500 });
-        }
-
-        // Get game series data
-        const url = new URL(`https://api.rawg.io/api/games/${gameId}/game-series`);
-        url.searchParams.append('key', RAWG_API_KEY);
+        // IGDB doesn't have a direct "game series" endpoint like RAWG
+        // We'll need to search for games with similar names or from the same franchise
+        // For now, return an empty array as this feature needs to be reimplemented
+        console.log(`[IGDB] Game series endpoint not yet implemented for game ID: ${gameId}`);
         
-        const response = await fetch(url.toString(), { 
-            next: { revalidate: 3600 } // Cache for 1 hour
-        });
+        // Return empty result for now - this would need to be implemented using IGDB's
+        // collection or franchise endpoints
+        const seriesData = {
+            count: 0,
+            next: null,
+            previous: null,
+            results: []
+        };
         
-        if (!response.ok) {
-            return NextResponse.json(
-                { error: `RAWG API error: ${response.status}` },
-                { status: response.status }
-            );
-        }
-        
-        const seriesData = await response.json();
         return NextResponse.json(seriesData);
     } catch (error) {
         console.error("Error fetching game series:", error);

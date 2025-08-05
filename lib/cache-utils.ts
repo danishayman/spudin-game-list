@@ -1,6 +1,10 @@
 import { createClient } from '@/utils/supabase/server';
 import { createAdminClient } from '@/utils/supabase/admin';
-import { RawgGame, RawgSearchResponse } from './rawg';
+import { IgdbGame, IgdbSearchResponse } from './igdb';
+
+// Type aliases for backward compatibility
+type RawgGame = IgdbGame;
+type RawgSearchResponse = IgdbSearchResponse;
 
 // Cache types
 export const CACHE_TYPE = {

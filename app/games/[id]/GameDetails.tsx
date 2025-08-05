@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { type RawgGame } from '@/lib/rawg';
+import { type IgdbGame as RawgGame } from '@/lib/igdb';
 import { getGameByIdClient } from '@/lib/games-client';
 import { GameRatingDialog } from '@/components/GameRatingDialog';
 import { createClient } from '@/utils/supabase/client';

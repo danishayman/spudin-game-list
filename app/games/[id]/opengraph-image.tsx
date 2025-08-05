@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { getGameById } from '@/lib/rawg';
+import { getGameById } from '@/lib/igdb';
 
 export const alt = 'Game Details';
 export const size = {

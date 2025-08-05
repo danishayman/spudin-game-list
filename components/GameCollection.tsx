@@ -1,6 +1,6 @@
 'use client';
 
-import { RawgGame } from '@/lib/rawg';
+import { IgdbGame as RawgGame } from '@/lib/igdb';
 import DragScrollContainer from './DragScrollContainer';
 import Link from 'next/link';
 import Image from 'next/image';

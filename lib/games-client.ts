@@ -1,4 +1,8 @@
-import { RawgGame, RawgSearchResponse } from './rawg';
+import { IgdbGame, IgdbSearchResponse } from './igdb';
+
+// Type aliases for backward compatibility
+export type RawgGame = IgdbGame;
+export type RawgSearchResponse = IgdbSearchResponse;
 
 /**
  * Search games through the API route
