@@ -36,10 +36,10 @@ export async function refreshProfileFromAuth() {
       .update({
         avatar_url: user.user_metadata?.profile_image_url || 
                    user.user_metadata?.avatar_url,
-        username: user.user_metadata?.display_name || 
-                 user.user_metadata?.login || 
+        username: user.user_metadata?.login || 
                  user.user_metadata?.preferred_username || 
-                 user.user_metadata?.username
+                 user.user_metadata?.username ||
+                 user.user_metadata?.display_name
       })
       .eq('id', user.id);
 

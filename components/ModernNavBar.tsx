@@ -170,7 +170,7 @@ export default function ModernNavBar() {
                 />
               ) : user ? (
                 <span className="text-lg font-semibold">
-                  {(profile?.username || user.user_metadata?.display_name || "U").charAt(0)}
+                  {(profile?.username || user.user_metadata?.login || user.user_metadata?.display_name || "U").charAt(0)}
                 </span>
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -197,7 +197,7 @@ export default function ModernNavBar() {
                       />
                     ) : (
                       <span className="text-lg font-semibold">
-                        {(profile?.username || user.user_metadata?.display_name || "U").charAt(0)}
+                        {(profile?.username || user.user_metadata?.login || user.user_metadata?.display_name || "U").charAt(0)}
                       </span>
                     )}
                   </div>
@@ -275,13 +275,13 @@ export default function ModernNavBar() {
                               />
                             ) : (
                               <span className="text-lg font-semibold">
-                                {(profile?.username || user.user_metadata?.display_name || "U").charAt(0)}
+                                {(profile?.username || user.user_metadata?.login || user.user_metadata?.display_name || "U").charAt(0)}
                               </span>
                             )}
                           </div>
                           <div>
                             <p className="text-white font-medium">
-                              {profile?.username || user.user_metadata?.display_name || "User"}
+                              {profile?.username || user.user_metadata?.login || user.user_metadata?.display_name || "User"}
                             </p>
                             <p className="text-gray-400 text-sm truncate">
                               {user.email}

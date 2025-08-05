@@ -13,12 +13,12 @@ BEGIN
             new.raw_user_meta_data->>'avatar_url'
         ),
         new.email,
-        -- For username, prioritize Twitch display_name (actual username) over login
+        -- For username, prioritize Twitch login (actual username) over display_name
         COALESCE(
-            new.raw_user_meta_data->>'display_name',             -- Twitch display name (actual username)
-            new.raw_user_meta_data->>'login',                    -- Twitch login
+            new.raw_user_meta_data->>'login',                    -- Twitch login (actual username)
             new.raw_user_meta_data->>'preferred_username',       -- Generic username
             new.raw_user_meta_data->>'username',                 -- Alternative username
+            new.raw_user_meta_data->>'display_name',             -- Twitch display name (fallback)
             replace(split_part(COALESCE(new.email, new.raw_user_meta_data->>'email'), '@', 1), '.', '_')     -- Email-based fallback
         )
     )
@@ -29,10 +29,10 @@ BEGIN
             profiles.avatar_url
         ),
         username = COALESCE(
-            new.raw_user_meta_data->>'display_name',             -- Twitch display name (actual username)
-            new.raw_user_meta_data->>'login',
+            new.raw_user_meta_data->>'login',                    -- Twitch login (actual username)
             new.raw_user_meta_data->>'preferred_username',
             new.raw_user_meta_data->>'username',
+            new.raw_user_meta_data->>'display_name',             -- Twitch display name (fallback)
             profiles.username
         );
     RETURN new;

@@ -59,13 +59,29 @@ Execute this SQL in your Supabase SQL Editor:
 
 ## 🔧 Key Improvements
 
-1. **Better Twitch Integration** - Prioritizes `display_name` (actual Twitch username) over `login`
-2. **Cleaner URLs** - Profile URLs use actual usernames instead of emails
+1. **Fixed Twitch Username Extraction** - Now prioritizes `login` (actual Twitch username) over `display_name`
+2. **Cleaner URLs** - Profile URLs use actual usernames instead of emails  
 3. **Simplified UI** - No more confusion between full name and username
 4. **Immediate Redirect** - New users are taken directly to their profile after first login
 
-## ⚠️ Notes
+## ⚠️ Critical Fix: Username Field Priority
 
-- The migration includes a 1-second delay in the auth callback to ensure the profile trigger completes
-- Username extraction now prioritizes: `display_name` → `login` → `preferred_username` → `username` → `email_fallback`
-- All existing profiles will need the migration to remove the `full_name` column
+**The Issue**: Twitch provides two username-like fields:
+- `login` - The actual Twitch username (e.g., "cooluser123") - **This is what we want**
+- `display_name` - The display name which can have spaces/caps (e.g., "Cool User 123")
+
+**The Fix**: Updated all username extraction to prioritize `login` over `display_name`
+
+**Username extraction now prioritizes**: `login` → `preferred_username` → `username` → `display_name` → `email_fallback`
+
+## 📋 Additional Scripts Created
+
+- `sql/debug_twitch_metadata.sql` - Debug script to see what Twitch metadata is available
+- `sql/fix_twitch_username_extraction.sql` - Focused fix for existing users with wrong usernames
+
+## 🚀 How to Fix Existing Users
+
+If you already have users with wrong usernames (email-based), run:
+```sql
+-- Run sql/fix_twitch_username_extraction.sql to fix existing users
+```
