@@ -239,7 +239,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
   const allScreenshots: Screenshot[] = [
     ...(game.background_image ? [{ id: 0, image: game.background_image }] : []),
     ...(game.background_image_additional ? [{ id: -1, image: game.background_image_additional }] : []),
-    ...(game.screenshots?.filter(s => s.image != null).map(s => ({ id: s.id, image: s.image as string })) || [])
+    ...(game.screenshots?.filter(s => s.url != null).map(s => ({ id: s.id, image: s.url as string })) || [])
   ];
 
   // Get the current active screenshot
@@ -486,7 +486,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
           <div className="flex flex-wrap items-center gap-3 mb-6">
             <div className="flex items-center">
               <span className="text-yellow-400 mr-1">⭐</span>
-              <span className="font-semibold">{game.rating.toFixed(1)}</span>
+              <span className="font-semibold">{game.rating?.toFixed(1) || 'N/A'}</span>
             </div>
             
             {game.metacritic && (
@@ -589,7 +589,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
               <div>
                 <h2 className="text-xl font-semibold mb-2 text-white">Developers</h2>
                 <div className="space-y-2">
-                  {game.developers.map(developer => (
+                  {game.developers.filter(developer => developer && developer.name).map(developer => (
                     <div key={developer.id} className="px-3 py-2 bg-slate-700 text-slate-200 rounded-md">
                       {developer.name}
                     </div>
@@ -602,7 +602,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
               <div>
                 <h2 className="text-xl font-semibold mb-2 text-white">Publishers</h2>
                 <div className="space-y-2">
-                  {game.publishers.map(publisher => (
+                  {game.publishers.filter(publisher => publisher && publisher.name).map(publisher => (
                     <div key={publisher.id} className="px-3 py-2 bg-slate-700 text-slate-200 rounded-md">
                       {publisher.name}
                     </div>
@@ -616,7 +616,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-2 text-white">Genres</h2>
             <div className="flex flex-wrap gap-2">
-              {game.genres?.map((genre) => (
+              {game.genres?.filter(genre => genre && genre.name).map((genre) => (
                 <span 
                   key={genre.id}
                   className="px-3 py-1 bg-slate-700 text-slate-200 rounded-full text-sm"
@@ -631,12 +631,12 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-2 text-white">Platforms</h2>
             <div className="flex flex-wrap gap-2">
-              {game.platforms?.map((platform) => (
+              {game.platforms?.filter(platform => platform && platform.name).map((platform) => (
                 <span 
-                  key={platform.platform.id}
+                  key={platform.id}
                   className="px-3 py-1 bg-slate-700 text-slate-200 rounded-full text-sm"
                 >
-                  {platform.platform.name}
+                  {platform.name}
                 </span>
               ))}
             </div>
@@ -647,7 +647,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
             <div className="mb-6">
               <h2 className="text-xl font-semibold mb-2 text-white">Tags</h2>
               <div className="flex flex-wrap gap-2">
-                {game.tags.map(tag => (
+                {game.tags.filter(tag => tag && tag.name).map(tag => (
                   <span 
                     key={tag.id}
                     className="px-3 py-1 bg-slate-700 text-slate-200 rounded-full text-sm"

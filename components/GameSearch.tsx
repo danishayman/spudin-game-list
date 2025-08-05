@@ -70,8 +70,10 @@ export function GameSearch({ onGameSelect, className = '' }: GameSearchProps) {
   const filteredResults = selectedPlatform === 'all' 
     ? results 
     : results.filter(game => 
-        game.platforms?.some(p => p.platform.name.toLowerCase() === selectedPlatform || 
-                               p.platform.name.toLowerCase().includes(selectedPlatform))
+        game.platforms?.some(p => p && p.name && (
+          p.name.toLowerCase() === selectedPlatform || 
+          p.name.toLowerCase().includes(selectedPlatform)
+        ))
       );
 
   // Sort results based on selected sort option
@@ -80,7 +82,7 @@ export function GameSearch({ onGameSelect, className = '' }: GameSearchProps) {
       case 'name':
         return a.name.localeCompare(b.name);
       case 'rating':
-        return b.rating - a.rating;
+        return (b.rating || 0) - (a.rating || 0);
       case 'released':
         return new Date(b.released || 0).getTime() - new Date(a.released || 0).getTime();
       default:

@@ -188,6 +188,21 @@ export type IgdbGame = {
   released?: string | null;
   rating?: number;
   metacritic?: number | null;
+  // Additional fields for compatibility with existing components
+  developers?: Array<{ id: number; name: string }>;
+  publishers?: Array<{ id: number; name: string }>;
+  tags?: Array<{ id: number; name: string }>;
+  // Additional RAWG compatibility fields
+  background_image_additional?: string | null;
+  description_raw?: string;
+  website?: string | null;
+  metacritic_url?: string | null;
+  reddit_url?: string | null;
+  reddit_name?: string | null;
+  reddit_description?: string | null;
+  playtime?: number;
+  esrb_rating?: { id: number; name: string } | null;
+  stores?: Array<{ id: number; store: { id: number; name: string; domain?: string; slug: string } }>;
 };
 
 export type IgdbSearchResponse = {
@@ -209,15 +224,15 @@ function convertIgdbToRawgFormat(igdbGame: any): IgdbGame {
     first_release_date: igdbGame.first_release_date,
     summary: igdbGame.summary,
     storyline: igdbGame.storyline,
-    genres: igdbGame.genres,
-    platforms: igdbGame.platforms,
-    videos: igdbGame.videos,
-    websites: igdbGame.websites,
-    involved_companies: igdbGame.involved_companies,
-    age_ratings: igdbGame.age_ratings,
-    themes: igdbGame.themes,
-    game_modes: igdbGame.game_modes,
-    player_perspectives: igdbGame.player_perspectives,
+    genres: igdbGame.genres?.filter((genre: any) => genre && genre.name) || [],
+    platforms: igdbGame.platforms?.filter((platform: any) => platform && platform.name) || [],
+    videos: igdbGame.videos?.filter((video: any) => video && video.name) || [],
+    websites: igdbGame.websites?.filter((website: any) => website && website.url) || [],
+    involved_companies: igdbGame.involved_companies?.filter((company: any) => company && company.company && company.company.name) || [],
+    age_ratings: igdbGame.age_ratings?.filter((rating: any) => rating && rating.rating !== undefined) || [],
+    themes: igdbGame.themes?.filter((theme: any) => theme && theme.name) || [],
+    game_modes: igdbGame.game_modes?.filter((mode: any) => mode && mode.name) || [],
+    player_perspectives: igdbGame.player_perspectives?.filter((perspective: any) => perspective && perspective.name) || [],
     
     // Convert cover URL to full URL
     cover: igdbGame.cover ? {
@@ -236,6 +251,39 @@ function convertIgdbToRawgFormat(igdbGame: any): IgdbGame {
     released: igdbGame.first_release_date ? new Date(igdbGame.first_release_date * 1000).toISOString().split('T')[0] : null,
     rating: igdbGame.total_rating ? igdbGame.total_rating / 20 : 0, // Convert 0-100 to 0-5 scale
     metacritic: null, // IGDB doesn't have direct Metacritic scores
+    
+    // Extract developers and publishers from involved_companies
+    developers: igdbGame.involved_companies?.filter((company: any) => 
+      company && company.company && company.company.name && company.developer
+    ).map((company: any) => ({
+      id: company.company.id,
+      name: company.company.name
+    })) || [],
+    
+    publishers: igdbGame.involved_companies?.filter((company: any) => 
+      company && company.company && company.company.name && company.publisher
+    ).map((company: any) => ({
+      id: company.company.id,
+      name: company.company.name
+    })) || [],
+    
+    // Tags don't exist in IGDB, but we can use themes or leave empty
+    tags: igdbGame.themes?.filter((theme: any) => theme && theme.name).map((theme: any) => ({
+      id: theme.id,
+      name: theme.name
+    })) || [],
+    
+    // Additional RAWG compatibility fields (mostly null for IGDB)
+    background_image_additional: null,
+    description_raw: igdbGame.summary || null,
+    website: igdbGame.websites?.find((site: any) => site && site.category === 1)?.url || null, // Category 1 is official website
+    metacritic_url: null, // IGDB doesn't provide Metacritic URLs
+    reddit_url: null,
+    reddit_name: null,
+    reddit_description: null,
+    playtime: null, // IGDB doesn't provide average playtime
+    esrb_rating: null, // Would need to parse age_ratings for ESRB specifically
+    stores: [], // IGDB doesn't provide store information
   };
 
   return game;
