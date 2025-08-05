@@ -1,4 +1,3 @@
-import { createClient } from '@/utils/supabase/server';
 import { refreshProfileFromAuth, getCurrentUserProfile } from '@/lib/profile-actions';
 import { Button } from '@/components/ui/button';
 
