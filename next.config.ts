@@ -11,6 +11,16 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'static-cdn.jtvnw.net',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.discordapp.com',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
         hostname: 'media.rawg.io',
         pathname: '**',
       },

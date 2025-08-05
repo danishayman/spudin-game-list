@@ -9,6 +9,7 @@ interface UserGameCollectionProps {
   games: UserGameEntry[];
   isLoading?: boolean;
   error?: string | null;
+  isOwnProfile?: boolean;
 }
 
 export function UserGameCollection({ 
@@ -16,7 +17,8 @@ export function UserGameCollection({
   description, 
   games, 
   isLoading = false, 
-  error = null 
+  error = null,
+  isOwnProfile = false
 }: UserGameCollectionProps) {
   return (
     <div className="w-full">
@@ -55,7 +57,7 @@ export function UserGameCollection({
       )}
 
       {!isLoading && !error && games.length > 0 && (
-        <UserGameList games={games} />
+        <UserGameList games={games} isOwnProfile={isOwnProfile} />
       )}
     </div>
   );

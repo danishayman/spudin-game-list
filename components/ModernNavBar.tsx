@@ -281,7 +281,7 @@ export default function ModernNavBar() {
                           </div>
                           <div>
                             <p className="text-white font-medium">
-                              {profile?.username || profile?.full_name || user.user_metadata?.full_name || "User"}
+                              {profile?.full_name || profile?.username || user.user_metadata?.full_name || "User"}
                             </p>
                             <p className="text-gray-400 text-sm truncate">
                               {user.email}
