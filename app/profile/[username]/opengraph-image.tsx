@@ -29,7 +29,7 @@ export default async function Image({ params }: { params: { username: string } }
     .eq('user_id', profile?.id || '');
   
   const totalGames = gameCount?.length || 0;
-  const displayName = profile?.full_name || username;
+  const displayName = profile?.username || username;
   const avatarUrl = profile?.avatar_url || '';
   
   return new ImageResponse(

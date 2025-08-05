@@ -12,7 +12,6 @@ import Image from "next/image";
 interface Profile {
   id: string;
   username: string | null;
-  full_name: string | null;
   avatar_url: string | null;
   created_at: string;
   updated_at: string;
@@ -27,7 +26,6 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [formData, setFormData] = useState({
-    full_name: profile?.full_name || '',
     username: profile?.username || '',
     email: user.email || '',
   });
@@ -44,7 +42,6 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
-          full_name: formData.full_name,
           username: formData.username,
           updated_at: new Date().toISOString(),
         })
@@ -116,7 +113,7 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
             ) : (
               <div className="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center ring-2 ring-slate-600">
                 <span className="text-xl font-bold text-purple-300">
-                  {(formData.full_name || "User").charAt(0).toUpperCase()}
+                  {(formData.username || "User").charAt(0).toUpperCase()}
                 </span>
               </div>
             )}
@@ -133,18 +130,6 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
 
           {/* Form Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="full_name" className="text-slate-300">Full Name</Label>
-              <Input
-                id="full_name"
-                name="full_name"
-                value={formData.full_name}
-                onChange={handleChange}
-                className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
-                placeholder="Enter your full name"
-              />
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="username" className="text-slate-300">Username</Label>
               <Input

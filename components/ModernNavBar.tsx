@@ -12,7 +12,7 @@ import { SearchDialog } from "./SearchDialog";
 interface Profile {
   id: string;
   username: string | null;
-  full_name: string | null;
+
   avatar_url: string | null;
   created_at: string;
   updated_at: string;
@@ -170,7 +170,7 @@ export default function ModernNavBar() {
                 />
               ) : user ? (
                 <span className="text-lg font-semibold">
-                  {(profile?.full_name || user.user_metadata?.full_name || "U").charAt(0)}
+                  {(profile?.username || user.user_metadata?.display_name || "U").charAt(0)}
                 </span>
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -197,7 +197,7 @@ export default function ModernNavBar() {
                       />
                     ) : (
                       <span className="text-lg font-semibold">
-                        {(profile?.full_name || user.user_metadata?.full_name || "U").charAt(0)}
+                        {(profile?.username || user.user_metadata?.display_name || "U").charAt(0)}
                       </span>
                     )}
                   </div>
@@ -275,13 +275,13 @@ export default function ModernNavBar() {
                               />
                             ) : (
                               <span className="text-lg font-semibold">
-                                {(profile?.full_name || user.user_metadata?.full_name || "U").charAt(0)}
+                                {(profile?.username || user.user_metadata?.display_name || "U").charAt(0)}
                               </span>
                             )}
                           </div>
                           <div>
                             <p className="text-white font-medium">
-                              {profile?.full_name || profile?.username || user.user_metadata?.full_name || "User"}
+                              {profile?.username || user.user_metadata?.display_name || "User"}
                             </p>
                             <p className="text-gray-400 text-sm truncate">
                               {user.email}

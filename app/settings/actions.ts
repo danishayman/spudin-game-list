@@ -13,7 +13,6 @@ export async function updateProfile(formData: FormData) {
     throw new Error('User not authenticated');
   }
 
-  const full_name = formData.get('full_name') as string;
   const username = formData.get('username') as string;
   const email = formData.get('email') as string;
 
@@ -22,7 +21,6 @@ export async function updateProfile(formData: FormData) {
     const { error: profileError } = await supabase
       .from('profiles')
       .update({
-        full_name,
         username,
         updated_at: new Date().toISOString(),
       })

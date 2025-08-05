@@ -41,7 +41,7 @@ export default async function DebugProfilePage() {
             <h2 className="text-xl font-semibold mb-4 text-green-400">Current Profile Data</h2>
             <div className="space-y-2 font-mono text-sm">
               <p><strong>Username:</strong> {profile?.username || 'null'}</p>
-              <p><strong>Full Name:</strong> {profile?.full_name || 'null'}</p>
+  
               <p><strong>Avatar URL:</strong> {profile?.avatar_url || 'null'}</p>
               <p><strong>Email:</strong> {profile?.email || 'null'}</p>
             </div>

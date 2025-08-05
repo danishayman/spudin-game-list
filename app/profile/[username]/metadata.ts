@@ -27,7 +27,7 @@ export async function generateMetadata({
   const gameStats = await getUserGameStatsByUsername(username);
   const totalGames = gameStats.counts.Total || 0;
   
-  const displayName = profile.full_name || username;
+  const displayName = profile.username || username;
   
   return {
     title: `${displayName}'s Game Collection | Spudin Game List`,

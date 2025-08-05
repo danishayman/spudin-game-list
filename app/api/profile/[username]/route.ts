@@ -19,7 +19,6 @@ export async function GET(
     // Return public profile data for API consumption
     const publicData = {
       username: profileData.username,
-      fullName: profileData.full_name,
       avatarUrl: profileData.avatar_url,
       stats: {
         totalGames: profileData.stats.totalGames,

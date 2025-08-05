@@ -18,11 +18,30 @@ export async function GET(request: NextRequest) {
 
   const supabase = await createClient()
 
-  // Handle OAuth callback (Google, etc.) with code
+  // Handle OAuth callback (Twitch, etc.) with code
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     console.log('OAuth exchange error:', error);
     if (!error) {
+      // Wait a moment for the trigger to create the profile, then redirect to profile
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Get the user's profile to redirect to their username
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile?.username) {
+          redirectTo.pathname = `/profile/${encodeURIComponent(profile.username)}`;
+        } else {
+          redirectTo.pathname = '/home'; // Fallback to home if no username
+        }
+      }
+      
       redirectTo.searchParams.delete('next')
       return NextResponse.redirect(redirectTo)
     }

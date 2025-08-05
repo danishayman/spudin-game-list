@@ -34,10 +34,6 @@ export async function refreshProfileFromAuth() {
     const { error: updateError } = await supabase
       .from('profiles')
       .update({
-        full_name: user.user_metadata?.display_name || 
-                  user.user_metadata?.full_name || 
-                  user.user_metadata?.name || 
-                  user.user_metadata?.preferred_username,
         avatar_url: user.user_metadata?.profile_image_url || 
                    user.user_metadata?.avatar_url,
         username: user.user_metadata?.display_name || 

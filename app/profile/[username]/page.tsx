@@ -50,7 +50,7 @@ export default async function ProfilePage({
                 <div className="w-24 h-24 rounded-full overflow-hidden">
                   <Image 
                     src={profile.avatar_url} 
-                    alt={profile.full_name || "User"}
+                    alt={profile.username || "User"}
                     width={96}
                     height={96}
                     className="object-cover w-full h-full"
@@ -59,16 +59,13 @@ export default async function ProfilePage({
               ) : (
                 <div className="w-24 h-24 rounded-full bg-slate-600 flex items-center justify-center">
                   <span className="text-2xl font-bold text-slate-300">
-                    {(profile.full_name || "User").charAt(0).toUpperCase()}
+                    {(profile.username || "User").charAt(0).toUpperCase()}
                   </span>
                 </div>
               )}
               
               <div>
-                <h1 className="text-2xl font-bold text-white">{profile.full_name || profile.username || "User"}</h1>
-                {profile.full_name && profile.username && profile.full_name !== profile.username && (
-                  <p className="text-slate-400">{profile.username}</p>
-                )}
+                <h1 className="text-2xl font-bold text-white">{profile.username || "User"}</h1>
               </div>
             </div>
             

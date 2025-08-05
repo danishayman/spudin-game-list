@@ -14,7 +14,6 @@ interface Review {
   updated_at: string;
   user_id: string;
   user: {
-    full_name: string | null;
     username: string;
     avatar_url: string | null;
   };
@@ -30,7 +29,6 @@ interface GameReviewsProps {
 
 interface Profile {
   id: string;
-  full_name: string | null;
   username: string;
   avatar_url: string | null;
 }
@@ -137,7 +135,6 @@ export default function GameReviews({ gameId }: GameReviewsProps) {
             updated_at: review.updated_at,
             user_id: review.user_id,
             user: {
-              full_name: profile.full_name || null,
               username: profile.username || 'unknown',
               avatar_url: profile.avatar_url || null
             },
@@ -262,7 +259,7 @@ export default function GameReviews({ gameId }: GameReviewsProps) {
                   <div className="flex flex-wrap items-center gap-2 mb-1">
                     <Link href={`/profile/${review.user.username}`}>
                       <h3 className="font-semibold text-white hover:underline">
-                        {review.user.full_name || review.user.username}
+                        {review.user.username}
                       </h3>
                     </Link>
                     
