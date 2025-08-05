@@ -170,7 +170,7 @@ export default function ModernNavBar() {
                 />
               ) : user ? (
                 <span className="text-lg font-semibold">
-                  {(profile?.username || user.user_metadata?.login || user.user_metadata?.display_name || "U").charAt(0)}
+                  {(profile?.username || user.user_metadata?.preferred_username || user.user_metadata?.display_name || "U").charAt(0)}
                 </span>
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -197,7 +197,7 @@ export default function ModernNavBar() {
                       />
                     ) : (
                       <span className="text-lg font-semibold">
-                        {(profile?.username || user.user_metadata?.login || user.user_metadata?.display_name || "U").charAt(0)}
+                        {(profile?.username || user.user_metadata?.preferred_username || user.user_metadata?.display_name || "U").charAt(0)}
                       </span>
                     )}
                   </div>
@@ -207,7 +207,7 @@ export default function ModernNavBar() {
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 z-50">
                     <Link 
-                      href={`/profile/${profile?.username || user.id}`}
+                      href={`/profile/${profile?.username || user.user_metadata?.preferred_username || user.user_metadata?.display_name || user.id}`}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700"
                     >
                       Profile
@@ -275,13 +275,13 @@ export default function ModernNavBar() {
                               />
                             ) : (
                               <span className="text-lg font-semibold">
-                                {(profile?.username || user.user_metadata?.login || user.user_metadata?.display_name || "U").charAt(0)}
+                                {(profile?.username || user.user_metadata?.preferred_username || user.user_metadata?.display_name || "U").charAt(0)}
                               </span>
                             )}
                           </div>
                           <div>
                             <p className="text-white font-medium">
-                              {profile?.username || user.user_metadata?.login || user.user_metadata?.display_name || "User"}
+                              {profile?.username || user.user_metadata?.preferred_username || user.user_metadata?.display_name || "User"}
                             </p>
                             <p className="text-gray-400 text-sm truncate">
                               {user.email}
@@ -329,7 +329,7 @@ export default function ModernNavBar() {
                       {user && (
                         <li>
                           <Link 
-                            href={`/profile/${profile?.username || user.id}`}
+                            href={`/profile/${profile?.username || user.user_metadata?.preferred_username || user.user_metadata?.display_name || user.id}`}
                             className="block py-2 px-4 text-white hover:bg-gray-800 rounded-md font-medium bg-gray-800"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >

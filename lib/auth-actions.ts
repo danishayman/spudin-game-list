@@ -32,7 +32,14 @@ export async function signInWithTwitch() {
     provider: "twitch",
     options: {
       redirectTo,
-      scopes: "user:read:email", // Twitch requires explicit scope for email access
+      scopes: "openid user:read:email", // OpenID Connect scope to get username
+      claims: JSON.stringify({
+        userinfo: {
+          preferred_username: { essential: true },
+          picture: { essential: false },
+          email: { essential: true }
+        }
+      })
     },
   });
 

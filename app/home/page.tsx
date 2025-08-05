@@ -31,7 +31,7 @@ export default async function Dashboard() {
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h1 className="text-2xl font-bold mb-4">
-            Welcome to your Dashboard, {profile?.username || user.user_metadata.login || user.user_metadata.display_name || "User"}!
+            Welcome to your Dashboard, {profile?.username || user.user_metadata.preferred_username || user.user_metadata.display_name || "User"}!
           </h1>
           <p className="text-gray-600 mb-4">
             This is your personal dashboard where you can manage your game collection.
