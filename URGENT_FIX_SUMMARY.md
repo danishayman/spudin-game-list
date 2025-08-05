@@ -20,15 +20,10 @@ This is why `lupinaiman@gmail.com` becomes `lupinaiman` instead of the actual Tw
 ### Step 1: UPDATE Twitch OAuth to use OpenID Connect
 The OAuth scope has been updated in `lib/auth-actions.ts` to:
 ```javascript
-scopes: "openid user:read:email", // OpenID Connect scope to get username
-claims: JSON.stringify({
-  userinfo: {
-    preferred_username: { essential: true }, // This gets the Twitch username
-    picture: { essential: false },
-    email: { essential: true }
-  }
-})
+scopes: "openid user:read:email", // OpenID Connect scope to get username via preferred_username claim
 ```
+
+**Key Change**: Adding the `openid` scope automatically provides the `preferred_username` claim containing the actual Twitch username!
 
 ### Step 2: REPLACE the database trigger completely
 Run this SQL in your Supabase SQL Editor to FORCE the correct trigger:
