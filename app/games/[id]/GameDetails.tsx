@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
-import { type RawgGame } from '@/lib/rawg';
+import { type IgdbGame} from '@/lib/igdb';
 import { getGameByIdClient } from '@/lib/games-client';
 import { GameRatingDialog } from '@/components/GameRatingDialog';
 import { createClient } from '@/utils/supabase/client';
 import { useUser } from '@/lib/hooks';
 import type { GameStatus } from '@/components/GameStatusButtons';
-import GameReviews from '@/components/GameReviews';
+import GameReviews, { type GameReviewsRef } from '@/components/GameReviews';
 
 interface GameDetailsProps {
   gameId: number;
@@ -37,6 +37,7 @@ interface GameVideo {
     480: string;
     max: string;
   };
+  video_id: string;
 }
 
 // Define a type for user game list entry
@@ -46,14 +47,63 @@ interface UserGameListEntry {
   isInList: boolean;
 }
 
+// Helper function to get link name based on IGDB website category
+function getLinkName(category: number): string {
+  switch (category) {
+    case 1: return 'Official Website';
+    case 2: return 'Wikia';
+    case 3: return 'Wikipedia';
+    case 4: return 'Facebook';
+    case 5: return 'Twitter';
+    case 6: return 'Twitch';
+    case 8: return 'Instagram';
+    case 9: return 'YouTube';
+    case 10: return 'iPhone';
+    case 11: return 'iPad';
+    case 12: return 'Android';
+    case 13: return 'Steam';
+    case 14: return 'Reddit';
+    case 15: return 'Itch.io';
+    case 16: return 'Epic Games';
+    case 17: return 'GOG';
+    case 18: return 'Discord';
+    default: return 'Website';
+  }
+}
+
+// Helper function to get link icon based on IGDB website category
+function getLinkIcon(category: number): string {
+  switch (category) {
+    case 1: return '🌐'; // Official Website
+    case 2: return '📚'; // Wikia
+    case 3: return '📖'; // Wikipedia
+    case 4: return '📘'; // Facebook
+    case 5: return '🐦'; // Twitter
+    case 6: return '🎮'; // Twitch
+    case 8: return '📸'; // Instagram
+    case 9: return '📺'; // YouTube
+    case 10: return '📱'; // iPhone
+    case 11: return '📱'; // iPad
+    case 12: return '🤖'; // Android
+    case 13: return '🎮'; // Steam
+    case 14: return '🔴'; // Reddit
+    case 15: return '🎯'; // Itch.io
+    case 16: return '🏪'; // Epic Games
+    case 17: return '🛒'; // GOG
+    case 18: return '💬'; // Discord
+    default: return '🔗'; // Generic link
+  }
+}
+
 export default function GameDetails({ gameId }: GameDetailsProps) {
-  const [game, setGame] = useState<RawgGame | null>(null);
+  const [game, setGame] = useState<IgdbGame | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeScreenshotIndex, setActiveScreenshotIndex] = useState(0);
   const [showAllScreenshots, setShowAllScreenshots] = useState(false);
   const [gameSeries, setGameSeries] = useState<GameSeries[]>([]);
   const [gameVideos, setGameVideos] = useState<GameVideo[]>([]);
+  const [videoErrors, setVideoErrors] = useState<Set<number>>(new Set());
   const [isVisible, setIsVisible] = useState(false);
   const [userGameEntry, setUserGameEntry] = useState<UserGameListEntry>({
     status: null,
@@ -61,6 +111,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
     isInList: false,
   });
   const { user } = useUser();
+  const gameReviewsRef = useRef<GameReviewsRef>(null);
 
   // Hide the skeleton UI when game data is loaded
   useEffect(() => {
@@ -160,28 +211,23 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
     }
   }, [game, gameId]);
 
-  // Fetch game videos
+  // Process game videos from IGDB data
   useEffect(() => {
-    async function fetchGameVideos() {
-      if (!game) return;
-      
-      try {
-        const response = await fetch(`/api/games/${gameId}/videos`);
-        if (!response.ok) throw new Error('Failed to fetch game videos');
-        
-        const data = await response.json();
-        if (data.results && Array.isArray(data.results)) {
-          setGameVideos(data.results);
-        }
-      } catch (err) {
-        console.error('Error fetching game videos:', err);
-      }
+    if (game && game.videos) {
+      // Convert IGDB video format to the expected format
+      const processedVideos = game.videos.map(video => ({
+        id: video.id,
+        name: video.name,
+        preview: `https://img.youtube.com/vi/${video.video_id}/maxresdefault.jpg`,
+        data: {
+          480: `https://www.youtube.com/embed/${video.video_id}?enablejsapi=1&origin=${window.location.origin}`,
+          max: `https://www.youtube.com/embed/${video.video_id}?enablejsapi=1&origin=${window.location.origin}`
+        },
+        video_id: video.video_id
+      }));
+      setGameVideos(processedVideos);
     }
-
-    if (game) {
-      fetchGameVideos();
-    }
-  }, [game, gameId]);
+  }, [game]);
 
   // If we're still loading, return null
   if (isLoading) {
@@ -239,7 +285,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
   const allScreenshots: Screenshot[] = [
     ...(game.background_image ? [{ id: 0, image: game.background_image }] : []),
     ...(game.background_image_additional ? [{ id: -1, image: game.background_image_additional }] : []),
-    ...(game.screenshots?.filter(s => s.image != null).map(s => ({ id: s.id, image: s.image as string })) || [])
+    ...(game.screenshots?.filter(s => s.url != null).map(s => ({ id: s.id, image: s.url as string })) || [])
   ];
 
   // Get the current active screenshot
@@ -401,6 +447,11 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
                       }
                     });
                 }
+                
+                // Refresh the reviews section
+                if (gameReviewsRef.current) {
+                  gameReviewsRef.current.refreshReviews();
+                }
               }}
               triggerComponent={
                 <button className="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-md transition shadow-md font-medium flex items-center justify-center">
@@ -418,6 +469,45 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
               }
             />
           </div>
+
+          {/* Links */}
+          {game.websites && game.websites.length > 0 && (
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold mb-3 text-white">Links</h3>
+              <div className="grid grid-cols-1 gap-2">
+                {game.websites.map((website, index) => {
+                  const linkName = getLinkName(website.category);
+                  const linkIcon = getLinkIcon(website.category);
+                  
+                  return (
+                    <a
+                      key={`${website.id}-${index}`}
+                      href={website.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md text-sm transition"
+                    >
+                      <span className="mr-2 text-base">{linkIcon}</span>
+                      {linkName}
+                      <svg 
+                        className="ml-auto h-4 w-4 text-slate-400" 
+                        fill="none" 
+                        viewBox="0 0 24 24" 
+                        stroke="currentColor"
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={2} 
+                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" 
+                        />
+                      </svg>
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Where to Buy */}
           {game.stores && game.stores.length > 0 && (
@@ -486,7 +576,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
           <div className="flex flex-wrap items-center gap-3 mb-6">
             <div className="flex items-center">
               <span className="text-yellow-400 mr-1">⭐</span>
-              <span className="font-semibold">{game.rating.toFixed(1)}</span>
+              <span className="font-semibold">{game.rating?.toFixed(1) || 'N/A'}</span>
             </div>
             
             {game.metacritic && (
@@ -515,24 +605,40 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
           </div>
 
           {/* Description */}
-          {game.description_raw && (
+          {(game.description_raw || game.summary || game.storyline) && (
             <div className="mb-6">
               <h2 className="text-xl font-semibold mb-2 text-white">About</h2>
-              <div className="text-slate-300 space-y-2">
-                {game.description_raw.length > 500 ? (
-                  <>
-                    {game.description_raw.substring(0, 500)}...
-                    <div className="mt-2">
-                      <button 
-                        onClick={() => window.open(`https://rawg.io/games/${game.id}`, '_blank')}
-                        className="text-blue-400 hover:text-blue-300 text-sm"
-                      >
-                        Read more on RAWG
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  game.description_raw
+              <div className="text-slate-300 space-y-4">
+                {game.summary && (
+                  <div>
+                    <h3 className="text-lg font-medium text-blue-300 mb-2">Summary</h3>
+                    <p className="leading-relaxed">{game.summary}</p>
+                  </div>
+                )}
+                {game.storyline && (
+                  <div>
+                    <h3 className="text-lg font-medium text-blue-300 mb-2">Storyline</h3>
+                    <p className="leading-relaxed">{game.storyline}</p>
+                  </div>
+                )}
+                {game.description_raw && !game.summary && (
+                  <div>
+                    {game.description_raw.length > 500 ? (
+                      <>
+                        <p className="leading-relaxed">{game.description_raw.substring(0, 500)}...</p>
+                        <div className="mt-2">
+                          <button 
+                            onClick={() => window.open(`https://igdb.com/games/${game.id}`, '_blank')}
+                            className="text-blue-400 hover:text-blue-300 text-sm"
+                          >
+                            Read more on IGDB
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <p className="leading-relaxed">{game.description_raw}</p>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -589,7 +695,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
               <div>
                 <h2 className="text-xl font-semibold mb-2 text-white">Developers</h2>
                 <div className="space-y-2">
-                  {game.developers.map(developer => (
+                  {game.developers.filter(developer => developer && developer.name).map(developer => (
                     <div key={developer.id} className="px-3 py-2 bg-slate-700 text-slate-200 rounded-md">
                       {developer.name}
                     </div>
@@ -602,7 +708,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
               <div>
                 <h2 className="text-xl font-semibold mb-2 text-white">Publishers</h2>
                 <div className="space-y-2">
-                  {game.publishers.map(publisher => (
+                  {game.publishers.filter(publisher => publisher && publisher.name).map(publisher => (
                     <div key={publisher.id} className="px-3 py-2 bg-slate-700 text-slate-200 rounded-md">
                       {publisher.name}
                     </div>
@@ -616,7 +722,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-2 text-white">Genres</h2>
             <div className="flex flex-wrap gap-2">
-              {game.genres?.map((genre) => (
+              {game.genres?.filter(genre => genre && genre.name).map((genre) => (
                 <span 
                   key={genre.id}
                   className="px-3 py-1 bg-slate-700 text-slate-200 rounded-full text-sm"
@@ -631,12 +737,12 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-2 text-white">Platforms</h2>
             <div className="flex flex-wrap gap-2">
-              {game.platforms?.map((platform) => (
+              {game.platforms?.filter(platform => platform && platform.name).map((platform) => (
                 <span 
-                  key={platform.platform.id}
+                  key={platform.id}
                   className="px-3 py-1 bg-slate-700 text-slate-200 rounded-full text-sm"
                 >
-                  {platform.platform.name}
+                  {platform.name}
                 </span>
               ))}
             </div>
@@ -647,7 +753,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
             <div className="mb-6">
               <h2 className="text-xl font-semibold mb-2 text-white">Tags</h2>
               <div className="flex flex-wrap gap-2">
-                {game.tags.map(tag => (
+                {game.tags.filter(tag => tag && tag.name).map(tag => (
                   <span 
                     key={tag.id}
                     className="px-3 py-1 bg-slate-700 text-slate-200 rounded-full text-sm"
@@ -658,30 +764,415 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
               </div>
             </div>
           )}
+
+          {/* Game Modes */}
+          {game.game_modes && game.game_modes.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2 text-white">Game Modes</h2>
+              <div className="flex flex-wrap gap-2">
+                {game.game_modes.filter(mode => mode && mode.name).map(mode => (
+                  <span 
+                    key={mode.id}
+                    className="px-3 py-1 bg-indigo-700 text-indigo-100 rounded-full text-sm"
+                  >
+                    {mode.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Player Perspectives */}
+          {game.player_perspectives && game.player_perspectives.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2 text-white">Player Perspectives</h2>
+              <div className="flex flex-wrap gap-2">
+                {game.player_perspectives.filter(perspective => perspective && perspective.name).map(perspective => (
+                  <span 
+                    key={perspective.id}
+                    className="px-3 py-1 bg-purple-700 text-purple-100 rounded-full text-sm"
+                  >
+                    {perspective.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Age Ratings */}
+          {game.age_ratings && game.age_ratings.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2 text-white">Age Ratings</h2>
+              <div className="flex flex-wrap gap-2">
+                {game.age_ratings.map((rating, index) => (
+                  <div 
+                    key={index}
+                    className="px-3 py-2 bg-orange-700 text-orange-100 rounded-md text-sm flex items-center"
+                  >
+                    <span className="font-medium">
+                      {rating.category === 1 ? 'ESRB' : 
+                       rating.category === 2 ? 'PEGI' : 
+                       rating.category === 3 ? 'CERO' : 
+                       rating.category === 4 ? 'USK' : 
+                       rating.category === 5 ? 'GRAC' : 
+                       rating.category === 6 ? 'CLASS_IND' : 
+                       rating.category === 7 ? 'ACB' : 'Unknown'}
+                    </span>
+                    <span className="ml-2 opacity-75">
+                      {rating.rating === 1 ? '3+' :
+                       rating.rating === 2 ? '7+' :
+                       rating.rating === 3 ? '12+' :
+                       rating.rating === 4 ? '16+' :
+                       rating.rating === 5 ? '18+' :
+                       rating.rating === 6 ? 'RP' :
+                       rating.rating === 7 ? 'EC' :
+                       rating.rating === 8 ? 'E' :
+                       rating.rating === 9 ? 'E10+' :
+                       rating.rating === 10 ? 'T' :
+                       rating.rating === 11 ? 'M' :
+                       rating.rating === 12 ? 'AO' : rating.rating}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Time to Beat */}
+          {game.time_to_beat && (game.time_to_beat.hastly || game.time_to_beat.normally || game.time_to_beat.completely) && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2 text-white">Time to Beat</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {game.time_to_beat.hastly && (
+                  <div className="p-4 bg-slate-800 rounded-lg text-center">
+                    <div className="text-2xl font-bold text-yellow-400">{Math.round(game.time_to_beat.hastly / 3600)}h</div>
+                    <div className="text-sm text-slate-300">Rushed</div>
+                  </div>
+                )}
+                {game.time_to_beat.normally && (
+                  <div className="p-4 bg-slate-800 rounded-lg text-center">
+                    <div className="text-2xl font-bold text-green-400">{Math.round(game.time_to_beat.normally / 3600)}h</div>
+                    <div className="text-sm text-slate-300">Main Story</div>
+                  </div>
+                )}
+                {game.time_to_beat.completely && (
+                  <div className="p-4 bg-slate-800 rounded-lg text-center">
+                    <div className="text-2xl font-bold text-purple-400">{Math.round(game.time_to_beat.completely / 3600)}h</div>
+                    <div className="text-sm text-slate-300">Completionist</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Franchises */}
+          {game.franchises && game.franchises.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2 text-white">Franchises</h2>
+              <div className="flex flex-wrap gap-2">
+                {game.franchises.filter(franchise => franchise && franchise.name).map(franchise => (
+                  <span 
+                    key={franchise.id}
+                    className="px-3 py-1 bg-blue-700 text-blue-100 rounded-full text-sm"
+                  >
+                    {franchise.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Collection/Series */}
+          {game.collection && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2 text-white">Collection</h2>
+              <div className="p-4 bg-slate-800 rounded-lg">
+                <h3 className="text-lg font-medium text-blue-300 mb-2">{game.collection.name}</h3>
+                {game.collection.games && game.collection.games.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {game.collection.games.slice(0, 6).map(collectionGame => (
+                      <a
+                        key={collectionGame.id}
+                        href={`/games/${collectionGame.id}`}
+                        className="flex items-center p-2 bg-slate-700 hover:bg-slate-600 rounded-md transition text-sm"
+                      >
+                        <span className="flex-1">{collectionGame.name}</span>
+                        {collectionGame.first_release_date && (
+                          <span className="text-slate-400 text-xs">
+                            {new Date(collectionGame.first_release_date * 1000).getFullYear()}
+                          </span>
+                        )}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Related Games Section */}
+          <div className="mb-6 space-y-6">
+            {/* DLCs */}
+            {game.dlcs && game.dlcs.length > 0 && (
+              <div>
+                <h2 className="text-xl font-semibold mb-2 text-white">DLCs</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {game.dlcs.slice(0, 6).map(dlc => (
+                    <a
+                      key={dlc.id}
+                      href={`/games/${dlc.id}`}
+                      className="flex items-center justify-between p-3 bg-slate-800 hover:bg-slate-700 rounded-md transition"
+                    >
+                      <span className="text-sm">{dlc.name}</span>
+                      {dlc.first_release_date && (
+                        <span className="text-slate-400 text-xs">
+                          {new Date(dlc.first_release_date * 1000).getFullYear()}
+                        </span>
+                      )}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Expansions */}
+            {game.expansions && game.expansions.length > 0 && (
+              <div>
+                <h2 className="text-xl font-semibold mb-2 text-white">Expansions</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {game.expansions.slice(0, 6).map(expansion => (
+                    <a
+                      key={expansion.id}
+                      href={`/games/${expansion.id}`}
+                      className="flex items-center justify-between p-3 bg-slate-800 hover:bg-slate-700 rounded-md transition"
+                    >
+                      <span className="text-sm">{expansion.name}</span>
+                      {expansion.first_release_date && (
+                        <span className="text-slate-400 text-xs">
+                          {new Date(expansion.first_release_date * 1000).getFullYear()}
+                        </span>
+                      )}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Remakes */}
+            {game.remakes && game.remakes.length > 0 && (
+              <div>
+                <h2 className="text-xl font-semibold mb-2 text-white">Remakes</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {game.remakes.slice(0, 4).map(remake => (
+                    <a
+                      key={remake.id}
+                      href={`/games/${remake.id}`}
+                      className="flex items-center justify-between p-3 bg-slate-800 hover:bg-slate-700 rounded-md transition"
+                    >
+                      <span className="text-sm">{remake.name}</span>
+                      {remake.first_release_date && (
+                        <span className="text-slate-400 text-xs">
+                          {new Date(remake.first_release_date * 1000).getFullYear()}
+                        </span>
+                      )}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Remasters */}
+            {game.remasters && game.remasters.length > 0 && (
+              <div>
+                <h2 className="text-xl font-semibold mb-2 text-white">Remasters</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {game.remasters.slice(0, 4).map(remaster => (
+                    <a
+                      key={remaster.id}
+                      href={`/games/${remaster.id}`}
+                      className="flex items-center justify-between p-3 bg-slate-800 hover:bg-slate-700 rounded-md transition"
+                    >
+                      <span className="text-sm">{remaster.name}</span>
+                      {remaster.first_release_date && (
+                        <span className="text-slate-400 text-xs">
+                          {new Date(remaster.first_release_date * 1000).getFullYear()}
+                        </span>
+                      )}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Similar Games */}
+          {game.similar_games && game.similar_games.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2 text-white">Similar Games</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {game.similar_games.slice(0, 8).map(similarGame => (
+                  <a
+                    key={similarGame.id}
+                    href={`/games/${similarGame.id}`}
+                    className="group bg-slate-800 hover:bg-slate-700 rounded-lg overflow-hidden transition"
+                  >
+                    {similarGame.cover?.url ? (
+                      <div className="relative aspect-[3/4] w-full">
+                        <Image
+                          src={similarGame.cover.url}
+                          alt={similarGame.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-200"
+                          sizes="(max-width: 768px) 50vw, 25vw"
+                        />
+                      </div>
+                    ) : (
+                      <div className="aspect-[3/4] w-full bg-slate-700 flex items-center justify-center">
+                        <span className="text-xs text-slate-400 text-center px-2">No Image</span>
+                      </div>
+                    )}
+                    <div className="p-3">
+                      <h3 className="text-sm font-medium line-clamp-2 mb-1">{similarGame.name}</h3>
+                      {similarGame.total_rating && (
+                        <div className="flex items-center text-xs text-yellow-400">
+                          <span>⭐</span>
+                          <span className="ml-1">{(similarGame.total_rating / 20).toFixed(1)}</span>
+                        </div>
+                      )}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Artworks Gallery */}
+          {game.artworks && game.artworks.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2 text-white">Artworks</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {game.artworks.slice(0, 6).map(artwork => (
+                  <div 
+                    key={artwork.id}
+                    className="relative aspect-video w-full overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform"
+                    onClick={() => window.open(artwork.url, '_blank')}
+                  >
+                    <Image
+                      src={artwork.url}
+                      alt="Game artwork"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 50vw, 33vw"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           
           {/* Game Videos */}
           {gameVideos && gameVideos.length > 0 && (
             <div className="mt-8">
-              <h2 className="text-xl font-semibold mb-3 text-white">Videos</h2>
-              <div className="space-y-6">
-                {gameVideos.slice(0, 2).map((video) => (
-                  <div key={video.id} className="bg-slate-800 rounded-lg overflow-hidden">
-                    <div className="relative aspect-video w-full">
-                      <iframe
-                        src={video.data.max}
-                        title={video.name}
-                        className="absolute inset-0 w-full h-full"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      ></iframe>
+              <h2 className="text-xl font-semibold mb-3 text-white flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+                Videos & Trailers
+              </h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {gameVideos.slice(0, 4).map((video) => (
+                  <div key={video.id} className="bg-slate-800 rounded-lg overflow-hidden hover:bg-slate-700 transition-colors">
+                    <div className="relative aspect-video w-full group">
+                      {videoErrors.has(video.id) ? (
+                        // Fallback thumbnail when iframe fails
+                        <div 
+                          className="absolute inset-0 w-full h-full bg-slate-900 rounded-t-lg cursor-pointer flex items-center justify-center"
+                          onClick={() => window.open(`https://www.youtube.com/watch?v=${video.video_id}`, '_blank')}
+                        >
+                          <div className="relative w-full h-full">
+                            <Image
+                              src={video.preview}
+                              alt={video.name}
+                              fill
+                              className="object-cover rounded-t-lg opacity-80"
+                              sizes="(max-width: 1024px) 100vw, 50vw"
+                            />
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                              <div className="bg-red-600 rounded-full p-4 shadow-lg hover:bg-red-500 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M8 5v14l11-7z"/>
+                                </svg>
+                              </div>
+                            </div>
+                            <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
+                              Click to open in YouTube
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <iframe
+                            src={`${video.data.max}&rel=0&modestbranding=1&playsinline=1&controls=1&fs=1&cc_load_policy=1&iv_load_policy=3&autohide=1`}
+                            title={video.name}
+                            className="absolute inset-0 w-full h-full rounded-t-lg"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                            allowFullScreen
+                            loading="lazy"
+                            sandbox="allow-scripts allow-same-origin allow-presentation"
+                            onError={() => {
+                              setVideoErrors(prev => new Set([...prev, video.id]));
+                            }}
+                          ></iframe>
+                        </>
+                      )}
                     </div>
-                    <div className="p-3">
-                      <h3 className="text-sm font-medium">{video.name}</h3>
+                    
+                    <div className="p-4">
+                      <h3 className="text-sm font-medium text-white mb-2 line-clamp-2">{video.name}</h3>
+                      <div className="flex items-center justify-between">
+                        <a
+                          href={`https://www.youtube.com/watch?v=${video.video_id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center text-xs text-red-400 hover:text-red-300 transition-colors"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                          </svg>
+                          Watch on YouTube
+                        </a>
+                        <button
+                          onClick={() => navigator.clipboard.writeText(`https://www.youtube.com/watch?v=${video.video_id}`)}
+                          className="text-xs text-slate-400 hover:text-slate-300 transition-colors"
+                          title="Copy video URL"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
+              
+              {gameVideos.length > 4 && (
+                <div className="mt-4 text-center">
+                  <button 
+                    onClick={() => {
+                      // You could implement a modal or expand functionality here
+                      const firstVideo = gameVideos[0];
+                      if (firstVideo) {
+                        window.open(`https://www.youtube.com/watch?v=${firstVideo.video_id}`, '_blank');
+                      }
+                    }}
+                    className="text-blue-400 hover:text-blue-300 text-sm transition-colors"
+                  >
+                    View all {gameVideos.length} videos
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -714,18 +1205,18 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
       <div className="mt-8 text-center text-slate-400 text-sm">
         Game data provided by{' '}
         <a
-          href="https://rawg.io/"
+          href="https://igdb.com/"
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-400 hover:underline"
         >
-          RAWG.io
+          IGDB
         </a>
       </div>
       
       {/* Game Reviews Section */}
       <div className="mt-8 border-t border-slate-700 pt-8">
-        <GameReviews gameId={gameId} />
+        <GameReviews ref={gameReviewsRef} gameId={gameId} />
       </div>
     </div>
   );

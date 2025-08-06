@@ -179,25 +179,45 @@ const { data } = await supabase
   .eq('user_id', user.id);
 ```
 
-#### Search games via RAWG:
+#### Search games via IGDB:
 
 ```ts
-const res = await fetch(`https://api.rawg.io/api/games?search=elden ring&page_size=10&key=${RAWG_API_KEY}`);
-const json = await res.json();
+const token = await getAccessToken();
+const response = await fetch('https://api.igdb.com/v4/games', {
+  method: 'POST',
+  headers: {
+    'Client-ID': IGDB_CLIENT_ID,
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  },
+  body: 'fields id, name, cover.url; search "elden ring"; limit 10;'
+});
+const json = await response.json();
 ```
 
 ---
 
-## 🔌 Integration with RAWG API
+## 🔌 Integration with IGDB API
 
 * **Read-only usage** – fetch metadata and images
 * Store only referenced data (game ID, name, image) locally for caching
+* **OAuth2 Authentication** – Uses Twitch Developer credentials
 
 ```ts
-// lib/rawg.ts
+// lib/igdb.ts
 export async function searchGames(query: string) {
-  const res = await fetch(`https://api.rawg.io/api/games?search=${query}&key=${RAWG_API_KEY}`);
-  return res.json();
+  const token = await getAccessToken();
+  const igdbQuery = `fields id, name, cover.url; search "${query}"; limit 20;`;
+  const response = await fetch('https://api.igdb.com/v4/games', {
+    method: 'POST',
+    headers: {
+      'Client-ID': IGDB_CLIENT_ID!,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: igdbQuery,
+  });
+  return response.json();
 }
 ```
 

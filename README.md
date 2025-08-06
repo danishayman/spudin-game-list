@@ -1,6 +1,6 @@
 # 🎮 Spudin Game List
 
-A modern, full-stack game tracking and discovery platform inspired by MyAnimeList, built with Next.js 15, Supabase, and the RAWG Games API. Track your gaming journey, discover new titles, and manage your personal game collection with style.
+A modern, full-stack game tracking and discovery platform inspired by MyAnimeList, built with Next.js 15, Supabase, and the IGDB Games API. Track your gaming journey, discover new titles, and manage your personal game collection with style.
 
 ## ✨ Features
 
@@ -11,7 +11,7 @@ A modern, full-stack game tracking and discovery platform inspired by MyAnimeLis
 - Seamless login/logout experience
 
 ### 🎯 **Game Discovery & Search**
-- Powered by RAWG's comprehensive games database (300,000+ games)
+- Powered by IGDB's comprehensive games database (200,000+ games)
 - Advanced search with real-time results
 - Filter by platform, sort by relevance, rating, or release date
 - Detailed game pages with screenshots, metadata, and store links
@@ -48,7 +48,7 @@ A modern, full-stack game tracking and discovery platform inspired by MyAnimeLis
 
 **Backend:**
 - **Supabase** - PostgreSQL database and authentication
-- **RAWG Games API** - Comprehensive games database
+- **IGDB Games API** - Comprehensive games database
 - **Server Actions** - Type-safe server-side operations
 
 **Deployment:**
@@ -60,7 +60,7 @@ A modern, full-stack game tracking and discovery platform inspired by MyAnimeLis
 ### Prerequisites
 - Node.js 18+ and npm
 - A Supabase account
-- A RAWG API key (free tier available)
+- IGDB API credentials (Twitch Developer account required, free)
 - A Google OAuth app for authentication
 
 ### 1. Clone and Install
@@ -81,8 +81,9 @@ NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 
-# RAWG Games API (server-side only)
-RAWG_API_KEY=your-rawg-api-key
+# IGDB Games API (server-side only)
+IGDB_CLIENT_ID=your-igdb-client-id
+IGDB_CLIENT_SECRET=your-igdb-client-secret
 
 # Optional: Custom site URL for production
 NEXT_PUBLIC_SITE_URL=https://your-domain.com
@@ -137,10 +138,13 @@ npm run setup-cache
 
 ### 4. API Keys Setup
 
-#### 4.1 RAWG API Key
-1. Sign up at [RAWG.io](https://rawg.io/apidocs)
-2. Get your free API key from the dashboard
-3. Add it as `RAWG_API_KEY` in your `.env.local`
+#### 4.1 IGDB API Credentials
+1. Create a Twitch Developer account at [dev.twitch.tv](https://dev.twitch.tv)
+2. Register a new application in the Twitch Developer Console
+3. Copy your Client ID and Client Secret
+4. Add them as `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` in your `.env.local`
+
+**Note**: IGDB uses Twitch's authentication system. The Client ID and Secret are used to obtain OAuth tokens automatically.
 
 ### 5. Start Development
 
@@ -224,7 +228,8 @@ npm run setup-cache  # Initialize database cache tables
 NEXT_PUBLIC_SUPABASE_URL=your-production-supabase-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-production-anon-key  
 SUPABASE_SERVICE_ROLE_KEY=your-production-service-key
-RAWG_API_KEY=your-rawg-api-key
+IGDB_CLIENT_ID=your-igdb-client-id
+IGDB_CLIENT_SECRET=your-igdb-client-secret
 NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ```
 
@@ -251,7 +256,7 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.com
 - Verify environment variables are set correctly
 
 **API rate limits:**
-- RAWG API has rate limits on free tier
+- IGDB API has rate limits (4 requests per second)
 - Consider upgrading for production use
 - Cached responses help reduce API calls
 
@@ -278,7 +283,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## 🙏 Acknowledgments
 
-- **RAWG.io** - Comprehensive games database API
+- **IGDB.com** - Comprehensive games database API
 - **Supabase** - Backend-as-a-Service platform  
 - **Vercel** - Deployment and hosting platform
 - **Next.js** - React framework

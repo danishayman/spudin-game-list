@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { createAdminClient } from '@/utils/supabase/admin';
-import { RawgGame, RawgSearchResponse } from './rawg';
+import { IgdbGame, IgdbSearchResponse } from './igdb';
 
 // Cache types
 export const CACHE_TYPE = {
@@ -32,7 +32,7 @@ export function isCacheExpired(lastUpdated: string, cacheType: string): boolean 
 /**
  * Get cached search results
  */
-export async function getCachedSearchResults(query: string): Promise<RawgSearchResponse | null> {
+export async function getCachedSearchResults(query: string): Promise<IgdbSearchResponse | null> {
   const supabase = await createClient();
   const cacheKey = `search:${query.toLowerCase().trim()}`;
   
@@ -62,13 +62,13 @@ export async function getCachedSearchResults(query: string): Promise<RawgSearchR
   }
   
   console.log(`[CACHE] Cache hit for: ${cacheKey}`);
-  return data.data as RawgSearchResponse;
+  return data.data as IgdbSearchResponse;
 }
 
 /**
  * Cache search results
  */
-export async function cacheSearchResults(query: string, results: RawgSearchResponse): Promise<void> {
+export async function cacheSearchResults(query: string, results: IgdbSearchResponse): Promise<void> {
   try {
     // Use admin client to bypass RLS policies
     const supabase = createAdminClient();
@@ -101,7 +101,7 @@ export async function cacheSearchResults(query: string, results: RawgSearchRespo
 /**
  * Get cached game details
  */
-export async function getCachedGameDetails(gameId: number): Promise<RawgGame | null> {
+export async function getCachedGameDetails(gameId: number): Promise<IgdbGame | null> {
   const supabase = await createClient();
   const cacheKey = `game:${gameId}`;
   
@@ -131,13 +131,13 @@ export async function getCachedGameDetails(gameId: number): Promise<RawgGame | n
   }
   
   console.log(`[CACHE] Cache hit for: ${cacheKey}`);
-  return data.data as RawgGame;
+  return data.data as IgdbGame;
 }
 
 /**
  * Cache game details
  */
-export async function cacheGameDetails(gameId: number, gameData: RawgGame): Promise<void> {
+export async function cacheGameDetails(gameId: number, gameData: IgdbGame): Promise<void> {
   try {
     // Use admin client to bypass RLS policies
     const supabase = createAdminClient();
@@ -169,7 +169,7 @@ export async function cacheGameDetails(gameId: number, gameData: RawgGame): Prom
 /**
  * Get cached trending games
  */
-export async function getCachedTrendingGames(): Promise<RawgSearchResponse | null> {
+export async function getCachedTrendingGames(): Promise<IgdbSearchResponse | null> {
   const supabase = await createClient();
   const cacheKey = 'trending';
   
@@ -199,13 +199,13 @@ export async function getCachedTrendingGames(): Promise<RawgSearchResponse | nul
   }
   
   console.log(`[CACHE] Cache hit for: ${cacheKey}`);
-  return data.data as RawgSearchResponse;
+  return data.data as IgdbSearchResponse;
 }
 
 /**
  * Cache trending games
  */
-export async function cacheTrendingGames(results: RawgSearchResponse): Promise<void> {
+export async function cacheTrendingGames(results: IgdbSearchResponse): Promise<void> {
   try {
     // Use admin client to bypass RLS policies
     const supabase = createAdminClient();
@@ -237,7 +237,7 @@ export async function cacheTrendingGames(results: RawgSearchResponse): Promise<v
 /**
  * Get cached new releases
  */
-export async function getCachedNewReleases(): Promise<RawgSearchResponse | null> {
+export async function getCachedNewReleases(): Promise<IgdbSearchResponse | null> {
   const supabase = await createClient();
   const cacheKey = 'new_releases';
   
@@ -267,13 +267,13 @@ export async function getCachedNewReleases(): Promise<RawgSearchResponse | null>
   }
   
   console.log(`[CACHE] Cache hit for: ${cacheKey}`);
-  return data.data as RawgSearchResponse;
+  return data.data as IgdbSearchResponse;
 }
 
 /**
  * Cache new releases
  */
-export async function cacheNewReleases(results: RawgSearchResponse): Promise<void> {
+export async function cacheNewReleases(results: IgdbSearchResponse): Promise<void> {
   try {
     // Use admin client to bypass RLS policies
     const supabase = createAdminClient();

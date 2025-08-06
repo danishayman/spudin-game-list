@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getGameById } from "@/lib/rawg";
+import { getGameById } from "@/lib/igdb";
 
 // For dynamic route segments, we need to access the params directly
 export async function GET(

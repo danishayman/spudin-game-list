@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getNewReleases, RawgGame } from '@/lib/rawg';
+import { getNewReleases, IgdbGame} from '@/lib/igdb';
 
 const RAWG_API_KEY = process.env.RAWG_API_KEY;
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
+const IGDB_CLIENT_ID = process.env.IGDB_CLIENT_ID;
+const IGDB_CLIENT_SECRET = process.env.IGDB_CLIENT_SECRET;
 
 // CORS headers
 const corsHeaders = {
@@ -22,6 +24,8 @@ export async function OPTIONS() {
 export async function GET(request: Request) {
   try {
     console.log('[API] /api/games/new-releases called');
+    console.log('[API] IGDB_CLIENT_ID exists:', !!IGDB_CLIENT_ID);
+    console.log('[API] IGDB_CLIENT_SECRET exists:', !!IGDB_CLIENT_SECRET);
     console.log('[API] RAWG_API_KEY exists:', !!RAWG_API_KEY);
     console.log('[API] Environment:', process.env.NODE_ENV);
     
@@ -31,49 +35,78 @@ export async function GET(request: Request) {
     // Get count parameter from URL if present
     const url = new URL(request.url);
     const countParam = url.searchParams.get('count');
-    const count = countParam ? parseInt(countParam, 10) : 20;
+    const count = countParam ? parseInt(countParam, 10) : 25;
     
     console.log('[API] Requested count:', count);
     
-    // Check for required API key
+    // Check for required IGDB API credentials first (primary method)
+    if (!IGDB_CLIENT_ID || !IGDB_CLIENT_SECRET) {
+      console.error('[API] IGDB credentials are missing');
+      
+      // If RAWG is also missing, return error
+      if (!RAWG_API_KEY) {
+        return NextResponse.json(
+          { 
+            error: 'Failed to fetch new releases', 
+            details: 'Both IGDB and RAWG API credentials are missing. Please configure IGDB_CLIENT_ID and IGDB_CLIENT_SECRET environment variables.' 
+          },
+          { status: 500, headers }
+        );
+      }
+      
+      console.log('[API] Falling back to RAWG API due to missing IGDB credentials');
+      // Skip IGDB method and go directly to RAWG fallback
+    } else {
+      // Try the IGDB method first
+      try {
+        console.log('[API] Attempting to fetch from IGDB');
+        const results = await getNewReleases();
+        
+        // Add debug information
+        console.log('[API] IGDB Results count:', results?.results?.length || 0);
+        
+        // If we got results from IGDB, return them
+        if (results && results.results && results.results.length > 0) {
+          // Make sure we return the requested number of results
+          if (results.results.length > count) {
+            results.results = results.results.slice(0, count);
+          }
+          
+          // Add debugging info to the response
+          const debugResults = {
+            ...results,
+            debug: {
+              source: 'IGDB',
+              resultsCount: results.results.length,
+              requestedCount: count,
+              igdbCredentialsExist: !!IGDB_CLIENT_ID && !!IGDB_CLIENT_SECRET,
+              rawgKeyExists: !!RAWG_API_KEY,
+              environment: process.env.NODE_ENV
+            }
+          };
+          return NextResponse.json(debugResults, { headers });
+        }
+        
+        console.log('[API] No results from IGDB, falling back to RAWG');
+      } catch (igdbError) {
+        console.error('[API] IGDB method failed:', igdbError);
+        console.log('[API] Falling back to RAWG API');
+      }
+    }
+    
+    // If we still have no results and have RAWG API key, try RAWG as fallback
     if (!RAWG_API_KEY) {
-      console.error('[API] RAWG API key is missing');
+      console.error('[API] No RAWG API key available for fallback');
       return NextResponse.json(
-        { error: 'Failed to fetch new releases', details: 'API key is missing' },
+        { 
+          error: 'Failed to fetch new releases', 
+          details: 'IGDB returned no results and no RAWG API key available for fallback. Please configure API credentials.' 
+        },
         { status: 500, headers }
       );
     }
     
-    // Try the original method first - now with improved fallback to stale cache
-    const results = await getNewReleases();
-    
-    // Add debug information
-    console.log('[API] Results count:', results?.results?.length || 0);
-    console.log('[API] Page size in URL:', results?.next?.includes('page_size=20') ? '20' : 'other');
-    
-    // If we got results from either fresh API call or cache fallback, return them
-    if (results && results.results && results.results.length > 0) {
-      // Make sure we return the requested number of results
-      if (results.results.length > count) {
-        results.results = results.results.slice(0, count);
-      }
-      
-      // Add debugging info to the response
-      const debugResults = {
-        ...results,
-        debug: {
-          resultsCount: results.results.length,
-          requestedCount: count,
-          pageSize: results.next?.includes('page_size=20') ? '20' : 'other',
-          apiKeyExists: !!RAWG_API_KEY,
-          environment: process.env.NODE_ENV
-        }
-      };
-      return NextResponse.json(debugResults, { headers });
-    }
-    
-    // If we still have no results, try a direct approach as last resort
-    console.log('[API] No results from getNewReleases, trying direct approach');
+    console.log('[API] Trying RAWG API as fallback');
     
     // Get current date and date from 3 months ago
     const now = new Date();
@@ -133,7 +166,7 @@ export async function GET(request: Request) {
         
         // Filter locally for games with at least 3.0 rating (lowered from 3.5)
         if (ratingResults.results && ratingResults.results.length > 0) {
-          ratingResults.results = ratingResults.results.filter((game: RawgGame) => game.rating >= 3.0);
+          ratingResults.results = ratingResults.results.filter((game: IgdbGame) => game.rating != null && game.rating >= 3.0);
           console.log(`[API] After filtering, ${ratingResults.results.length} results remain`);
           
           // Limit to requested count
@@ -145,10 +178,12 @@ export async function GET(request: Request) {
           const debugRatingResults = {
             ...ratingResults,
             debug: {
+              source: 'RAWG',
               resultsCount: ratingResults.results.length,
               requestedCount: count,
               pageSize: ratingResults.next?.includes(`page_size=${count}`) ? count.toString() : 'other',
-              apiKeyExists: !!RAWG_API_KEY,
+              igdbCredentialsExist: !!IGDB_CLIENT_ID && !!IGDB_CLIENT_SECRET,
+              rawgKeyExists: !!RAWG_API_KEY,
               environment: process.env.NODE_ENV
             }
           };
@@ -166,10 +201,12 @@ export async function GET(request: Request) {
       const debugDirectResults = {
         ...directResults,
         debug: {
+          source: 'RAWG',
           resultsCount: directResults.results.length,
           requestedCount: count,
           pageSize: directResults.next?.includes(`page_size=${count}`) ? count.toString() : 'other',
-          apiKeyExists: !!RAWG_API_KEY,
+          igdbCredentialsExist: !!IGDB_CLIENT_ID && !!IGDB_CLIENT_SECRET,
+          rawgKeyExists: !!RAWG_API_KEY,
           environment: process.env.NODE_ENV
         }
       };

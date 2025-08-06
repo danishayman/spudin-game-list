@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { searchGames } from '@/lib/rawg';
+import { searchGames } from '@/lib/igdb';
 import { createClient } from '@/utils/supabase/server';
 
 export async function GET(request: Request) {
