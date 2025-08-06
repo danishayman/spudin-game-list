@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
@@ -27,6 +27,10 @@ interface GameReviewsProps {
   gameId: number;
 }
 
+export interface GameReviewsRef {
+  refreshReviews: () => void;
+}
+
 interface Profile {
   id: string;
   username: string;
@@ -40,10 +44,11 @@ interface GameList {
   rating: number | null;
 }
 
-export default function GameReviews({ gameId }: GameReviewsProps) {
+const GameReviews = forwardRef<GameReviewsRef, GameReviewsProps>(({ gameId }, ref) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     async function fetchReviews() {
@@ -156,7 +161,14 @@ export default function GameReviews({ gameId }: GameReviewsProps) {
     }
     
     fetchReviews();
-  }, [gameId]);
+  }, [gameId, refreshTrigger]);
+
+  // Expose refresh function to parent via ref
+  useImperativeHandle(ref, () => ({
+    refreshReviews: () => {
+      setRefreshTrigger(prev => prev + 1);
+    }
+  }));
 
   // Function to get status color
   const getStatusColor = (status: GameStatus | null) => {
@@ -298,4 +310,8 @@ export default function GameReviews({ gameId }: GameReviewsProps) {
       )}
     </div>
   );
-} 
+});
+
+GameReviews.displayName = 'GameReviews';
+
+export default GameReviews; 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import { type IgdbGame} from '@/lib/igdb';
 import { getGameByIdClient } from '@/lib/games-client';
@@ -8,7 +8,7 @@ import { GameRatingDialog } from '@/components/GameRatingDialog';
 import { createClient } from '@/utils/supabase/client';
 import { useUser } from '@/lib/hooks';
 import type { GameStatus } from '@/components/GameStatusButtons';
-import GameReviews from '@/components/GameReviews';
+import GameReviews, { type GameReviewsRef } from '@/components/GameReviews';
 
 interface GameDetailsProps {
   gameId: number;
@@ -111,6 +111,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
     isInList: false,
   });
   const { user } = useUser();
+  const gameReviewsRef = useRef<GameReviewsRef>(null);
 
   // Hide the skeleton UI when game data is loaded
   useEffect(() => {
@@ -445,6 +446,11 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
                         });
                       }
                     });
+                }
+                
+                // Refresh the reviews section
+                if (gameReviewsRef.current) {
+                  gameReviewsRef.current.refreshReviews();
                 }
               }}
               triggerComponent={
@@ -1210,7 +1216,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
       
       {/* Game Reviews Section */}
       <div className="mt-8 border-t border-slate-700 pt-8">
-        <GameReviews gameId={gameId} />
+        <GameReviews ref={gameReviewsRef} gameId={gameId} />
       </div>
     </div>
   );

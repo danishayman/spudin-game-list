@@ -308,17 +308,38 @@ export function GameRatingDialog({
       
       // Process review if needed
       if (hasReview) {
-        // Upsert the review
-        const { error: reviewError } = await supabase
+        // Check if review already exists
+        const { data: existingReview } = await supabase
           .from('reviews')
-          .upsert({
-            user_id: user.id,
-            game_id: gameId,
-            content: reviewContent,
-            updated_at: new Date().toISOString(),
-          });
-          
-        if (reviewError) throw reviewError;
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('game_id', gameId)
+          .single();
+        
+        if (existingReview) {
+          // Update existing review
+          const { error: reviewError } = await supabase
+            .from('reviews')
+            .update({
+              content: reviewContent,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('user_id', user.id)
+            .eq('game_id', gameId);
+            
+          if (reviewError) throw reviewError;
+        } else {
+          // Insert new review (let database set both created_at and updated_at)
+          const { error: reviewError } = await supabase
+            .from('reviews')
+            .insert({
+              user_id: user.id,
+              game_id: gameId,
+              content: reviewContent,
+            });
+            
+          if (reviewError) throw reviewError;
+        }
       } else if (gameListEntry.review !== null) {
         // If review content is empty but there was a review before, delete it
         const { error: deleteReviewError } = await supabase
