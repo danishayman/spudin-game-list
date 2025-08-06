@@ -132,7 +132,7 @@ export type IgdbRawGame = {
     cover?: { id: number; url: string };
     total_rating?: number;
   }>;
-  [key: string]: any; // Allow additional fields from IGDB API
+  [key: string]: unknown; // Allow additional fields from IGDB API
 };
 
 // OAuth token response
