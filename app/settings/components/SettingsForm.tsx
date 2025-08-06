@@ -85,12 +85,12 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
     }));
   };
 
-  const handleDeleteAccount = async (confirmationText: string) => {
+  const handleDeleteAccount = async (confirmationText?: string) => {
     setIsDeleting(true);
     setMessage(null);
 
     try {
-      const result = await deleteAccount(confirmationText);
+      const result = await deleteAccount(confirmationText || '');
       
       if (result.success) {
         setMessage({ type: 'success', text: result.message });
