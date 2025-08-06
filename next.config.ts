@@ -29,6 +29,11 @@ const nextConfig: NextConfig = {
         hostname: 'via.placeholder.com',
         pathname: '**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.igdb.com',
+        pathname: '**',
+      },
     ],
   },
 };

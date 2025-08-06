@@ -41,7 +41,7 @@ export function ShareProfileButton({ username }: ShareProfileButtonProps) {
     <Button 
       variant="outline" 
       onClick={handleShare}
-      className="flex items-center gap-2 border-slate-500 text-slate-300 hover:bg-slate-600 hover:text-white"
+      className="flex items-center gap-2 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/30 backdrop-blur-sm transition-all duration-300 hover:shadow-lg"
     >
       {copied ? (
         <>
