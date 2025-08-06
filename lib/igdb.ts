@@ -26,7 +26,7 @@ const IGDB_BASE_URL = 'https://api.igdb.com/v4';
 const CACHE_REVALIDATION_TIME = 3600; // 1 hour in seconds
 
 // Search Configuration
-const SEARCH_PAGE_SIZE = 20;
+const SEARCH_PAGE_SIZE = 50;
 
 // Game Details Configuration
 const INCLUDE_SCREENSHOTS = true;
@@ -37,13 +37,13 @@ const TRENDING_PAGE_SIZE = 50;
 // New Releases Configuration
 const NEW_RELEASES_MONTHS_BACK = 1; // How many months back to search for new releases
 const NEW_RELEASES_PAGE_SIZE = 50; // Initial fetch size (gets filtered down)
-const NEW_RELEASES_FINAL_SIZE = 20; // Final number of results to return
-const NEW_RELEASES_MIN_RATING = 70; // Minimum IGDB total rating (0-100)
-const NEW_RELEASES_MIN_RATINGS_COUNT = 5; // Minimum number of ratings required
+const NEW_RELEASES_FINAL_SIZE = 25; // Final number of results to return
+const NEW_RELEASES_MIN_RATING = 60; // Minimum IGDB total rating (0-100)
+const NEW_RELEASES_MIN_RATINGS_COUNT = 0; // Minimum number of ratings required
 
 // Content Filtering Configuration
 const ENABLE_CONTENT_FILTERING = true; // Set to false to disable content filtering
-const BLOCKED_ESRB_RATINGS = [8]; // Block AO (Adults Only) rated games (ESRB rating ID 8)
+const BLOCKED_ESRB_RATINGS: number[] = []; // No ESRB ratings blocked
 const BLOCKED_THEMES = [42]; // Block games with adult themes (Theme ID 42 = Erotic)
 
 // =============================================================================
@@ -94,6 +94,8 @@ async function getAccessToken(): Promise<string> {
 async function igdbRequest(endpoint: string, query: string): Promise<any> {
   const token = await getAccessToken();
 
+  console.log(`[IGDB] Making request to ${endpoint} with query:`, query);
+
   const response = await fetch(`${IGDB_BASE_URL}/${endpoint}`, {
     method: 'POST',
     headers: {
@@ -106,7 +108,9 @@ async function igdbRequest(endpoint: string, query: string): Promise<any> {
   });
 
   if (!response.ok) {
-    throw new Error(`IGDB API error: ${response.status}`);
+    const errorText = await response.text();
+    console.error(`[IGDB] API error ${response.status}:`, errorText);
+    throw new Error(`IGDB API error: ${response.status} - ${errorText}`);
   }
 
   return response.json();
@@ -179,6 +183,36 @@ export type IgdbGame = {
   themes?: Array<{ id: number; name: string }>;
   game_modes?: Array<{ id: number; name: string }>;
   player_perspectives?: Array<{ id: number; name: string }>;
+  // New comprehensive IGDB fields
+  artworks?: Array<{ id: number; url: string; width: number; height: number }>;
+  collection?: {
+    id: number;
+    name: string;
+    games?: Array<{ id: number; name: string; first_release_date?: number }>;
+  };
+  franchises?: Array<{ id: number; name: string }>;
+  similar_games?: Array<{ 
+    id: number; 
+    name: string; 
+    cover?: { id: number; url: string };
+    total_rating?: number;
+  }>;
+  dlcs?: Array<{ id: number; name: string; first_release_date?: number }>;
+  expansions?: Array<{ id: number; name: string; first_release_date?: number }>;
+  standalone_expansions?: Array<{ id: number; name: string; first_release_date?: number }>;
+  remakes?: Array<{ id: number; name: string; first_release_date?: number }>;
+  remasters?: Array<{ id: number; name: string; first_release_date?: number }>;
+  ports?: Array<{ id: number; name: string; first_release_date?: number }>;
+  forks?: Array<{ id: number; name: string; first_release_date?: number }>;
+  category?: number; // Game category (main game, DLC, etc.)
+  status?: number; // Release status
+  version_parent?: { id: number; name: string };
+  version_title?: string;
+  time_to_beat?: {
+    hastly?: number;
+    normally?: number;
+    completely?: number;
+  };
   // User-specific fields for games in user's list (added by application)
   user_status?: string | null;
   user_rating?: number | null;
@@ -200,7 +234,7 @@ export type IgdbGame = {
   reddit_url?: string | null;
   reddit_name?: string | null;
   reddit_description?: string | null;
-  playtime?: number;
+  playtime?: number | null;
   esrb_rating?: { id: number; name: string } | null;
   stores?: Array<{ id: number; store: { id: number; name: string; domain?: string; slug: string } }>;
 };
@@ -233,6 +267,39 @@ function convertIgdbToRawgFormat(igdbGame: any): IgdbGame {
     themes: igdbGame.themes?.filter((theme: any) => theme && theme.name) || [],
     game_modes: igdbGame.game_modes?.filter((mode: any) => mode && mode.name) || [],
     player_perspectives: igdbGame.player_perspectives?.filter((perspective: any) => perspective && perspective.name) || [],
+    
+    // New comprehensive fields
+    artworks: igdbGame.artworks?.map((artwork: any) => ({
+      ...artwork,
+      url: artwork.url ? `https:${artwork.url.replace('t_thumb', 't_1080p')}` : ''
+    })),
+    collection: igdbGame.collection ? {
+      id: igdbGame.collection.id,
+      name: igdbGame.collection.name,
+      games: igdbGame.collection.games?.filter((g: any) => g && g.name) || []
+    } : undefined,
+    franchises: igdbGame.franchises?.filter((franchise: any) => franchise && franchise.name) || [],
+    similar_games: igdbGame.similar_games?.filter((game: any) => game && game.name).map((game: any) => ({
+      id: game.id,
+      name: game.name,
+      cover: game.cover ? {
+        ...game.cover,
+        url: game.cover.url ? `https:${game.cover.url.replace('t_thumb', 't_cover_big')}` : ''
+      } : undefined,
+      total_rating: game.total_rating
+    })) || [],
+    dlcs: igdbGame.dlcs?.filter((dlc: any) => dlc && dlc.name) || [],
+    expansions: igdbGame.expansions?.filter((expansion: any) => expansion && expansion.name) || [],
+    standalone_expansions: igdbGame.standalone_expansions?.filter((exp: any) => exp && exp.name) || [],
+    remakes: igdbGame.remakes?.filter((remake: any) => remake && remake.name) || [],
+    remasters: igdbGame.remasters?.filter((remaster: any) => remaster && remaster.name) || [],
+    ports: igdbGame.ports?.filter((port: any) => port && port.name) || [],
+    forks: igdbGame.forks?.filter((fork: any) => fork && fork.name) || [],
+    category: igdbGame.category,
+    status: igdbGame.status,
+    version_parent: igdbGame.version_parent,
+    version_title: igdbGame.version_title,
+    time_to_beat: igdbGame.time_to_beat,
     
     // Convert cover URL to full URL
     cover: igdbGame.cover ? {
@@ -357,22 +424,27 @@ export async function getGameById(id: number): Promise<IgdbGame> {
 
   console.log(`[API] Fetching game details for ID: ${id}`);
   
+  // Start with a basic query and add fields progressively
   let igdbQuery = `
     fields id, name, cover.url, first_release_date, total_rating, total_rating_count,
-           genres.name, platforms.name, summary, storyline, themes.id, age_ratings.rating,
+           genres.name, platforms.name, summary, storyline, themes.name,
+           age_ratings.category, age_ratings.rating,
            websites.url, websites.category, game_modes.name, player_perspectives.name,
-           involved_companies.company.name, involved_companies.developer, involved_companies.publisher;
+           involved_companies.company.name, involved_companies.developer, involved_companies.publisher,
+           category, status;
     where id = ${id};
   `;
 
-  // Add screenshots if enabled
+  // Add screenshots and additional fields if enabled
   if (INCLUDE_SCREENSHOTS) {
     igdbQuery = `
       fields id, name, cover.url, first_release_date, total_rating, total_rating_count,
-             genres.name, platforms.name, summary, storyline, themes.id, age_ratings.rating,
+             genres.name, platforms.name, summary, storyline, themes.name,
+             age_ratings.category, age_ratings.rating,
              websites.url, websites.category, game_modes.name, player_perspectives.name,
              involved_companies.company.name, involved_companies.developer, involved_companies.publisher,
-             screenshots.url, videos.video_id, videos.name;
+             screenshots.url, videos.video_id, videos.name,
+             artworks.url, category, status;
       where id = ${id};
     `;
   }
@@ -396,6 +468,132 @@ export async function getGameById(id: number): Promise<IgdbGame> {
   await cacheGameDetails(id, gameData);
   
   return gameData;
+}
+
+/**
+ * Get game series/collection information by game ID
+ * This function should only be called from server components or API routes
+ */
+export async function getGameSeriesById(id: number): Promise<IgdbSearchResponse> {
+  console.log(`[API] Fetching game series for ID: ${id}`);
+  
+  // First, get the game details to find collection and franchise info
+  const gameQuery = `
+    fields collection.id, collection.name, franchises.id, franchises.name;
+    where id = ${id};
+  `;
+  
+  const gameResults = await igdbRequest('games', gameQuery);
+  
+  if (!gameResults || gameResults.length === 0) {
+    console.log(`[IGDB] Game with ID ${id} not found for series lookup`);
+    return {
+      count: 0,
+      next: null,
+      previous: null,
+      results: []
+    };
+  }
+  
+  const game = gameResults[0];
+  const seriesGames: IgdbGame[] = [];
+  
+  // If the game has a collection, fetch games from that collection
+  if (game.collection && game.collection.id) {
+    console.log(`[IGDB] Found collection: ${game.collection.name} (ID: ${game.collection.id})`);
+    
+    const collectionQuery = `
+      fields id, name, cover.url, first_release_date, total_rating, total_rating_count,
+             genres.name, platforms.name, summary, themes.id, age_ratings.rating;
+      where collection = ${game.collection.id} & id != ${id};
+      sort first_release_date asc;
+      limit 20;
+    `;
+    
+    const collectionResults = await igdbRequest('games', collectionQuery);
+    if (collectionResults && collectionResults.length > 0) {
+      const convertedGames = collectionResults.map(convertIgdbToRawgFormat);
+      const filteredGames = filterAdultContent(convertedGames);
+      seriesGames.push(...filteredGames);
+    }
+  }
+  
+  // If the game has franchises and we don't have enough results, fetch from franchise
+  if (game.franchises && game.franchises.length > 0 && seriesGames.length < 10) {
+    for (const franchise of game.franchises) {
+      console.log(`[IGDB] Found franchise: ${franchise.name} (ID: ${franchise.id})`);
+      
+      const franchiseQuery = `
+        fields id, name, cover.url, first_release_date, total_rating, total_rating_count,
+               genres.name, platforms.name, summary, themes.id, age_ratings.rating;
+        where franchises = (${franchise.id}) & id != ${id};
+        sort first_release_date asc;
+        limit ${Math.max(1, 15 - seriesGames.length)};
+      `;
+      
+      const franchiseResults = await igdbRequest('games', franchiseQuery);
+      if (franchiseResults && franchiseResults.length > 0) {
+        const convertedGames = franchiseResults.map(convertIgdbToRawgFormat);
+        const filteredGames = filterAdultContent(convertedGames);
+        
+        // Avoid duplicates by checking if game ID already exists
+        const existingIds = new Set(seriesGames.map(g => g.id));
+        const newGames = filteredGames.filter(g => !existingIds.has(g.id));
+        seriesGames.push(...newGames);
+        
+        if (seriesGames.length >= 15) break; // Limit total results
+      }
+    }
+  }
+  
+  // If still no results, try to find similar games by name pattern
+  if (seriesGames.length === 0) {
+    // Get the original game name to search for similar titles
+    const originalGameQuery = `
+      fields name;
+      where id = ${id};
+    `;
+    
+    const originalGameResults = await igdbRequest('games', originalGameQuery);
+    if (originalGameResults && originalGameResults.length > 0) {
+      const originalName = originalGameResults[0].name;
+      
+      // Extract potential series name (remove subtitles, numbers, etc.)
+      const baseName = originalName
+        .replace(/\s*:\s*.+$/, '') // Remove everything after colon
+        .replace(/\s+\d+$/, '') // Remove trailing numbers
+        .replace(/\s+(II|III|IV|V|VI|VII|VIII|IX|X)$/, '') // Remove roman numerals
+        .trim();
+      
+      if (baseName && baseName !== originalName) {
+        console.log(`[IGDB] Searching for similar games with base name: "${baseName}"`);
+        
+        const similarQuery = `
+          fields id, name, cover.url, first_release_date, total_rating, total_rating_count,
+                 genres.name, platforms.name, summary, themes.id, age_ratings.rating;
+          search "${baseName}";
+          where id != ${id};
+          limit 10;
+        `;
+        
+        const similarResults = await igdbRequest('games', similarQuery);
+        if (similarResults && similarResults.length > 0) {
+          const convertedGames = similarResults.map(convertIgdbToRawgFormat);
+          const filteredGames = filterAdultContent(convertedGames);
+          seriesGames.push(...filteredGames);
+        }
+      }
+    }
+  }
+  
+  console.log(`[IGDB] Found ${seriesGames.length} games in series for game ID ${id}`);
+  
+  return {
+    count: seriesGames.length,
+    next: null,
+    previous: null,
+    results: seriesGames
+  };
 }
 
 /**

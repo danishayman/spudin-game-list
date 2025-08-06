@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     // Get count parameter from URL if present
     const url = new URL(request.url);
     const countParam = url.searchParams.get('count');
-    const count = countParam ? parseInt(countParam, 10) : 20;
+    const count = countParam ? parseInt(countParam, 10) : 25;
     
     console.log('[API] Requested count:', count);
     
@@ -49,7 +49,7 @@ export async function GET(request: Request) {
     
     // Add debug information
     console.log('[API] Results count:', results?.results?.length || 0);
-    console.log('[API] Page size in URL:', results?.next?.includes('page_size=20') ? '20' : 'other');
+    console.log('[API] Page size in URL:', results?.next?.includes('page_size=25') ? '20' : 'other');
     
     // If we got results from either fresh API call or cache fallback, return them
     if (results && results.results && results.results.length > 0) {

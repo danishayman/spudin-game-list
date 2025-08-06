@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getGameSeriesById } from "@/lib/igdb";
 
 // For dynamic route segments, we need to access the params directly
 export async function GET(
@@ -14,19 +15,9 @@ export async function GET(
             return NextResponse.json({ error: "Invalid game ID" }, { status: 400 });
         }
 
-        // IGDB doesn't have a direct "game series" endpoint like RAWG
-        // We'll need to search for games with similar names or from the same franchise
-        // For now, return an empty array as this feature needs to be reimplemented
-        console.log(`[IGDB] Game series endpoint not yet implemented for game ID: ${gameId}`);
+        console.log(`[IGDB] Fetching game series for game ID: ${gameId}`);
         
-        // Return empty result for now - this would need to be implemented using IGDB's
-        // collection or franchise endpoints
-        const seriesData = {
-            count: 0,
-            next: null,
-            previous: null,
-            results: []
-        };
+        const seriesData = await getGameSeriesById(gameId);
         
         return NextResponse.json(seriesData);
     } catch (error) {
