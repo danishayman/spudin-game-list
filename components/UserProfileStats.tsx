@@ -1,5 +1,59 @@
 'use client';
 
+interface StatCardProps {
+  value: number;
+  label: string;
+  color: 'blue' | 'green' | 'purple' | 'amber' | 'red';
+}
+
+function StatCard({ value, label, color }: StatCardProps) {
+  const colorClasses = {
+    blue: {
+      text: 'text-blue-400',
+      border: 'hover:border-blue-400/50',
+      shadow: 'hover:shadow-blue-500/10',
+      gradient: 'from-blue-500/20'
+    },
+    green: {
+      text: 'text-green-400',
+      border: 'hover:border-green-400/50',
+      shadow: 'hover:shadow-green-500/10',
+      gradient: 'from-green-500/20'
+    },
+    purple: {
+      text: 'text-purple-400',
+      border: 'hover:border-purple-400/50',
+      shadow: 'hover:shadow-purple-500/10',
+      gradient: 'from-purple-500/20'
+    },
+    amber: {
+      text: 'text-amber-400',
+      border: 'hover:border-amber-400/50',
+      shadow: 'hover:shadow-amber-500/10',
+      gradient: 'from-amber-500/20'
+    },
+    red: {
+      text: 'text-red-400',
+      border: 'hover:border-red-400/50',
+      shadow: 'hover:shadow-red-500/10',
+      gradient: 'from-red-500/20'
+    }
+  };
+
+  const colors = colorClasses[color];
+  const textColor = color === 'blue' && label === 'Total Games' ? 'text-white' : colors.text;
+
+  return (
+    <div className={`group relative overflow-hidden bg-gradient-to-br from-slate-700 to-slate-600 rounded-lg p-4 border border-slate-500/30 ${colors.border} transition-all duration-300 hover:shadow-lg ${colors.shadow} min-h-[100px] flex flex-col justify-center`}>
+      <div className={`absolute top-0 right-0 w-16 h-16 bg-gradient-to-br ${colors.gradient} to-transparent rounded-bl-full`}></div>
+      <div className="relative text-center">
+        <div className={`text-2xl font-bold ${textColor} mb-1`}>{value}</div>
+        <div className="text-slate-300 text-sm font-medium">{label}</div>
+      </div>
+    </div>
+  );
+}
+
 interface UserProfileStatsProps {
   stats: {
     counts: Record<string, number> & {
@@ -35,53 +89,41 @@ export function UserProfileStats({ stats }: UserProfileStatsProps) {
         
         {/* Stats Grid - Uniform sizing */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-          <div className="group relative overflow-hidden bg-gradient-to-br from-slate-700 to-slate-600 rounded-lg p-4 border border-slate-500/30 hover:border-slate-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 min-h-[100px] flex flex-col justify-center">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-blue-500/20 to-transparent rounded-bl-full"></div>
-            <div className="relative text-center">
-              <div className="text-2xl font-bold text-white mb-1">{stats.counts.Total || 0}</div>
-              <div className="text-slate-300 text-sm font-medium">Total Games</div>
-            </div>
-          </div>
+          <StatCard 
+            value={stats.counts.Total || 0} 
+            label="Total Games" 
+            color="blue" 
+          />
           
-          <div className="group relative overflow-hidden bg-gradient-to-br from-slate-700 to-slate-600 rounded-lg p-4 border border-slate-500/30 hover:border-green-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/10 min-h-[100px] flex flex-col justify-center">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-green-500/20 to-transparent rounded-bl-full"></div>
-            <div className="relative text-center">
-              <div className="text-2xl font-bold text-green-400 mb-1">{stats.counts.Playing || 0}</div>
-              <div className="text-slate-300 text-sm font-medium">Playing</div>
-            </div>
-          </div>
+          <StatCard 
+            value={stats.counts.Playing || 0} 
+            label="Playing" 
+            color="green" 
+          />
           
-          <div className="group relative overflow-hidden bg-gradient-to-br from-slate-700 to-slate-600 rounded-lg p-4 border border-slate-500/30 hover:border-blue-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 min-h-[100px] flex flex-col justify-center">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-blue-500/20 to-transparent rounded-bl-full"></div>
-            <div className="relative text-center">
-              <div className="text-2xl font-bold text-blue-400 mb-1">{stats.counts.Finished || 0}</div>
-              <div className="text-slate-300 text-sm font-medium">Completed</div>
-            </div>
-          </div>
+          <StatCard 
+            value={stats.counts.Finished || 0} 
+            label="Completed" 
+            color="blue" 
+          />
           
-          <div className="group relative overflow-hidden bg-gradient-to-br from-slate-700 to-slate-600 rounded-lg p-4 border border-slate-500/30 hover:border-purple-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 min-h-[100px] flex flex-col justify-center">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-purple-500/20 to-transparent rounded-bl-full"></div>
-            <div className="relative text-center">
-              <div className="text-2xl font-bold text-purple-400 mb-1">{stats.counts.Want || 0}</div>
-              <div className="text-slate-300 text-sm font-medium">Want to Play</div>
-            </div>
-          </div>
+          <StatCard 
+            value={stats.counts.Want || 0} 
+            label="Want to Play" 
+            color="purple" 
+          />
           
-          <div className="group relative overflow-hidden bg-gradient-to-br from-slate-700 to-slate-600 rounded-lg p-4 border border-slate-500/30 hover:border-amber-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/10 min-h-[100px] flex flex-col justify-center">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-amber-500/20 to-transparent rounded-bl-full"></div>
-            <div className="relative text-center">
-              <div className="text-2xl font-bold text-amber-400 mb-1">{stats.counts['On-hold'] || 0}</div>
-              <div className="text-slate-300 text-sm font-medium">On Hold</div>
-            </div>
-          </div>
+          <StatCard 
+            value={stats.counts['On-hold'] || 0} 
+            label="On Hold" 
+            color="amber" 
+          />
           
-          <div className="group relative overflow-hidden bg-gradient-to-br from-slate-700 to-slate-600 rounded-lg p-4 border border-slate-500/30 hover:border-red-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/10 min-h-[100px] flex flex-col justify-center">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-red-500/20 to-transparent rounded-bl-full"></div>
-            <div className="relative text-center">
-              <div className="text-2xl font-bold text-red-400 mb-1">{stats.counts.Dropped || 0}</div>
-              <div className="text-slate-300 text-sm font-medium">Dropped</div>
-            </div>
-          </div>
+          <StatCard 
+            value={stats.counts.Dropped || 0} 
+            label="Dropped" 
+            color="red" 
+          />
         </div>
         
         {/* Average Rating Card */}
