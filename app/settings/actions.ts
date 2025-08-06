@@ -3,7 +3,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 export async function updateProfile(formData: FormData) {
   const supabase = await createClient();
@@ -64,7 +63,7 @@ export async function deleteAccount(confirmationText: string) {
     throw new Error('User not authenticated');
   }
 
-  // Verify confirmation text
+  // Verify confirmation text (server-side validation as backup)
   if (confirmationText !== 'DELETE') {
     return {
       success: false,
@@ -81,7 +80,7 @@ export async function deleteAccount(confirmationText: string) {
 
     if (reviewsError) {
       console.error('Error deleting reviews:', reviewsError);
-      // Don't throw here, continue with deletion
+      throw new Error(`Failed to delete user reviews: ${reviewsError.message}`);
     }
 
     // Step 2: Delete user's game list entries
@@ -92,7 +91,7 @@ export async function deleteAccount(confirmationText: string) {
 
     if (gameListError) {
       console.error('Error deleting game lists:', gameListError);
-      // Don't throw here, continue with deletion
+      throw new Error(`Failed to delete user game lists: ${gameListError.message}`);
     }
 
     // Step 3: Delete user's profile
@@ -117,13 +116,10 @@ export async function deleteAccount(confirmationText: string) {
 
     // Step 5: Sign out the user
     await supabase.auth.signOut();
-
-    // Redirect to home page after successful deletion
-    redirect('/');
     
     return { 
       success: true, 
-      message: 'Account deleted successfully.' 
+      message: 'Account deleted successfully. You will be redirected shortly...' 
     };
   } catch (error) {
     console.error('Error deleting account:', error);

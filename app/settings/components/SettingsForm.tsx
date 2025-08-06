@@ -86,16 +86,31 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
   };
 
   const handleDeleteAccount = async (confirmationText?: string) => {
+    const confirmation = confirmationText || '';
+    
+    // Local validation: Check confirmation text before making server call
+    if (confirmation !== 'DELETE') {
+      setMessage({ 
+        type: 'error', 
+        text: 'Please type "DELETE" to confirm account deletion' 
+      });
+      return;
+    }
+
     setIsDeleting(true);
     setMessage(null);
 
     try {
-      const result = await deleteAccount(confirmationText || '');
+      const result = await deleteAccount(confirmation);
       
       if (result.success) {
         setMessage({ type: 'success', text: result.message });
         setShowDeleteDialog(false);
-        // The server action will handle the redirect
+        
+        // Show success message briefly before redirecting
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000); // 2 second delay to show confirmation
       } else {
         setMessage({ type: 'error', text: result.message });
       }
