@@ -132,6 +132,22 @@ export type IgdbRawGame = {
     cover?: { id: number; url: string };
     total_rating?: number;
   }>;
+  dlcs?: Array<{ id: number; name: string; first_release_date?: number }>;
+  expansions?: Array<{ id: number; name: string; first_release_date?: number }>;
+  standalone_expansions?: Array<{ id: number; name: string; first_release_date?: number }>;
+  remakes?: Array<{ id: number; name: string; first_release_date?: number }>;
+  remasters?: Array<{ id: number; name: string; first_release_date?: number }>;
+  ports?: Array<{ id: number; name: string; first_release_date?: number }>;
+  forks?: Array<{ id: number; name: string; first_release_date?: number }>;
+  category?: number;
+  status?: number;
+  version_parent?: { id: number; name: string };
+  version_title?: string;
+  time_to_beat?: {
+    hastly?: number;
+    normally?: number;
+    completely?: number;
+  };
   [key: string]: unknown; // Allow additional fields from IGDB API
 };
 
@@ -142,6 +158,5 @@ export type IgdbTokenResponse = {
   token_type: string;
 };
 
-// Export compatibility types
-export type RawgGame = IgdbGame;
+// Export compatibility types for backward compatibility with RAWG
 export type RawgSearchResponse = IgdbSearchResponse;

@@ -12,7 +12,7 @@ This document summarizes the migration from RAWG API to IGDB API.
 
 ### 📊 Type System Updates
 - **New Types**: `IgdbGame`, `IgdbSearchResponse` 
-- **Compatibility**: Backward-compatible type aliases (`RawgGame` = `IgdbGame`)
+- **Compatibility**: Backward-compatible type aliases (`IgdbGame` = `IgdbGame`)
 - **Field Mapping**: IGDB data structures mapped to match existing RAWG structure
 
 ### 🔌 API Routes Updated

@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react';
 import { GameExplorerHero } from '@/components/GameExplorerHero';
 import { GameCollection } from '@/components/GameCollection';
 import { getTrendingGamesClient, getNewReleasesClient } from '@/lib/games-client';
-import { IgdbGame as RawgGame } from '@/lib/igdb';
+import { IgdbGame} from '@/lib/igdb';
 
 export default function GamesPage() {
-  const [trendingGames, setTrendingGames] = useState<RawgGame[]>([]);
-  const [newReleases, setNewReleases] = useState<RawgGame[]>([]);
+  const [trendingGames, setTrendingGames] = useState<IgdbGame[]>([]);
+  const [newReleases, setNewReleases] = useState<IgdbGame[]>([]);
   const [isLoadingTrending, setIsLoadingTrending] = useState(true);
   const [isLoadingNewReleases, setIsLoadingNewReleases] = useState(true);
   const [trendingError, setTrendingError] = useState<string | null>(null);

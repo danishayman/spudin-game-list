@@ -8,9 +8,8 @@ export {
   getTrendingGames,
   getNewReleases,
   getGameSeriesById,
-  type IgdbGame,
   type IgdbSearchResponse,
-  type RawgGame,
+  type IgdbGame,
   type RawgSearchResponse
 } from './igdb/index';
 

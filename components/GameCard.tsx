@@ -1,11 +1,11 @@
 import Image from 'next/image';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
-import type { IgdbGame as RawgGame } from '@/lib/igdb';
+import type { IgdbGame} from '@/lib/igdb';
 import { GameRatingDialog } from './GameRatingDialog';
 
 type GameCardProps = {
-  game: RawgGame;
+  game: IgdbGame;
   onClick?: () => void;
 };
 
@@ -29,7 +29,7 @@ export function GameCard({ game, onClick }: GameCardProps) {
   };
 
   // Format release date
-  const formatReleaseDate = (date: string | null) => {
+  const formatReleaseDate = (date: string | null | undefined) => {
     if (!date) return 'TBA';
     return new Date(date).toLocaleDateString('en-US', { 
       year: 'numeric', 

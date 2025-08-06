@@ -1,7 +1,7 @@
 import { IgdbGame, IgdbSearchResponse } from './igdb';
 
 // Type aliases for backward compatibility
-export type RawgGame = IgdbGame;
+export type { IgdbGame } from './igdb';
 export type RawgSearchResponse = IgdbSearchResponse;
 
 /**
@@ -21,7 +21,7 @@ export async function searchGamesClient(query: string): Promise<RawgSearchRespon
 /**
  * Get detailed game information by ID through the API route
  */
-export async function getGameByIdClient(id: number): Promise<RawgGame> {
+export async function getGameByIdClient(id: number): Promise<IgdbGame> {
   const response = await fetch(`/api/games/${id}`);
   
   if (!response.ok) {

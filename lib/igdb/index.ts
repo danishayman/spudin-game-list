@@ -11,7 +11,7 @@ import {
 } from './service';
 
 // Re-export types for convenience
-export type { IgdbGame, IgdbSearchResponse, RawgGame, RawgSearchResponse } from './types';
+export type { IgdbGame, IgdbSearchResponse, RawgSearchResponse } from './types';
 
 // Initialize and validate configuration on import
 try {

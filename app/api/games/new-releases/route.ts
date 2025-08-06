@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getNewReleases, IgdbGame as RawgGame } from '@/lib/igdb';
+import { getNewReleases, IgdbGame} from '@/lib/igdb';
 
 const RAWG_API_KEY = process.env.RAWG_API_KEY;
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
@@ -133,7 +133,7 @@ export async function GET(request: Request) {
         
         // Filter locally for games with at least 3.0 rating (lowered from 3.5)
         if (ratingResults.results && ratingResults.results.length > 0) {
-          ratingResults.results = ratingResults.results.filter((game: RawgGame) => game.rating >= 3.0);
+          ratingResults.results = ratingResults.results.filter((game: IgdbGame) => game.rating != null && game.rating >= 3.0);
           console.log(`[API] After filtering, ${ratingResults.results.length} results remain`);
           
           // Limit to requested count

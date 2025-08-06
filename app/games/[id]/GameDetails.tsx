@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { type IgdbGame as RawgGame } from '@/lib/igdb';
+import { type IgdbGame} from '@/lib/igdb';
 import { getGameByIdClient } from '@/lib/games-client';
 import { GameRatingDialog } from '@/components/GameRatingDialog';
 import { createClient } from '@/utils/supabase/client';
@@ -96,7 +96,7 @@ function getLinkIcon(category: number): string {
 }
 
 export default function GameDetails({ gameId }: GameDetailsProps) {
-  const [game, setGame] = useState<RawgGame | null>(null);
+  const [game, setGame] = useState<IgdbGame | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeScreenshotIndex, setActiveScreenshotIndex] = useState(0);

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from './ui/input';
 import { GameCard } from './GameCard';
-import { type IgdbGame as RawgGame } from '@/lib/igdb';
+import { type IgdbGame} from '@/lib/igdb';
 import { searchGamesClient } from '@/lib/games-client';
 
 interface GameSearchProps {
@@ -15,7 +15,7 @@ interface GameSearchProps {
 export function GameSearch({ onGameSelect, className = '' }: GameSearchProps) {
   const router = useRouter();
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<RawgGame[]>([]);
+  const [results, setResults] = useState<IgdbGame[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<string>('all');
