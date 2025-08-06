@@ -103,6 +103,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
   const [showAllScreenshots, setShowAllScreenshots] = useState(false);
   const [gameSeries, setGameSeries] = useState<GameSeries[]>([]);
   const [gameVideos, setGameVideos] = useState<GameVideo[]>([]);
+  const [videoErrors, setVideoErrors] = useState<Set<number>>(new Set());
   const [isVisible, setIsVisible] = useState(false);
   const [userGameEntry, setUserGameEntry] = useState<UserGameListEntry>({
     status: null,
@@ -218,8 +219,8 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
         name: video.name,
         preview: `https://img.youtube.com/vi/${video.video_id}/maxresdefault.jpg`,
         data: {
-          480: `https://www.youtube.com/embed/${video.video_id}`,
-          max: `https://www.youtube.com/embed/${video.video_id}`
+          480: `https://www.youtube.com/embed/${video.video_id}?enablejsapi=1&origin=${window.location.origin}`,
+          max: `https://www.youtube.com/embed/${video.video_id}?enablejsapi=1&origin=${window.location.origin}`
         },
         video_id: video.video_id
       }));
@@ -1076,24 +1077,49 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
                 {gameVideos.slice(0, 4).map((video) => (
                   <div key={video.id} className="bg-slate-800 rounded-lg overflow-hidden hover:bg-slate-700 transition-colors">
                     <div className="relative aspect-video w-full group">
-                      <iframe
-                        src={`${video.data.max}?rel=0&modestbranding=1&showinfo=0`}
-                        title={video.name}
-                        className="absolute inset-0 w-full h-full rounded-t-lg"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
-                        loading="lazy"
-                      ></iframe>
-                      
-                      {/* Video overlay with play button for better UX */}
-                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <div className="bg-red-600 rounded-full p-3 shadow-lg">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z"/>
-                          </svg>
+                      {videoErrors.has(video.id) ? (
+                        // Fallback thumbnail when iframe fails
+                        <div 
+                          className="absolute inset-0 w-full h-full bg-slate-900 rounded-t-lg cursor-pointer flex items-center justify-center"
+                          onClick={() => window.open(`https://www.youtube.com/watch?v=${video.video_id}`, '_blank')}
+                        >
+                          <div className="relative w-full h-full">
+                            <Image
+                              src={video.preview}
+                              alt={video.name}
+                              fill
+                              className="object-cover rounded-t-lg opacity-80"
+                              sizes="(max-width: 1024px) 100vw, 50vw"
+                            />
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                              <div className="bg-red-600 rounded-full p-4 shadow-lg hover:bg-red-500 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M8 5v14l11-7z"/>
+                                </svg>
+                              </div>
+                            </div>
+                            <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
+                              Click to open in YouTube
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        <>
+                          <iframe
+                            src={`${video.data.max}&rel=0&modestbranding=1&playsinline=1&controls=1&fs=1&cc_load_policy=1&iv_load_policy=3&autohide=1`}
+                            title={video.name}
+                            className="absolute inset-0 w-full h-full rounded-t-lg"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                            allowFullScreen
+                            loading="lazy"
+                            sandbox="allow-scripts allow-same-origin allow-presentation"
+                            onError={() => {
+                              setVideoErrors(prev => new Set([...prev, video.id]));
+                            }}
+                          ></iframe>
+                        </>
+                      )}
                     </div>
                     
                     <div className="p-4">
