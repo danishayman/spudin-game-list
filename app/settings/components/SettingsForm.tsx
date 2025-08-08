@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { createClient } from "@/utils/supabase/client";
@@ -24,65 +23,15 @@ interface SettingsFormProps {
 }
 
 export function SettingsForm({ user, profile }: SettingsFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-  const [formData, setFormData] = useState({
-    username: profile?.username || '',
-    email: user.email || '',
-  });
 
   const supabase = createClient();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setMessage(null);
+  // Form submission removed as we're no longer editing username/email
 
-    try {
-      // Update profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          username: formData.username,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', user.id);
-
-      if (profileError) {
-        throw profileError;
-      }
-
-      // Update email if changed
-      if (formData.email !== user.email) {
-        const { error: emailError } = await supabase.auth.updateUser({
-          email: formData.email,
-        });
-
-        if (emailError) {
-          throw emailError;
-        }
-      }
-
-      setMessage({ type: 'success', text: 'Settings updated successfully!' });
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      setMessage({ 
-        type: 'error', 
-        text: error instanceof Error ? error.message : 'Failed to update settings' 
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
+  // Form change handler removed as we're no longer editing username/email
 
   const handleDeleteAccount = async (confirmationText?: string) => {
     const confirmation = confirmationText || '';
@@ -150,12 +99,12 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
             </svg>
           </div>
           <div>
-            <h2 className="text-xl font-semibold">Profile Settings</h2>
-            <p className="text-slate-400 text-sm">Update your personal information</p>
+            <h2 className="text-xl font-semibold">Profile Information</h2>
+            <p className="text-slate-400 text-sm">View your personal information</p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-6">
           {/* Avatar Section */}
           <div className="flex items-center gap-6">
             {profile?.avatar_url ? (
@@ -171,7 +120,7 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
             ) : (
               <div className="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center ring-2 ring-slate-600">
                 <span className="text-xl font-bold text-purple-300">
-                  {(formData.username || "User").charAt(0).toUpperCase()}
+                  {(profile?.username || user.email || "User").charAt(0).toUpperCase()}
                 </span>
               </div>
             )}
@@ -180,60 +129,29 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
               <p className="text-sm text-slate-400 mb-2">
                 Avatar is synced with your Google account
               </p>
-                          <Button type="button" variant="outline" size="sm" disabled className="border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white">
-              Change Avatar (Coming Soon)
-            </Button>
+              <Button type="button" variant="outline" size="sm" disabled className="border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white">
+                Change Avatar (Coming Soon)
+              </Button>
             </div>
           </div>
 
-          {/* Form Fields */}
+          {/* User Information Display */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-slate-300">Username</Label>
-              <Input
-                id="username"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
-                placeholder="Choose a username"
-              />
+              <Label className="text-slate-300">Username</Label>
+              <div className="bg-slate-700 border border-slate-600 text-white p-3 rounded-md">
+                {profile?.username || 'No username set'}
+              </div>
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="email" className="text-slate-300">Email Address</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
-                placeholder="Enter your email"
-              />
+              <Label className="text-slate-300">Email Address</Label>
+              <div className="bg-slate-700 border border-slate-600 text-white p-3 rounded-md">
+                {user.email || 'No email available'}
+              </div>
             </div>
           </div>
-
-          {/* Message */}
-          {message && (
-            <div className={`p-4 rounded-lg ${
-              message.type === 'success' 
-                ? 'bg-green-600/20 text-green-300 border border-green-600/20' 
-                : 'bg-red-600/20 text-red-300 border border-red-600/20'
-            }`}>
-              {message.text}
-            </div>
-          )}
-
-          {/* Submit Button */}
-          <Button 
-            type="submit" 
-            disabled={isLoading}
-            className="bg-purple-600 hover:bg-purple-700 text-white"
-          >
-            {isLoading ? 'Saving...' : 'Save Changes'}
-          </Button>
-        </form>
+        </div>
       </div>
 
       {/* Privacy Settings */}
