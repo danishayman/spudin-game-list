@@ -1,4 +1,3 @@
-import Link from "next/link"
 import SignInWithTwitchButton from "./SignInWithTwitchButton"
 
 export function LoginForm() {
