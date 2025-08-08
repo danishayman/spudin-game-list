@@ -103,7 +103,7 @@ export function GameSearch({ onGameSelect, className = '' }: GameSearchProps) {
           placeholder="Search for games..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="pl-10 pr-4 py-3 rounded-lg shadow-sm bg-slate-700 border-slate-600 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:outline-none text-lg"
+          className="pl-10 pr-4 py-3 rounded-lg shadow-sm bg-slate-700 border-slate-600 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:outline-none focus:ring-offset-0 text-lg"
           autoFocus
         />
       </div>
