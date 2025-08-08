@@ -55,7 +55,7 @@ export function SearchDialog({
                     {buttonText}
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[900px] max-h-[90vh] sm:max-h-[95vh] overflow-hidden bg-slate-800 border-slate-700 flex flex-col">
+            <DialogContent className="w-full sm:max-w-[900px] max-h-[90vh] sm:max-h-[95vh] overflow-hidden bg-slate-800 border-slate-700 flex flex-col">
                 <DialogHeader className="flex-shrink-0">
                     <DialogTitle className="text-2xl sm:text-3xl font-bold text-center mb-2 sm:mb-4">Game Search</DialogTitle>
                 </DialogHeader>
