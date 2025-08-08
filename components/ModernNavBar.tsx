@@ -56,13 +56,19 @@ export default function ModernNavBar() {
 
         if (user) {
           // Fetch profile data
-          const { data: profileData } = await supabase
+          const { data: profileData, error: profileError } = await supabase
             .from("profiles")
-            .select("*")
+            .select("avatar_url, username")
             .eq("id", user.id)
-            .single();
+            .maybeSingle();
           
-          setProfile(profileData);
+          if (profileError) {
+            console.error('Error fetching user profile:', profileError);
+            // Log error but don't change profile state to avoid UI flashing
+          } else {
+            // maybeSingle() returns null if no rows found, which is expected for new users
+            setProfile(profileData);
+          }
         }
       } catch (err) {
         console.error('Error fetching user:', err);
@@ -75,7 +81,7 @@ export default function ModernNavBar() {
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (event: string, session: { user?: User } | null) => {
         if (event === 'SIGNED_OUT') {
           setUser(null);
           setProfile(null);

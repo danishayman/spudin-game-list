@@ -24,7 +24,7 @@ export async function signInWithTwitch() {
   // For development, use port 3000 (which your server is currently using)
   const redirectTo = isDevelopment 
     ? 'http://localhost:3000/auth/confirm'
-    : `${process.env.NEXT_PUBLIC_SITE_URL || 'https://spudin-game-list.vercel.app/'}/auth/confirm`;
+    : `${process.env.NEXT_PUBLIC_SITE_URL || 'https://spudin-game-list.vercel.app'}/auth/confirm`;
   
   console.log('Twitch OAuth redirect URL:', redirectTo);
   
@@ -67,7 +67,7 @@ export async function signUpWithEmail(email: string, password: string) {
   const isDevelopment = process.env.NODE_ENV === 'development';
   const redirectTo = isDevelopment 
     ? 'http://localhost:3000/auth/confirm'
-    : `${process.env.NEXT_PUBLIC_SITE_URL || 'https://your-production-domain.com'}/auth/confirm`;
+    : `${process.env.NEXT_PUBLIC_SITE_URL || 'https://spudin-game-list.vercel.app'}/auth/confirm`;
 
   const { error } = await supabase.auth.signUp({
     email,
@@ -92,7 +92,7 @@ export async function resetPassword(email: string) {
   const isDevelopment = process.env.NODE_ENV === 'development';
   const redirectTo = isDevelopment 
     ? 'http://localhost:3000/auth/confirm?type=recovery'
-    : `${process.env.NEXT_PUBLIC_SITE_URL || 'https://your-production-domain.com'}/auth/confirm?type=recovery`;
+    : `${process.env.NEXT_PUBLIC_SITE_URL || 'https://spudin-game-list.vercel.app'}/auth/confirm?type=recovery`;
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo,

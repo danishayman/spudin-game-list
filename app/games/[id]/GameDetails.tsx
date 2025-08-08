@@ -48,6 +48,12 @@ interface UserGameListEntry {
   isInList: boolean;
 }
 
+// Define a type for the game_lists table response
+interface GameListEntry {
+  status: GameStatus | null;
+  rating: number | null;
+}
+
 
 
 export default function GameDetails({ gameId }: GameDetailsProps) {
@@ -382,7 +388,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
                     .eq('user_id', user.id)
                     .eq('game_id', gameId)
                     .single()
-                    .then(({ data, error }) => {
+                    .then(({ data, error }: { data: GameListEntry | null; error: { code?: string; message?: string } | null }) => {
                       if (error && error.code !== 'PGRST116') {
                         console.error('Error fetching updated user game entry:', error);
                         return;
