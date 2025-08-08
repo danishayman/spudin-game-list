@@ -303,9 +303,6 @@ export default function ModernNavBar() {
                             <p className="text-white font-medium">
                               {profile?.username || user.user_metadata?.preferred_username || user.user_metadata?.display_name || "User"}
                             </p>
-                            <p className="text-gray-400 text-sm truncate">
-                              {user.email}
-                            </p>
                           </div>
                         </div>
                       ) : (
