@@ -44,6 +44,16 @@ interface GameList {
   rating: number | null;
 }
 
+// Raw review data from database
+interface ReviewData {
+  id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+  game_id: number;
+}
+
 const GameReviews = forwardRef<GameReviewsRef, GameReviewsProps>(({ gameId }, ref) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -79,7 +89,7 @@ const GameReviews = forwardRef<GameReviewsRef, GameReviewsProps>(({ gameId }, re
         }
 
         // Extract all user IDs from the reviews
-        const userIds = [...new Set(reviewsData.map(review => review.user_id))];
+        const userIds = [...new Set(reviewsData.map((review: ReviewData) => review.user_id))];
         console.log('User IDs from reviews:', userIds);
         
         // Fetch user profiles for these reviews
@@ -96,7 +106,7 @@ const GameReviews = forwardRef<GameReviewsRef, GameReviewsProps>(({ gameId }, re
         console.log('Found profiles:', profilesData?.length || 0);
         
         // Create a map of user_id to profile data for easier access
-        const profilesMap = (profilesData || []).reduce((acc, profile) => {
+        const profilesMap = (profilesData || []).reduce((acc: Record<string, Profile>, profile: Profile) => {
           acc[profile.id] = profile;
           return acc;
         }, {} as Record<string, Profile>);
@@ -115,13 +125,13 @@ const GameReviews = forwardRef<GameReviewsRef, GameReviewsProps>(({ gameId }, re
         console.log('Found game lists for this game:', allGameListsData?.length || 0);
         
         // Create a map of user_id to game list data for easier access
-        const gameListsMap = (allGameListsData || []).reduce((acc, gameList) => {
+        const gameListsMap = (allGameListsData || []).reduce((acc: Record<string, GameList>, gameList: GameList) => {
           acc[gameList.user_id] = gameList;
           return acc;
         }, {} as Record<string, GameList>);
         
         // Combine all the data into our reviews structure
-        const processedReviews: Review[] = reviewsData.map(review => {
+        const processedReviews: Review[] = reviewsData.map((review: ReviewData) => {
           const profile = profilesMap[review.user_id] || {};
           const gameList = gameListsMap[review.user_id];
           

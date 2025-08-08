@@ -50,7 +50,7 @@ export function useUser() {
     getUser();
     
     // Subscribe to auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: { user?: User } | null) => {
       setUser(session?.user ?? null);
       setIsLoading(false);
     });

@@ -87,7 +87,7 @@ export default function ModernNavBar() {
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (event: string, session: { user?: User } | null) => {
         if (event === 'SIGNED_OUT') {
           setUser(null);
           setProfile(null);
