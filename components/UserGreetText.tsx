@@ -1,19 +1,23 @@
 
 "use client";
 import { createClient } from "@/utils/supabase/client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import type { User } from "@supabase/supabase-js";
 
 const UserGreetText = () => {
   const [user, setUser] = useState<User | null>(null);
   const supabase = createClient();
+  
+  // Memoize the auth instance to prevent useEffect from re-running on every render
+  const supabaseAuth = useMemo(() => supabase.auth, []);
+  
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const {
           data: { user },
           error
-        } = await supabase.auth.getUser();
+        } = await supabaseAuth.getUser();
         
         if (error) {
           // Handle AuthSessionMissingError gracefully - this is expected when user is not logged in
@@ -33,7 +37,7 @@ const UserGreetText = () => {
       }
     };
     fetchUser();
-  }, [supabase.auth]);
+  }, [supabaseAuth]);
   if (user !== null) {
     console.log(user);
     return (
