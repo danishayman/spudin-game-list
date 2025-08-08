@@ -36,18 +36,38 @@ export default function ModernNavBar() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-
-      if (user) {
-        // Fetch profile data
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser();
         
-        setProfile(profileData);
+        if (error) {
+          // Handle AuthSessionMissingError gracefully - this is expected when user is not logged in
+          if (error.message?.includes('Auth session missing') || error.name === 'AuthSessionMissingError') {
+            setUser(null);
+            setProfile(null);
+            return;
+          }
+          console.error('Error getting user:', error);
+          setUser(null);
+          setProfile(null);
+          return;
+        }
+        
+        setUser(user);
+
+        if (user) {
+          // Fetch profile data
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .single();
+          
+          setProfile(profileData);
+        }
+      } catch (err) {
+        console.error('Error fetching user:', err);
+        setUser(null);
+        setProfile(null);
       }
     };
     
@@ -282,9 +302,6 @@ export default function ModernNavBar() {
                           <div>
                             <p className="text-white font-medium">
                               {profile?.username || user.user_metadata?.preferred_username || user.user_metadata?.display_name || "User"}
-                            </p>
-                            <p className="text-gray-400 text-sm truncate">
-                              {user.email}
                             </p>
                           </div>
                         </div>

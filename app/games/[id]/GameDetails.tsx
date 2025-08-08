@@ -9,6 +9,7 @@ import { createClient } from '@/utils/supabase/client';
 import { useUser } from '@/lib/hooks';
 import type { GameStatus } from '@/components/GameStatusButtons';
 import GameReviews, { type GameReviewsRef } from '@/components/GameReviews';
+import GameLinks from '@/components/GameLinks';
 
 interface GameDetailsProps {
   gameId: number;
@@ -47,53 +48,7 @@ interface UserGameListEntry {
   isInList: boolean;
 }
 
-// Helper function to get link name based on IGDB website category
-function getLinkName(category: number): string {
-  switch (category) {
-    case 1: return 'Official Website';
-    case 2: return 'Wikia';
-    case 3: return 'Wikipedia';
-    case 4: return 'Facebook';
-    case 5: return 'Twitter';
-    case 6: return 'Twitch';
-    case 8: return 'Instagram';
-    case 9: return 'YouTube';
-    case 10: return 'iPhone';
-    case 11: return 'iPad';
-    case 12: return 'Android';
-    case 13: return 'Steam';
-    case 14: return 'Reddit';
-    case 15: return 'Itch.io';
-    case 16: return 'Epic Games';
-    case 17: return 'GOG';
-    case 18: return 'Discord';
-    default: return 'Website';
-  }
-}
 
-// Helper function to get link icon based on IGDB website category
-function getLinkIcon(category: number): string {
-  switch (category) {
-    case 1: return '🌐'; // Official Website
-    case 2: return '📚'; // Wikia
-    case 3: return '📖'; // Wikipedia
-    case 4: return '📘'; // Facebook
-    case 5: return '🐦'; // Twitter
-    case 6: return '🎮'; // Twitch
-    case 8: return '📸'; // Instagram
-    case 9: return '📺'; // YouTube
-    case 10: return '📱'; // iPhone
-    case 11: return '📱'; // iPad
-    case 12: return '🤖'; // Android
-    case 13: return '🎮'; // Steam
-    case 14: return '🔴'; // Reddit
-    case 15: return '🎯'; // Itch.io
-    case 16: return '🏪'; // Epic Games
-    case 17: return '🛒'; // GOG
-    case 18: return '💬'; // Discord
-    default: return '🔗'; // Generic link
-  }
-}
 
 export default function GameDetails({ gameId }: GameDetailsProps) {
   const [game, setGame] = useState<IgdbGame | null>(null);
@@ -301,12 +256,13 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
         <div className="md:col-span-1">
           {/* Main Game Image */}
           {allScreenshots.length > 0 && (
-            <div className="relative aspect-video w-full overflow-hidden rounded-lg shadow-md mb-4">
+            <div className="relative w-full bg-slate-800 rounded-lg shadow-md mb-4 overflow-hidden">
               <Image
                 src={activeScreenshot}
                 alt={`${game.name} screenshot`}
-                fill
-                className="object-cover"
+                width={800}
+                height={450}
+                className="object-contain w-full h-auto"
                 sizes="(max-width: 768px) 100vw, 33vw"
                 priority
               />
@@ -329,7 +285,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
                       src={screenshot.image}
                       alt={`${game.name} thumbnail ${index + 1}`}
                       fill
-                      className="object-cover"
+                      className="object-contain bg-slate-700"
                       sizes="(max-width: 768px) 25vw, 8vw"
                     />
                   </button>
@@ -473,39 +429,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
           {/* Links */}
           {game.websites && game.websites.length > 0 && (
             <div className="mt-6">
-              <h3 className="text-lg font-semibold mb-3 text-white">Links</h3>
-              <div className="grid grid-cols-1 gap-2">
-                {game.websites.map((website, index) => {
-                  const linkName = getLinkName(website.category);
-                  const linkIcon = getLinkIcon(website.category);
-                  
-                  return (
-                    <a
-                      key={`${website.id}-${index}`}
-                      href={website.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md text-sm transition"
-                    >
-                      <span className="mr-2 text-base">{linkIcon}</span>
-                      {linkName}
-                      <svg 
-                        className="ml-auto h-4 w-4 text-slate-400" 
-                        fill="none" 
-                        viewBox="0 0 24 24" 
-                        stroke="currentColor"
-                      >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth={2} 
-                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" 
-                        />
-                      </svg>
-                    </a>
-                  );
-                })}
-              </div>
+              <GameLinks links={game.websites} />
             </div>
           )}
 

@@ -12,10 +12,28 @@ const LoginButton = () => {
   const supabase = createClient();
   useEffect(() => {
     const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
+      try {
+        const {
+          data: { user },
+          error
+        } = await supabase.auth.getUser();
+        
+        if (error) {
+          // Handle AuthSessionMissingError gracefully - this is expected when user is not logged in
+          if (error.message?.includes('Auth session missing') || error.name === 'AuthSessionMissingError') {
+            setUser(null);
+            return;
+          }
+          console.error('Error getting user:', error);
+          setUser(null);
+          return;
+        }
+        
+        setUser(user);
+      } catch (err) {
+        console.error('Error fetching user:', err);
+        setUser(null);
+      }
     };
     fetchUser();
   }, [supabase.auth]);

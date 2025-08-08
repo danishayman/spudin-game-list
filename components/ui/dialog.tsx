@@ -45,7 +45,6 @@ const DialogContent = React.forwardRef<
       )}
       style={{
         maxHeight: "calc(100vh - 2rem)",
-        margin: "1rem",
         display: className?.includes("flex") ? "flex" : undefined
       }}
       {...props}

@@ -20,6 +20,11 @@ export function useUser() {
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         
         if (userError) {
+          // Handle AuthSessionMissingError gracefully - this is expected when user is not logged in
+          if (userError.message?.includes('Auth session missing') || userError.name === 'AuthSessionMissingError') {
+            setUser(null);
+            return;
+          }
           throw userError;
         }
         
@@ -30,7 +35,12 @@ export function useUser() {
         }
       } catch (err) {
         console.error('Error getting user:', err);
-        setError(err instanceof Error ? err : new Error('Failed to get user'));
+        // For auth session missing errors, don't set error state - just set user to null
+        if (err instanceof Error && (err.message?.includes('Auth session missing') || err.name === 'AuthSessionMissingError')) {
+          setUser(null);
+        } else {
+          setError(err instanceof Error ? err : new Error('Failed to get user'));
+        }
       } finally {
         setIsLoading(false);
       }

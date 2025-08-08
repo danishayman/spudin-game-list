@@ -8,7 +8,7 @@ const LoginPage = () => {
   return (
     <main className="flex min-h-screen flex-col bg-slate-900 text-white">
       {/* Hero Section with Banner */}
-      <div className="relative h-[60vh] w-full bg-slate-900">
+      <div className="relative h-[40vh] w-full bg-slate-900">
         <Image
           src="/landing/banner.jpg"
           alt="Spudin's Game List Banner"
@@ -24,19 +24,19 @@ const LoginPage = () => {
             Welcome to Spudin&apos;s Game List
           </h1>
           <p className="text-lg md:text-xl max-w-2xl mb-8 drop-shadow-md text-slate-200">
-            Sign in with Google to start your gaming journey
+            Sign in with Twitch to start your gaming journey
           </p>
         </div>
       </div>
 
       {/* Login Form Section */}
-      <div className="flex-1 flex items-center justify-center px-4 py-12 bg-gradient-to-b from-slate-900 to-slate-800">
+      <div className="flex-1 flex items-start justify-center px-4 py-8 bg-gradient-to-b from-slate-900 to-slate-800">
         <div className="w-full max-w-md">
           <Card className="bg-slate-800/80 backdrop-blur-sm border-slate-700 shadow-2xl">
             <CardHeader className="text-center pb-6">
               <CardTitle className="text-2xl font-bold text-white">Sign In</CardTitle>
               <CardDescription className="text-slate-300">
-                Use your Google account to access the app
+                Use your Twitch account to access the app
               </CardDescription>
             </CardHeader>
             <CardContent>

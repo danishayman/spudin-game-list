@@ -189,7 +189,7 @@ export default function ClientTabsWrapper({ gamesByStatus, counts }: ClientTabsW
           <Input
             type="search"
             placeholder="Search games..."
-            className="bg-slate-700 border-slate-600 text-white"
+            className="bg-slate-700 border-slate-600 text-white focus:ring-offset-0"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
