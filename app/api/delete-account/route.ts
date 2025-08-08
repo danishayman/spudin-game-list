@@ -35,6 +35,13 @@ export async function POST(request: NextRequest) {
         const adminSupabase = createAdminClient();
 
         // Robust deletion approach: Delete data in reverse dependency order
+        // Stop immediately on first error to prevent partial data removal
+        //
+        // ALTERNATIVE APPROACH: If CASCADE constraints are properly set up in the database
+        // (see sql/add_cascade_constraints.sql), you could simplify this to just:
+        // await adminSupabase.from('profiles').delete().eq('id', user.id)
+        // This would automatically cascade delete all dependent records (reviews, game_lists)
+        // reducing the risk of partial failures and simplifying the code.
         const deletionSteps = [
             {
                 name: 'reviews',
@@ -50,13 +57,17 @@ export async function POST(request: NextRequest) {
             }
         ];
 
-        // Execute deletion steps
+        // Execute deletion steps - stop immediately on first error
         for (const step of deletionSteps) {
             console.log(`Deleting ${step.name}...`);
             const { error } = await step.action();
             if (error) {
                 console.error(`Error deleting ${step.name}:`, error);
-                // Continue with other deletions - some might not exist
+                // Stop execution immediately to prevent orphaned data
+                return NextResponse.json(
+                    { error: `Failed to delete ${step.name}: ${error.message}. Account deletion aborted to prevent data corruption.` },
+                    { status: 500 }
+                );
             } else {
                 console.log(`Successfully deleted ${step.name}`);
             }
