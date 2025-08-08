@@ -21,9 +21,9 @@ export async function signInWithTwitch() {
   // Use localhost for development, production URL for production
   const isDevelopment = process.env.NODE_ENV === 'development';
   
-  // For development, use port 3001 (which your server is currently using)
+  // For development, use port 3000 (which your server is currently using)
   const redirectTo = isDevelopment 
-    ? 'http://localhost:3001/auth/confirm'
+    ? 'http://localhost:3000/auth/confirm'
     : `${process.env.NEXT_PUBLIC_SITE_URL || 'https://spudin-game-list.vercel.app/'}/auth/confirm`;
   
   console.log('Twitch OAuth redirect URL:', redirectTo);
