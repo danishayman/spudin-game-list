@@ -175,7 +175,7 @@ export default async function Home() {
                   href={`/games/${game.id}`}
                   className="flex-shrink-0 group"
                 >
-                  <div className="bg-slate-700 rounded-lg overflow-hidden w-64 h-90 flex flex-col transition-transform group-hover:scale-105">
+                  <div className="bg-slate-700 rounded-lg overflow-hidden w-64 h-[22.5rem] flex flex-col transition-transform group-hover:scale-105">
                     <div className="relative h-72">
                       {game.background_image ? (
                         <Image
