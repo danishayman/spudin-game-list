@@ -61,8 +61,8 @@ export function GameCollection({
                 href={`/games/${game.id}`}
                 className="flex-shrink-0 group"
               >
-                  <div className="bg-slate-700 rounded-lg overflow-hidden w-64 h-64 flex flex-col transition-transform group-hover:scale-105">
-                    <div className="relative h-36">
+                  <div className="bg-slate-700 rounded-lg overflow-hidden w-64 h-80 flex flex-col transition-transform group-hover:scale-105">
+                    <div className="relative h-72">
                       {game.background_image ? (
                         <div className="relative h-full w-full">
                           <Image
@@ -83,9 +83,9 @@ export function GameCollection({
                         </div>
                       )}
                     </div>
-                    <div className="p-4 flex flex-col flex-grow">
+                    <div className="p-3 flex flex-col flex-grow">
                       <h3 className="font-bold text-sm mb-1 truncate text-white">{game.name}</h3>
-                      <p className="text-slate-400 text-xs mb-2 h-8 line-clamp-2 overflow-hidden">
+                      <p className="text-slate-400 text-xs mb-1 h-6 line-clamp-2 overflow-hidden">
                         {game.genres?.map((g: { name: string }) => g.name).join(', ') || 'Various Genres'}
                       </p>
                       <div className="mt-auto flex items-center justify-between">

@@ -115,7 +115,7 @@ export function UserGameList({ games, isOwnProfile = false }: UserGameListProps)
                 </div>
                 
                 {/* Game image */}
-                <div className="relative h-20 w-20 sm:h-24 sm:w-24 flex-shrink-0">
+                <div className="relative h-20 w-20 sm:h-24 sm:w-24 flex-shrink-0 rounded-md overflow-hidden">
                   {gameImage ? (
                     <Image
                       src={gameImage}

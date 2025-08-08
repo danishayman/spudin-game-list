@@ -10,11 +10,6 @@ export function LoginForm() {
         </div>
         <SignInWithTwitchButton/>
       </div>
-      <div className="mt-8 text-center text-sm">
-        <Link href="/" className="text-purple-400 hover:text-purple-300 underline font-medium">
-          Back to Home
-        </Link>
-      </div>
     </div>
   )
 }

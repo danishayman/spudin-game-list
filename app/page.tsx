@@ -175,8 +175,8 @@ export default async function Home() {
                   href={`/games/${game.id}`}
                   className="flex-shrink-0 group"
                 >
-                  <div className="bg-slate-700 rounded-lg overflow-hidden w-64 h-64 flex flex-col transition-transform group-hover:scale-105">
-                    <div className="relative h-36">
+                  <div className="bg-slate-700 rounded-lg overflow-hidden w-64 h-90 flex flex-col transition-transform group-hover:scale-105">
+                    <div className="relative h-72">
                       {game.background_image ? (
                         <Image
                           src={game.background_image}
@@ -190,9 +190,9 @@ export default async function Home() {
                         </div>
                       )}
                     </div>
-                    <div className="p-4 flex flex-col flex-grow">
+                    <div className="p-3 flex flex-col flex-grow">
                       <h3 className="font-bold text-sm mb-1 truncate text-white">{game.name}</h3>
-                      <p className="text-slate-400 text-xs mb-2 h-8 line-clamp-2 overflow-hidden">
+                      <p className="text-slate-400 text-xs mb-1 h-6 line-clamp-2 overflow-hidden">
                         {game.genres?.map((g: { name: string }) => g.name).join(', ') || 'Various Genres'}
                       </p>
                       <div className="mt-auto flex items-center justify-between">
@@ -220,7 +220,7 @@ export default async function Home() {
       {/* Features Section */}
       <div className="max-w-7xl mx-auto py-16 px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="bg-slate-800 p-6 rounded-lg overflow-hidden">
-          <div className="relative h-48 mb-6 rounded-lg overflow-hidden">
+          <div className="relative h-72 mb-6 rounded-lg overflow-hidden">
             <Image
               src="/landing/track.png"
               alt="Track Your Games"
@@ -233,7 +233,7 @@ export default async function Home() {
         </div>
         
         <div className="bg-slate-800 p-6 rounded-lg overflow-hidden">
-          <div className="relative h-48 mb-6 rounded-lg overflow-hidden">
+          <div className="relative h-72 mb-6 rounded-lg overflow-hidden">
             <Image
               src="/landing/discover.png"
               alt="Discover New Games"
@@ -246,7 +246,7 @@ export default async function Home() {
         </div>
         
         <div className="bg-slate-800 p-6 rounded-lg overflow-hidden">
-          <div className="relative h-48 mb-6 rounded-lg overflow-hidden">
+          <div className="relative h-72 mb-6 rounded-lg overflow-hidden">
             <Image
               src="/landing/review.png"
               alt="Share Your Reviews"

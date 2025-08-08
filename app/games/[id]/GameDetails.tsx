@@ -301,12 +301,13 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
         <div className="md:col-span-1">
           {/* Main Game Image */}
           {allScreenshots.length > 0 && (
-            <div className="relative aspect-video w-full overflow-hidden rounded-lg shadow-md mb-4">
+            <div className="relative w-full bg-slate-800 rounded-lg shadow-md mb-4 overflow-hidden">
               <Image
                 src={activeScreenshot}
                 alt={`${game.name} screenshot`}
-                fill
-                className="object-cover"
+                width={800}
+                height={450}
+                className="object-contain w-full h-auto"
                 sizes="(max-width: 768px) 100vw, 33vw"
                 priority
               />
@@ -329,7 +330,7 @@ export default function GameDetails({ gameId }: GameDetailsProps) {
                       src={screenshot.image}
                       alt={`${game.name} thumbnail ${index + 1}`}
                       fill
-                      className="object-cover"
+                      className="object-contain bg-slate-700"
                       sizes="(max-width: 768px) 25vw, 8vw"
                     />
                   </button>
