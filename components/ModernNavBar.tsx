@@ -58,21 +58,15 @@ export default function ModernNavBar() {
           // Fetch profile data
           const { data: profileData, error: profileError } = await supabase
             .from("profiles")
-            .select("*")
+            .select("avatar_url, username")
             .eq("id", user.id)
-            .single();
+            .maybeSingle();
           
           if (profileError) {
             console.error('Error fetching user profile:', profileError);
-            // Don't set profile to null if there's an error - keep existing state
-            // This ensures UI remains consistent and doesn't flash between states
-            if (profileError.code !== 'PGRST116') { // PGRST116 is "not found" which is expected for new users
-              console.warn('Profile fetch failed, keeping existing profile state');
-            } else {
-              // Profile doesn't exist yet (new user), set to null
-              setProfile(null);
-            }
+            // Log error but don't change profile state to avoid UI flashing
           } else {
+            // maybeSingle() returns null if no rows found, which is expected for new users
             setProfile(profileData);
           }
         }
