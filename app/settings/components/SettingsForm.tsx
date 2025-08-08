@@ -180,9 +180,9 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
               <p className="text-sm text-slate-400 mb-2">
                 Avatar is synced with your Google account
               </p>
-              <Button type="button" variant="outline" size="sm" disabled>
-                Change Avatar (Coming Soon)
-              </Button>
+                          <Button type="button" variant="outline" size="sm" disabled className="border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white">
+              Change Avatar (Coming Soon)
+            </Button>
             </div>
           </div>
 
@@ -256,7 +256,7 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
               <h3 className="font-medium">Public Profile</h3>
               <p className="text-sm text-slate-400">Allow others to view your gaming profile</p>
             </div>
-            <Button variant="outline" size="sm" disabled>
+            <Button variant="outline" size="sm" disabled className="border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white">
               Enabled (Coming Soon)
             </Button>
           </div>
@@ -266,7 +266,7 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
               <h3 className="font-medium">Game Collection Visibility</h3>
               <p className="text-sm text-slate-400">Control who can see your game lists and ratings</p>
             </div>
-            <Button variant="outline" size="sm" disabled>
+            <Button variant="outline" size="sm" disabled className="border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white">
               Public (Coming Soon)
             </Button>
           </div>
@@ -276,7 +276,7 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
               <h3 className="font-medium">Activity Sharing</h3>
               <p className="text-sm text-slate-400">Share your gaming activity with others</p>
             </div>
-            <Button variant="outline" size="sm" disabled>
+            <Button variant="outline" size="sm" disabled className="border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white">
               Enabled (Coming Soon)
             </Button>
           </div>
@@ -303,7 +303,7 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
               <h3 className="font-medium">Content Filtering</h3>
               <p className="text-sm text-slate-400">Filter mature or adult content from search results</p>
             </div>
-            <Button variant="outline" size="sm" disabled>
+            <Button variant="outline" size="sm" disabled className="border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white">
               Enabled (Coming Soon)
             </Button>
           </div>
@@ -313,7 +313,7 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
               <h3 className="font-medium">Default Rating System</h3>
               <p className="text-sm text-slate-400">Choose between 5-star or 10-point rating scale</p>
             </div>
-            <Button variant="outline" size="sm" disabled>
+            <Button variant="outline" size="sm" disabled className="border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white">
               10-point (Coming Soon)
             </Button>
           </div>
@@ -323,7 +323,7 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
               <h3 className="font-medium">Platform Preferences</h3>
               <p className="text-sm text-slate-400">Set your preferred gaming platforms</p>
             </div>
-            <Button variant="outline" size="sm" disabled>
+            <Button variant="outline" size="sm" disabled className="border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white">
               Configure (Coming Soon)
             </Button>
           </div>
@@ -350,7 +350,7 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
               <h3 className="font-medium">Change Password</h3>
               <p className="text-sm text-slate-400">Update your account password</p>
             </div>
-            <Button variant="outline" size="sm" disabled>
+            <Button variant="outline" size="sm" disabled className="border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white">
               Change Password (Coming Soon)
             </Button>
           </div>
@@ -360,7 +360,7 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
               <h3 className="font-medium">Export Data</h3>
               <p className="text-sm text-slate-400">Download your gaming data and preferences</p>
             </div>
-            <Button variant="outline" size="sm" disabled>
+            <Button variant="outline" size="sm" disabled className="border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white">
               Export (Coming Soon)
             </Button>
           </div>
@@ -387,7 +387,7 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
               <p className="text-sm text-slate-400">Sign out of your account</p>
             </div>
             <form action={signout}>
-              <Button type="submit" variant="outline" size="sm">
+              <Button type="submit" variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white">
                 Sign Out
               </Button>
             </form>
