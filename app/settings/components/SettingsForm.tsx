@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { createClient } from "@/utils/supabase/client";
 import { signout } from "@/lib/auth-actions";
 import type { User } from "@supabase/supabase-js";
@@ -24,6 +25,8 @@ interface SettingsFormProps {
 
 export function SettingsForm({ user, profile }: SettingsFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [formData, setFormData] = useState({
     username: profile?.username || '',
@@ -79,6 +82,61 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
       ...prev,
       [e.target.name]: e.target.value
     }));
+  };
+
+  const handleDeleteAccount = async (confirmationText?: string) => {
+    const confirmation = confirmationText || '';
+    
+    // Local validation: Check confirmation text before making server call
+    if (confirmation !== 'DELETE') {
+      setMessage({ 
+        type: 'error', 
+        text: 'Please type "DELETE" to confirm account deletion' 
+      });
+      return;
+    }
+
+    setIsDeleting(true);
+    setMessage(null);
+
+    try {
+      // Call the API route to delete the account
+      const response = await fetch('/api/delete-account', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ confirmationText: confirmation }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        setMessage({ type: 'success', text: result.message });
+        setShowDeleteDialog(false);
+        
+        // Sign out the user client-side and redirect
+        await supabase.auth.signOut();
+        
+        // Show success message briefly before redirecting
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000); // 2 second delay to show confirmation
+      } else {
+        setMessage({ 
+          type: 'error', 
+          text: result.error || 'Failed to delete account. Please try again.' 
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      setMessage({ 
+        type: 'error', 
+        text: 'An unexpected error occurred. Please try again.' 
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -205,11 +263,68 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
 
           <div className="flex items-center justify-between p-4 bg-slate-700 rounded-lg">
             <div>
-              <h3 className="font-medium">Game Activity</h3>
-              <p className="text-sm text-slate-400">Share your gaming activity with friends</p>
+              <h3 className="font-medium">Game Collection Visibility</h3>
+              <p className="text-sm text-slate-400">Control who can see your game lists and ratings</p>
+            </div>
+            <Button variant="outline" size="sm" disabled>
+              Public (Coming Soon)
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-slate-700 rounded-lg">
+            <div>
+              <h3 className="font-medium">Activity Sharing</h3>
+              <p className="text-sm text-slate-400">Share your gaming activity with others</p>
             </div>
             <Button variant="outline" size="sm" disabled>
               Enabled (Coming Soon)
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Content Preferences */}
+      <div className="bg-slate-800 text-white rounded-lg shadow-md p-6 md:p-8">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-8 h-8 bg-green-600/20 rounded-full flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold">Content Preferences</h2>
+            <p className="text-slate-400 text-sm">Customize your gaming content experience</p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-4 bg-slate-700 rounded-lg">
+            <div>
+              <h3 className="font-medium">Content Filtering</h3>
+              <p className="text-sm text-slate-400">Filter mature or adult content from search results</p>
+            </div>
+            <Button variant="outline" size="sm" disabled>
+              Enabled (Coming Soon)
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-slate-700 rounded-lg">
+            <div>
+              <h3 className="font-medium">Default Rating System</h3>
+              <p className="text-sm text-slate-400">Choose between 5-star or 10-point rating scale</p>
+            </div>
+            <Button variant="outline" size="sm" disabled>
+              10-point (Coming Soon)
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-slate-700 rounded-lg">
+            <div>
+              <h3 className="font-medium">Platform Preferences</h3>
+              <p className="text-sm text-slate-400">Set your preferred gaming platforms</p>
+            </div>
+            <Button variant="outline" size="sm" disabled>
+              Configure (Coming Soon)
             </Button>
           </div>
         </div>
@@ -252,17 +367,47 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
 
           <div className="flex items-center justify-between p-4 bg-red-600/10 border border-red-600/20 rounded-lg">
             <div>
-              <h3 className="font-medium text-red-300">Sign Out</h3>
+              <h3 className="font-medium text-red-300">Delete Account</h3>
+              <p className="text-sm text-slate-400">Permanently delete your account and all data</p>
+            </div>
+            <Button 
+              type="button" 
+              variant="destructive" 
+              size="sm"
+              onClick={() => setShowDeleteDialog(true)}
+              disabled={isDeleting}
+            >
+              Delete Account
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-slate-700 rounded-lg">
+            <div>
+              <h3 className="font-medium">Sign Out</h3>
               <p className="text-sm text-slate-400">Sign out of your account</p>
             </div>
             <form action={signout}>
-              <Button type="submit" variant="destructive" size="sm">
+              <Button type="submit" variant="outline" size="sm">
                 Sign Out
               </Button>
             </form>
           </div>
         </div>
       </div>
+
+      {/* Delete Account Confirmation Dialog */}
+      <ConfirmationDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        title="Delete Account"
+        description="This action cannot be undone. This will permanently delete your account, game collection, reviews, and all associated data."
+        confirmationText="DELETE"
+        confirmationPlaceholder="Type DELETE to confirm"
+        confirmButtonText="Delete Account"
+        confirmButtonVariant="destructive"
+        onConfirm={handleDeleteAccount}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }
