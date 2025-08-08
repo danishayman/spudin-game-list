@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
         const { error: softDeleteError } = await adminSupabase.auth.admin.deleteUser(user.id, true);
         if (softDeleteError) {
             // If user is already deleted, treat as success
-            if (softDeleteError.message?.includes('User not found') || (softDeleteError as any)?.status === 404) {
+            if (softDeleteError.message?.includes('User not found') || 'status' in softDeleteError && softDeleteError.status === 404) {
                 console.log('User already deleted (not found) - considering this success');
             } else {
                 console.error('Error soft-deleting auth user:', softDeleteError);

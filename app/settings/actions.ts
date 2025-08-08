@@ -54,7 +54,7 @@ export async function updateProfile(formData: FormData) {
 
 // Note: This function is deprecated and replaced by the /api/delete-account route
 // Keeping it for now to avoid breaking changes, but it should not be used
-export async function deleteAccount(confirmationText: string) {
+export async function deleteAccount(_confirmationText: string) {
   console.warn('deleteAccount server action is deprecated. Use /api/delete-account route instead.');
   return {
     success: false,
