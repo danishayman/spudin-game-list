@@ -67,7 +67,7 @@ const categoryMapping = {
 // Type for category info
 type CategoryInfo = {
   name: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
   color: string;
 };
 
@@ -106,8 +106,6 @@ const getSmartFallback = (url: string, category: number): CategoryInfo => {
   return { name: `Website (${category})`, icon: FaLink, color: 'text-gray-400' };
 };
 
-const defaultCategory: CategoryInfo = { name: 'Website', icon: FaGlobe, color: 'text-gray-400' };
-
 const GameLinks: React.FC<GameLinksProps> = ({ links }) => {
   if (!links || links.length === 0) {
     return null;
@@ -135,7 +133,7 @@ const GameLinks: React.FC<GameLinksProps> = ({ links }) => {
       <div className="grid grid-cols-5 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-1 sm:gap-2">
         {validLinks.map((link) => {
           // Try to get the category from our mapping first
-          let category: CategoryInfo = categoryMapping[link.category as keyof typeof categoryMapping] || getSmartFallback(link.url, link.category);
+          const category: CategoryInfo = categoryMapping[link.category as keyof typeof categoryMapping] || getSmartFallback(link.url, link.category);
           
           // Log the mapping result
           if (categoryMapping[link.category as keyof typeof categoryMapping]) {
