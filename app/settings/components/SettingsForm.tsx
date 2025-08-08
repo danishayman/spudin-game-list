@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { createClient } from "@/utils/supabase/client";
 import { signout } from "@/lib/auth-actions";
-import { deleteAccount } from "@/app/settings/actions";
 import type { User } from "@supabase/supabase-js";
 import Image from "next/image";
 
@@ -101,18 +100,33 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
     setMessage(null);
 
     try {
-      const result = await deleteAccount(confirmation);
-      
-      if (result.success) {
+      // Call the API route to delete the account
+      const response = await fetch('/api/delete-account', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ confirmationText: confirmation }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
         setMessage({ type: 'success', text: result.message });
         setShowDeleteDialog(false);
+        
+        // Sign out the user client-side and redirect
+        await supabase.auth.signOut();
         
         // Show success message briefly before redirecting
         setTimeout(() => {
           window.location.href = '/';
         }, 2000); // 2 second delay to show confirmation
       } else {
-        setMessage({ type: 'error', text: result.message });
+        setMessage({ 
+          type: 'error', 
+          text: result.error || 'Failed to delete account. Please try again.' 
+        });
       }
     } catch (error) {
       console.error('Error deleting account:', error);
