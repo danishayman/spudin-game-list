@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { searchGames } from '@/lib/igdb';
-import { createClient } from '@/utils/supabase/server';
+import { searchGames } from '@/lib/services/igdb';
+import { createClient } from '@/supabase/server';
+import { IgdbGame } from '@/types/igdb';
 
 export async function GET(request: Request) {
   try {
@@ -42,7 +43,7 @@ export async function GET(request: Request) {
       
       // Add user's game status and rating to search results
       if (results.results && results.results.length > 0) {
-        results.results = results.results.map(game => {
+        results.results = results.results.map((game: IgdbGame) => {
           const userGame = userGameMap.get(game.id);
           return {
             ...game,

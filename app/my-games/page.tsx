@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { getUserGames, getUserGameCounts } from '@/lib/game-actions';
-import ClientTabsWrapper from '@/components/ClientTabsWrapper';
+import { getUserGames, getUserGameCounts } from '@/lib/actions/gameActions';
+import ClientTabsWrapper from '@/components/common/ClientTabsWrapper';
 
 export const metadata = {
   title: 'My Games - Spudin Game List',

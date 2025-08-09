@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getNewReleases, IgdbGame} from '@/lib/igdb';
+import { getNewReleases } from '@/lib/services/igdb';
+import { IgdbGame } from '@/types/igdb';
 
 const RAWG_API_KEY = process.env.RAWG_API_KEY;
 const RAWG_BASE_URL = 'https://api.rawg.io/api';

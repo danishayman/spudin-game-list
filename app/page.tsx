@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import DragScrollContainer from "@/components/DragScrollContainer";
+import DragScrollContainer from "@/components/common/DragScrollContainer";
 
 interface Game {
   id: number;

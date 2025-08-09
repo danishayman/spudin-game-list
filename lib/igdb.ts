@@ -11,7 +11,7 @@ export {
   type IgdbSearchResponse,
   type IgdbGame,
   type RawgSearchResponse
-} from './igdb/index';
+} from './services/igdb/index';
 
 // Note: This file maintains backward compatibility while the implementation
 // has been refactored into the following modular structure:

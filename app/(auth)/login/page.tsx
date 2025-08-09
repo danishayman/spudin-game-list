@@ -1,5 +1,5 @@
 import React from "react";
-import { LoginForm } from "./components/LoginForm";
+import { LoginForm } from "@/components/forms/LoginForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";

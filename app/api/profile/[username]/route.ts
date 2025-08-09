@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPublicProfile } from '@/lib/profile-actions';
+import { getPublicProfile } from '@/lib/actions/profileActions';
 
 export async function GET(
   request: NextRequest,
