@@ -1,7 +1,7 @@
-import { IgdbGame, IgdbSearchResponse } from './igdb';
+import { IgdbGame, IgdbSearchResponse } from '../../types/api/igdb';
 
 // Type aliases for backward compatibility
-export type { IgdbGame } from './igdb';
+export type { IgdbGame } from '../../types/api/igdb';
 export type RawgSearchResponse = IgdbSearchResponse;
 
 /**

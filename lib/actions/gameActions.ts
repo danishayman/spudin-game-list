@@ -3,24 +3,8 @@
 import { createClient } from '@/supabase/server';
 import { redirect } from 'next/navigation';
 
-export type UserGameEntry = {
-  game_id: number;
-  status: string | null;
-  rating: number | null;
-  updated_at: string;
-  games: {
-    id: number;
-    name: string;
-    background_image: string | null;
-    released: string | null;
-    rating: number | null;
-    genres?: { id: number; name: string }[];
-  } | null;
-};
-
-export type GamesByStatus = {
-  [key: string]: UserGameEntry[];
-};
+import { GamesByStatus, UserGameEntry } from '@/types/components/game';
+export type { UserGameEntry, GamesByStatus } from '@/types/components/game';
 
 type RawSupabaseGameEntry = {
   game_id: number;

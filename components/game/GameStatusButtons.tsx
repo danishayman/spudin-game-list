@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 
-export type GameStatus = 'Finished' | 'Playing' | 'Dropped' | 'Want' | 'On-hold' | null;
+import { GameStatus } from '../../types/shared/enums';
+export type { GameStatus } from '../../types/shared/enums';
 
 interface GameStatusButtonsProps {
-  initialStatus?: GameStatus;
-  onChange: (status: GameStatus) => void;
+  initialStatus?: GameStatus | null;
+  onChange: (status: GameStatus | null) => void;
   disabled?: boolean;
   className?: string;
 }
@@ -16,7 +17,7 @@ export function GameStatusButtons({
   disabled = false,
   className = ''
 }: GameStatusButtonsProps) {
-  const [selectedStatus, setSelectedStatus] = useState<GameStatus>(initialStatus);
+  const [selectedStatus, setSelectedStatus] = useState<GameStatus | null>(initialStatus);
 
   // Update internal state when initialStatus prop changes
   useEffect(() => {

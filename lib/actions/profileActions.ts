@@ -1,18 +1,8 @@
 'use server';
 
 import { createClient } from '@/supabase/server';
-
-export interface UserStats {
-  totalGames: number;
-  gamesFinished: number;
-  gamesPlaying: number;
-  gamesWantToPlay: number;
-  gamesOnHold: number;
-  gamesDropped: number;
-  averageRating: number;
-  totalReviews: number;
-  recentActivity: string | null;
-}
+import type { UserStats } from '@/types/components/user';
+export type { UserStats } from '@/types/components/user';
 
 /**
  * Refresh user profile data from auth metadata
@@ -79,7 +69,12 @@ export async function getCurrentUserProfile() {
 /**
  * Get public profile data by username (for API and public access)
  */
-export async function getPublicProfile(username: string) {
+export async function getPublicProfile(username: string): Promise<{
+  id: string;
+  username: string | null;
+  avatar_url: string | null;
+  stats: UserStats;
+} | null> {
   const supabase = await createClient();
   
   try {

@@ -4,7 +4,7 @@ import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { createClient } from '@/supabase/client';
-import { type GameStatus } from './GameStatusButtons';
+import { type GameStatus } from '@/types/shared/enums';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface Review {

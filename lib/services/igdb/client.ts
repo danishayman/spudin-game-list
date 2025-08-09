@@ -3,7 +3,7 @@
 
 import { getAccessToken } from './auth';
 import { IGDB_CONFIG, CACHE_CONFIG } from './config';
-import { IgdbRawGame } from '../../../types/igdb';
+import { IgdbRawGame } from '../../../types/api/igdb';
 
 /**
  * Make authenticated request to IGDB API

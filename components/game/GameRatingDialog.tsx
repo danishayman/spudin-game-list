@@ -13,7 +13,8 @@ import {
 } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Slider } from '../ui/slider';
-import { GameStatusButtons, type GameStatus } from './GameStatusButtons';
+import { GameStatusButtons } from './GameStatusButtons';
+import { type GameStatus } from '@/types/shared/enums';
 import { ReviewInput } from '../forms/ReviewInput';
 import { createClient } from '@/supabase/client';
 import { useUser } from '@/hooks/useUser';
@@ -135,7 +136,7 @@ export function GameRatingDialog({
   }, [gameId, user, open]);
 
   // Handle status change
-  const handleStatusChange = (status: GameStatus) => {
+  const handleStatusChange = (status: GameStatus | null) => {
     setGameListEntry(prev => ({ ...prev, status }));
     // Clear any previous error messages
     setError(null);

@@ -2,12 +2,12 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
-import { type IgdbGame } from '@/types/igdb';
+import { type IgdbGame } from '@/types/api/igdb';
 import { getGameByIdClient } from '@/lib/services/gamesClient';
 import { GameRatingDialog } from './GameRatingDialog';
 import { createClient } from '@/supabase/client';
 import { useUser } from '@/hooks/useUser';
-import type { GameStatus } from './GameStatusButtons';
+import type { GameStatus } from '@/types/shared/enums';
 import GameReviews, { type GameReviewsRef } from './GameReviews';
 import GameLinks from './GameLinks';
 
