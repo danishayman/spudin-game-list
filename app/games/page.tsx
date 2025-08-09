@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { GameExplorerHero } from '@/components/GameExplorerHero';
-import { GameCollection } from '@/components/GameCollection';
-import { getTrendingGamesClient, getNewReleasesClient } from '@/lib/games-client';
-import { IgdbGame} from '@/lib/igdb';
+import { GameExplorerHero } from '@/components/game/GameExplorerHero';
+import { GameCollection } from '@/components/game/GameCollection';
+import { getTrendingGamesClient, getNewReleasesClient } from '@/lib/services/gamesClient';
+import { IgdbGame } from '@/types/igdb';
 
 export default function GamesPage() {
   const [trendingGames, setTrendingGames] = useState<IgdbGame[]>([]);

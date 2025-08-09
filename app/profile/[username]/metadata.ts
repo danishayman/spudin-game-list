@@ -1,6 +1,6 @@
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@/supabase/server';
 import { Metadata } from 'next';
-import { getUserGameStatsByUsername } from '@/lib/game-actions';
+import { getUserGameStatsByUsername } from '@/lib/actions/gameActions';
 
 export async function generateMetadata({
   params,

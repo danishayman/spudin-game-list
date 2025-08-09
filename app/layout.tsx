@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils"
-import ModernNavBar from "@/components/ModernNavBar";
-import Footer from "@/components/Footer";
+import ModernNavBar from "@/components/layout/ModernNavBar";
+import Footer from "@/components/layout/Footer";
 import { Analytics } from '@vercel/analytics/next';
 
 const inter = Inter({ subsets: ["latin"] });

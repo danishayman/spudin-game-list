@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import GameDetails from './GameDetails';
+import GameDetails from '@/components/game/GameDetails';
 import GameLoading from './loading';
 import type { Metadata } from 'next';
 

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { createAdminClient } from '@/utils/supabase/admin';
-import { CACHE_TYPE } from '@/lib/cache-utils';
-import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/supabase/admin';
+import { CACHE_TYPE } from '@/lib/utils/cacheUtils';
+import { createClient } from '@/supabase/server';
 
 // Simple in-memory rate limiting
 // In production, consider using a distributed solution like Redis

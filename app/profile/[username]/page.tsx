@@ -1,10 +1,10 @@
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/supabase/server";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { getUserGamesByUsername, getUserGameStatsByUsername } from "@/lib/game-actions";
-import { UserProfileStats } from "@/components/UserProfileStats";
-import { PublicGameCollection } from "@/components/PublicGameCollection";
-import { ShareProfileButton } from "./ShareProfileButton";
+import { getUserGamesByUsername, getUserGameStatsByUsername } from "@/lib/actions/gameActions";
+import { UserProfileStats } from "@/components/user/UserProfileStats";
+import { PublicGameCollection } from "@/components/game/PublicGameCollection";
+import { ShareProfileButton } from "@/components/user/ShareProfileButton";
 
 export default async function ProfilePage({
   params,
