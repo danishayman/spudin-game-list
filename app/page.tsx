@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import DragScrollContainer from "@/components/common/DragScrollContainer";
+import { GameCardSkeletonGrid } from "@/components/game/GameCardSkeleton";
 
 interface Game {
   id: number;
@@ -129,9 +130,6 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-2 mb-8">
             <h2 className="text-3xl font-bold">New Releases</h2>
-            {isLoading && (
-              <div className="w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-            )}
           </div>
           
           {error && (
@@ -142,7 +140,10 @@ export default function Home() {
           
           <div className="relative">
             <DragScrollContainer className="flex gap-4 overflow-x-auto pb-4 scrollbar-none">
-              {newReleases.map((game: Game) => (
+              {isLoading ? (
+                <GameCardSkeletonGrid count={8} />
+              ) : (
+                newReleases.map((game: Game) => (
                 <Link
                   key={game.id}
                   href={`/games/${game.id}`}
@@ -184,7 +185,8 @@ export default function Home() {
                     </div>
                   </div>
                 </Link>
-              ))}
+                ))
+              )}
             </DragScrollContainer>
           </div>
         </div>

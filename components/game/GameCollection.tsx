@@ -4,6 +4,7 @@ import { IgdbGame } from '@/types/igdb';
 import DragScrollContainer from '../common/DragScrollContainer';
 import Link from 'next/link';
 import Image from 'next/image';
+import { GameCardSkeletonGrid } from './GameCardSkeleton';
 
 interface GameCollectionProps {
   title: string;
@@ -32,8 +33,10 @@ export function GameCollection({
       </div>
 
       {isLoading && (
-        <div className="flex justify-center items-center py-16">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+        <div className="relative">
+          <DragScrollContainer className="flex gap-4 overflow-x-auto pb-4 scrollbar-none">
+            <GameCardSkeletonGrid count={8} />
+          </DragScrollContainer>
         </div>
       )}
 
