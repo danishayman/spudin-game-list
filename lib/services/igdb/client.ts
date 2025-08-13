@@ -2,7 +2,7 @@
 // Low-level HTTP communication with IGDB API
 
 import { getAccessToken } from './auth';
-import { IGDB_CONFIG, CACHE_CONFIG } from './config';
+import { IGDB_CONFIG} from './config';
 import { IgdbRawGame } from '../../../types/api/igdb';
 
 /**
