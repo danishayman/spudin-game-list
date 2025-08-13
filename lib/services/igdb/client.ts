@@ -19,7 +19,7 @@ export async function makeIgdbRequest(endpoint: string, query: string): Promise<
     headers: {
       'Client-ID': IGDB_CONFIG.CLIENT_ID!,
       'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
+      'Content-Type': 'text/plain',
     },
     body: query,
     next: { revalidate: CACHE_CONFIG.REVALIDATION_TIME }

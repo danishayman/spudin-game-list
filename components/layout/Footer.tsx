@@ -90,12 +90,12 @@ export default function Footer() {
               <p className="text-gray-400 text-xs">
                 Game data provided by{" "}
                 <a 
-                  href="https://rawg.io/" 
+                  href="https://igdb.com/" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-purple-400 hover:text-purple-300 transition-colors"
                 >
-                  RAWG.io
+                  IGDB
                 </a>
               </p>
             </div>
