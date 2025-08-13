@@ -22,7 +22,7 @@ export async function makeIgdbRequest(endpoint: string, query: string): Promise<
       'Content-Type': 'text/plain',
     },
     body: query,
-    next: { revalidate: CACHE_CONFIG.REVALIDATION_TIME }
+    next: { cache: 'no-store' }
   });
 
   if (!response.ok) {
