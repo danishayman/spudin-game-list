@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -11,77 +14,6 @@ interface Game {
   genres: { name: string }[];
   rating: number;
   metacritic: number | null;
-}
-
-// Function to fetch new releases with decent ratings
-async function getNewReleases(): Promise<Game[]> {
-  try {
-    // For server components, we need to use an absolute URL
-    // This handles both local development and production
-    let baseUrl;
-    
-    // Handle Vercel deployment
-    if (process.env.VERCEL_URL) {
-      // Always use HTTPS for Vercel deployments
-      baseUrl = `https://${process.env.VERCEL_URL}`;
-    } 
-    // Handle Vercel preview deployment
-    else if (process.env.VERCEL_ENV === 'preview') {
-      baseUrl = `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
-    }
-    // Use configured site URL
-    else if (process.env.NEXT_PUBLIC_SITE_URL) {
-      baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
-    }
-    // Fallback for local development
-    else {
-      baseUrl = 'http://localhost:3000';
-    }
-      
-    console.log('Fetching new releases from:', `${baseUrl}/api/games/new-releases`);
-    console.log('IGDB credentials exist:', !!process.env.IGDB_CLIENT_ID && !!process.env.IGDB_CLIENT_SECRET);
-    console.log('Environment:', process.env.VERCEL_ENV || 'local');
-    
-    // Server components always need absolute URLs
-    const apiUrl = `${baseUrl}/api/games/new-releases`;
-      
-    const response = await fetch(apiUrl, {
-      next: { revalidate: 3600 } // Revalidate every hour
-    });
-    
-    if (!response.ok) {
-      console.error('Failed to fetch new releases: Response not OK', response.status, response.statusText);
-      try {
-        const errorText = await response.text();
-        console.error('Error response:', errorText);
-        
-        // Try to parse the error response as JSON to get more details
-        try {
-          const errorJson = JSON.parse(errorText);
-          console.error('Error details:', errorJson.details || 'No additional details');
-        } catch {
-          // If parsing fails, the response wasn't JSON
-          console.error('Error response is not JSON');
-        }
-      } catch {
-        console.error('Could not read error response text');
-      }
-      return [];
-    }
-    const data = await response.json();
-    console.log('New releases data:', JSON.stringify(data).substring(0, 200) + '...');
-    console.log('Number of results:', data.results?.length || 0);
-    
-    if (!data.results || data.results.length === 0) {
-      console.log('API returned empty results array');
-      return [];
-    }
-    
-    return data.results || [];
-  } catch (error) {
-    console.error('Failed to fetch new releases:', error);
-    return [];
-  }
 }
 
 // Fallback games in case API fails
@@ -115,14 +47,46 @@ const fallbackGames: Game[] = [
   }
 ];
 
-export default async function Home() {
-  let newReleases = await getNewReleases();
-  
-  // Use fallback games if no results from API
-  if (!newReleases || newReleases.length === 0) {
-    console.log('Using fallback games');
-    newReleases = fallbackGames;
-  }
+export default function Home() {
+  const [newReleases, setNewReleases] = useState<Game[]>(fallbackGames);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchNewReleases() {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        // Use relative URL for client-side fetching
+        const response = await fetch('/api/games/new-releases');
+        
+        if (!response.ok) {
+          console.error('Failed to fetch new releases: Response not OK', response.status, response.statusText);
+          // Keep fallback games on error
+          return;
+        }
+        
+        const data = await response.json();
+        console.log('New releases data:', JSON.stringify(data).substring(0, 200) + '...');
+        console.log('Number of results:', data.results?.length || 0);
+        
+        if (data.results && data.results.length > 0) {
+          setNewReleases(data.results);
+        } else {
+          console.log('API returned empty results, keeping fallback games');
+        }
+      } catch (error) {
+        console.error('Failed to fetch new releases:', error);
+        setError(error instanceof Error ? error.message : 'Failed to fetch new releases');
+        // Keep fallback games on error
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchNewReleases();
+  }, []);
 
   return (
     <main className="flex min-h-screen flex-col bg-slate-900 text-white pt-0">
@@ -165,7 +129,16 @@ export default async function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-2 mb-8">
             <h2 className="text-3xl font-bold">New Releases</h2>
+            {isLoading && (
+              <div className="w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+            )}
           </div>
+          
+          {error && (
+            <div className="mb-4 p-4 bg-red-900/20 border border-red-600 rounded-lg">
+              <p className="text-red-400">Failed to load new releases. Showing fallback games.</p>
+            </div>
+          )}
           
           <div className="relative">
             <DragScrollContainer className="flex gap-4 overflow-x-auto pb-4 scrollbar-none">
