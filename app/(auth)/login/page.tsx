@@ -24,7 +24,7 @@ const LoginPage = () => {
             Welcome to Spudin&apos;s Game List
           </h1>
           <p className="text-lg md:text-xl max-w-2xl mb-8 drop-shadow-md text-slate-200">
-            Sign in with Twitch to start your gaming journey
+            Sign in with Google or Twitch to start your gaming journey
           </p>
         </div>
       </div>
@@ -36,7 +36,7 @@ const LoginPage = () => {
             <CardHeader className="text-center pb-6">
               <CardTitle className="text-2xl font-bold text-white">Sign In</CardTitle>
               <CardDescription className="text-slate-300">
-                Use your Twitch account to access the app
+                Use your Google or Twitch account to access the app
               </CardDescription>
             </CardHeader>
             <CardContent>
