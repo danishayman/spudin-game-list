@@ -2,7 +2,7 @@
 // Low-level HTTP communication with IGDB API
 
 import { getAccessToken } from './auth';
-import { IGDB_CONFIG} from './config';
+import { IGDB_CONFIG, CACHE_CONFIG } from './config';
 import { IgdbRawGame } from '../../../types/api/igdb';
 
 /**
@@ -22,7 +22,7 @@ export async function makeIgdbRequest(endpoint: string, query: string): Promise<
       'Content-Type': 'text/plain',
     },
     body: query,
-    next: { cache: 'no-store' }
+    next: { revalidate: CACHE_CONFIG.REVALIDATION_TIME }
   });
 
   if (!response.ok) {
