@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@/supabase/server';
 
 const IGDB_CLIENT_ID = process.env.IGDB_CLIENT_ID;
 const IGDB_CLIENT_SECRET = process.env.IGDB_CLIENT_SECRET;
@@ -169,7 +169,7 @@ export async function GET(request: Request) {
       headers: {
         'Client-ID': IGDB_CLIENT_ID,
         'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
+        'Content-Type': 'text/plain',
       },
       body: igdbQuery,
       cache: 'no-store'

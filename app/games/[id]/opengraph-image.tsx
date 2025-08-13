@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { getGameById } from '@/lib/igdb';
+import { getGameById } from '@/lib/services/igdb';
 
 export const alt = 'Game Details';
 export const size = {
@@ -163,7 +163,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
                   gap: '8px',
                 }}
               >
-                {game.genres.slice(0, 4).map((genre, index) => (
+                {game.genres.slice(0, 4).map((genre: { id: number; name: string }, index: number) => (
                   <div
                     key={index}
                     style={{

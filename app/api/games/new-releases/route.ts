@@ -1,27 +1,21 @@
-import { NextResponse } from 'next/server';
-import { getNewReleases, IgdbGame} from '@/lib/igdb';
+import { NextRequest, NextResponse } from 'next/server';
+import { getNewReleases } from '@/lib/services/igdb';
+import { IgdbGame } from '@/types/igdb';
+import { getCorsHeadersForResponse, handleCors } from '@/lib/middleware/cors';
 
 const RAWG_API_KEY = process.env.RAWG_API_KEY;
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
 const IGDB_CLIENT_ID = process.env.IGDB_CLIENT_ID;
 const IGDB_CLIENT_SECRET = process.env.IGDB_CLIENT_SECRET;
 
-// CORS headers
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Content-Type': 'application/json',
-};
-
-export async function OPTIONS() {
-  return new Response(null, {
-    status: 200,
-    headers: corsHeaders,
-  });
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request, {
+    methods: ['GET', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Accept'],
+  }) || new Response(null, { status: 200 });
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     console.log('[API] /api/games/new-releases called');
     console.log('[API] IGDB_CLIENT_ID exists:', !!IGDB_CLIENT_ID);
@@ -30,7 +24,14 @@ export async function GET(request: Request) {
     console.log('[API] Environment:', process.env.NODE_ENV);
     
     // Set CORS headers
-    const headers = corsHeaders;
+    const corsHeaders = getCorsHeadersForResponse(request, {
+      methods: ['GET', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Accept'],
+    });
+    const headers = {
+      ...corsHeaders,
+      'Content-Type': 'application/json',
+    };
     
     // Get count parameter from URL if present
     const url = new URL(request.url);
@@ -218,9 +219,20 @@ export async function GET(request: Request) {
     }
   } catch (error) {
     console.error('[API] Error fetching new releases:', error);
+    
+    // Get CORS headers for error response
+    const corsHeaders = getCorsHeadersForResponse(request, {
+      methods: ['GET', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Accept'],
+    });
+    const errorHeaders = {
+      ...corsHeaders,
+      'Content-Type': 'application/json',
+    };
+    
     return NextResponse.json(
       { error: 'Failed to fetch new releases', details: error instanceof Error ? error.message : String(error) },
-      { status: 500, headers: corsHeaders }
+      { status: 500, headers: errorHeaders }
     );
   }
 } 

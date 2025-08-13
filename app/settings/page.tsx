@@ -1,6 +1,6 @@
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/supabase/server";
 import { redirect } from "next/navigation";
-import { SettingsForm } from "./components/SettingsForm";
+import { SettingsForm } from "@/components/forms/SettingsForm";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
