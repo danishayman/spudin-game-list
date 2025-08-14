@@ -71,7 +71,7 @@ export default function Footer() {
               </li>
               <li>
                 <a 
-                  href="mailto:support@spudingamelist.com" 
+                  href="mailto:zagreusaiman@gmail.com" 
                   className="text-gray-300 hover:text-white transition-colors text-sm"
                 >
                   Contact Support
