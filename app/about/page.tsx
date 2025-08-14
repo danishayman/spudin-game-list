@@ -152,7 +152,7 @@ export default function AboutPage() {
                             <div className="bg-slate-700 p-6 rounded-lg">
                                 <h3 className="font-bold text-xl mb-3">Contact Us</h3>
                                 <p className="text-slate-300 mb-2">
-                                    <span className="font-semibold">Email:</span> danishaiman@gmail.com
+                                    <span className="font-semibold">Email:</span> zagreusaiman@gmail.com
                                 </p>
                             </div>
                             <div className="bg-slate-700 p-6 rounded-lg">
